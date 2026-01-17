@@ -27,8 +27,8 @@ export const AuthContext = createContext();
  * - {string|null} userToken - Current user's authentication token
  * - {Object|null} userInfo - Current user's information object
  */
-export const authProvider = ({ Children }) => {
-    const [loading, setLoading] = useState(null);
+export const AuthProvider = ({ children }) => {
+    const [isLoading, setIsLoading] = useState(null);
     const [userToken, setUserToken] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
 
