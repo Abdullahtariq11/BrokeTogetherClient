@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import "./global.css";
 import LoginScreen from './src/features/LoginScreen';
+import Dashboard from './src/features/Dashboard';
 
 // 1. This component decides what to show
 const AppNav = () => {
-  const { isLoading, userToken } = useContext(AuthContext);
+  const { isLoading, userToken, logout } = useContext(AuthContext);
 
   // Show a loading spinner while checking SecureStore
   if (isLoading) {
@@ -21,12 +22,7 @@ const AppNav = () => {
   return (
     <View className="flex-1">
       {userToken !== null ? (
-        <View className="flex-1  bg-slate-800 justify-center items-center">
-          <Text className="text-white">Welcome to the Dashboard!</Text>
-          <TouchableOpacity onPress={logout} className="mt-4 p-2 bg-red-400 rounded">
-            <Text>Logout</Text>
-          </TouchableOpacity>
-        </View>
+        <Dashboard />
       ) : (
         <LoginScreen /> // <--- Show the real login screen here
       )}

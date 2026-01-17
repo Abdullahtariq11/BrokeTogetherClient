@@ -32,38 +32,53 @@ export const AuthProvider = ({ children }) => {
     const [userToken, setUserToken] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
 
-    // Check if user is already logged in when app boots
     useEffect(() => {
-        const loadStoredData = async () => {
+        const hydrateAuth = async () => {
             try {
                 const token = await SecureStore.getItemAsync('userToken');
-                const user = await SecureStore.getItemAsync('userInfo');
 
                 if (token) {
+                    // 1. Set the token so the Axios Interceptor can use it
                     setUserToken(token);
-                    setUserInfo(JSON.parse(user));
+
+                    // 2. Fetch fresh data from your /me endpoint
+                    const freshUser = await authService.getProfile();
+                    setUserInfo(freshUser);
+
+                    // 3. Keep the local storage updated
+                    await SecureStore.setItemAsync('userInfo', JSON.stringify(freshUser));
                 }
             } catch (e) {
-                console.log('Error loading auth data:', e);
+                console.log("Token expired or network error, logging out...");
+                logout(); // Clear everything if the token is invalid
             } finally {
                 setIsLoading(false);
             }
         };
 
-        loadStoredData();
+        hydrateAuth();
     }, []);
 
     const login = async (email, password) => {
         setIsLoading(true);
         try {
             const data = await authService.login(email, password);
-            // Save to State
-            setUserToken(data.token);
-            setUserInfo(data.user);
+            // 1. The token is at data.token
+            if (data.token) {
+                setUserToken(data.token);
+                await SecureStore.setItemAsync('userToken', data.token);
+            }
 
-            // Save to Secure Phone Storage
-            await SecureStore.setItemAsync('userToken', data.token);
-            await SecureStore.setItemAsync('userInfo', JSON.stringify(data.user));
+            // 2. Map the user info correctly 
+            // Based on your JSON, 'name' and 'username' are at the top level
+            const userData = {
+                name: data.name,
+                username: data.username,
+                type: data.type
+            };
+
+            setUserInfo(userData);
+            await SecureStore.setItemAsync('userInfo', JSON.stringify(userData));
 
         } catch (error) {
             throw error;

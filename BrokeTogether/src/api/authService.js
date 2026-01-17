@@ -42,6 +42,14 @@ const authService = {
         } catch (error) {
             throw error.response?.data?.message || "Registration failed.";
         }
+    },
+    getProfile: async () => {
+        try {
+            const response = await client.get('/auth/me'); // Or your specific endpoint path
+            return response.data;
+        } catch (error) {
+            throw error.response?.data?.message || "Could not fetch profile";
+        }
     }
 };
 

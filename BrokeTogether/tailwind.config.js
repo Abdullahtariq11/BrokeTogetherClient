@@ -1,6 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./App.{js,jsx,ts,tsx}", "./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./App.{js,jsx,ts,tsx}", 
+    "./src/**/*.{js,jsx,ts,tsx}",   // <--- This covers everything in src
+    "./components/**/*.{js,jsx,ts,tsx}",
+    "./app/**/*.{js,jsx,ts,tsx}"    // Useful if you use Expo Router later
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
