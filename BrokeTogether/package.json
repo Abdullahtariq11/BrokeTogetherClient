@@ -9,10 +9,12 @@
     "web": "expo start --web"
   },
   "overrides": {
-  "lightningcss": "1.27.0"
-},
+    "lightningcss": "1.27.0"
+  },
   "dependencies": {
+    "axios": "^1.13.2",
     "expo": "~54.0.31",
+    "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "nativewind": "^4.2.1",
     "react": "19.1.0",
