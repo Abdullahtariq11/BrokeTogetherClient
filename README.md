@@ -11,7 +11,7 @@ A modern React Native mobile app for splitting expenses with roommates. Stop the
 <p align="center">
   <img src="./Screenshots/dashboard.png" width="200" alt="Dashboard"/>
   <img src="./Screenshots/add-expense.png" width="200" alt="Add Expense"/>
-  <img src="./Screenshots/settle.png" width="200" alt="Settle Up"/>
+  <img src="./Screenshots/login.png" width="200" alt="Settle Up"/>
   <img src="./Screenshots/members.png" width="200" alt="Members"/>
 </p>
 
