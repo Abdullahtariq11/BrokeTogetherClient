@@ -21,6 +21,7 @@ const AppNav = () => {
     );
   }
 
+  
   return (
     <View className="flex-1">
       {/* !! converts the string token into a strict boolean true/false */}
