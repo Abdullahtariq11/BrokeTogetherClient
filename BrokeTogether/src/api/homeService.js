@@ -13,15 +13,32 @@ const homeService = {
     return response.data;
   },
 
+   // Get home by ID
+  getHomeById: async (homeId) => {
+    const response = await client.get(`/homes/${homeId}`);
+    return response.data;
+  },
+
   // Join a home with a code
   joinHome: async (inviteCode) => {
     const response = await client.post('/homes/join', { inviteCode });
     return response.data;
   },
 
+   // Remove a member from home (only creator can do this)
+  removeMember: async (homeId, userId) => {
+    const response = await client.delete(`/homes/${homeId}/members/${userId}`);
+    return response.data;
+  },
+
   // Get members of a specific home
   getMembers: async (homeId) => {
     const response = await client.get(`/homes/${homeId}/members`);
+    return response.data;
+  },
+   // Get invite code
+  getInviteCode: async (homeId) => {
+    const response = await client.get(`/homes/${homeId}/invite-code`);
     return response.data;
   }
 };

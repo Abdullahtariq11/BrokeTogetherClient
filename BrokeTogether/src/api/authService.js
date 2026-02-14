@@ -32,11 +32,11 @@ const authService = {
       * @param {string} password 
       * @returns {Promise} - Resolves with { token, user }
       */
-    register: async (fullName, email, password) => {
+    register: async ( email,fullName, password) => {
         try {
             const response = await client.post("auth/register", {
-                username: email,
                 name: fullName,
+                username: email,
                 password: password
             })
         } catch (error) {
@@ -45,7 +45,7 @@ const authService = {
     },
     getProfile: async () => {
         try {
-            const response = await client.get('/auth/me'); // Or your specific endpoint path
+            const response = await client.get('/users/me'); // Or your specific endpoint path
             return response.data;
         } catch (error) {
             throw error.response?.data?.message || "Could not fetch profile";

@@ -1,17 +1,19 @@
 import React, { useContext } from 'react';
-import { View, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import "./global.css";
+
 import LoginScreen from './src/features/LoginScreen';
-import Dashboard from './src/features/Dashboard';
+import AppTabs from './src/navigation/AppTabs';
+import ActivityTracker from './src/component/ActivityTracker';
 
-// 1. This component decides what to show
 const AppNav = () => {
-  const { isLoading, userToken, logout } = useContext(AuthContext);
+  const { isLoading, userToken } = useContext(AuthContext);
 
-  // Show a loading spinner while checking SecureStore
-  if (isLoading) {
+  // Strict boolean check for the spinner
+  if (isLoading === true) {
     return (
       <View className="flex-1 bg-slate-800 justify-center items-center">
         <ActivityIndicator size="large" color="#E98074" />
@@ -21,21 +23,25 @@ const AppNav = () => {
 
   return (
     <View className="flex-1">
-      {userToken !== null ? (
-        <Dashboard />
+      {/* !! converts the string token into a strict boolean true/false */}
+      {!!userToken ? (
+        <NavigationContainer>
+          <AppTabs />
+        </NavigationContainer>
       ) : (
-        <LoginScreen /> // <--- Show the real login screen here
+        <LoginScreen />
       )}
     </View>
   );
 };
 
-// 2. The main export wraps everything in the Provider
 export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
+        <ActivityTracker>
         <AppNav />
+        </ActivityTracker>
       </AuthProvider>
     </SafeAreaProvider>
   );

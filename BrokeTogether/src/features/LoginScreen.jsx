@@ -2,12 +2,14 @@ import React, { useContext, useState } from 'react'
 import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AuthContext } from '../context/AuthContext';
+import SignupScreen from './SignupScreen';
 
 function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { login, isLoading } = useContext(AuthContext);
     const [errors, setErrors] = useState({});
+    const [isSigningUp, setIsSigningUp] = useState(false);
 
     // Manual Validation Logic
     const validate = () => {
@@ -29,6 +31,10 @@ function LoginScreen() {
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0; // Returns true if no errors
     };
+
+    if (isSigningUp) {
+  return <SignupScreen onBack={() => setIsSigningUp(false)} />;
+}
 
     const handleLogin = async () => {
         if (validate()) {
@@ -99,7 +105,7 @@ function LoginScreen() {
             </View>
 
             <TouchableOpacity className="mt-6 items-center">
-                <Text className="text-secondary">
+                <Text className="text-secondary" onPress={() => setIsSigningUp(true)}>
                     Don't have an account? <Text className="text-primary font-bold">Sign Up</Text>
                 </Text>
             </TouchableOpacity>

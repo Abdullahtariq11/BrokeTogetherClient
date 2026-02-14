@@ -1,56 +1,160 @@
-import { Children, createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import * as SecureStore from 'expo-secure-store';
+import { AppState } from 'react-native';
 import authService from "../api/authService";
-
 
 export const AuthContext = createContext();
 
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+
 /**
  * Authentication context provider component that manages user authentication state and operations.
- * 
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.children - Child components to be wrapped by the auth provider
- * @returns {JSX.Element} Provider component with authentication context
- * 
- * @description
- * Provides authentication functionality including:
- * - User login with email and password
- * - User logout with secure storage cleanup
- * - Token and user info persistence using secure storage
- * - Loading state management during auth operations
- * 
- * @context
- * Exposes the following values through AuthContext:
- * - {Function} login - Async function to authenticate user (email, password)
- * - {Function} logout - Async function to logout user and clear stored credentials
- * - {boolean} isLoading - Loading state indicator for auth operations
- * - {string|null} userToken - Current user's authentication token
- * - {Object|null} userInfo - Current user's information object
  */
 export const AuthProvider = ({ children }) => {
-    const [isLoading, setIsLoading] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [userToken, setUserToken] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
 
+    // Inactivity tracking refs
+    const inactivityTimer = useRef(null);
+    const lastActiveTime = useRef(Date.now());
+    const appState = useRef(AppState.currentState);
+
+    // Clear all auth data
+    const clearAuthData = async () => {
+        await SecureStore.deleteItemAsync('userToken');
+        await SecureStore.deleteItemAsync('userInfo');
+        await SecureStore.deleteItemAsync('lastActiveTime');
+        setUserToken(null);
+        setUserInfo(null);
+    };
+
+    // Logout function
+    const logout = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            if (inactivityTimer.current) {
+                clearTimeout(inactivityTimer.current);
+                inactivityTimer.current = null;
+            }
+            await clearAuthData();
+        } catch (e) {
+            console.log('Logout error:', e);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // Reset the inactivity timer
+    const resetInactivityTimer = useCallback(() => {
+        lastActiveTime.current = Date.now();
+
+        // Clear existing timer
+        if (inactivityTimer.current) {
+            clearTimeout(inactivityTimer.current);
+        }
+
+        // Only set timer if user is logged in
+        if (userToken) {
+            inactivityTimer.current = setTimeout(() => {
+                console.log('Logging out due to inactivity');
+                logout();
+            }, INACTIVITY_TIMEOUT);
+
+            // Save last active time
+            SecureStore.setItemAsync('lastActiveTime', Date.now().toString());
+        }
+    }, [userToken, logout]);
+
+    // Track app state changes (background/foreground)
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (nextAppState) => {
+            if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+                // App came to foreground
+                if (userToken) {
+                    const timeSinceLastActive = Date.now() - lastActiveTime.current;
+
+                    if (timeSinceLastActive >= INACTIVITY_TIMEOUT) {
+                        console.log('Session expired while app was in background');
+                        logout();
+                    } else {
+                        resetInactivityTimer();
+                    }
+                }
+            } else if (nextAppState.match(/inactive|background/)) {
+                // App went to background - save time and clear timer
+                if (userToken) {
+                    SecureStore.setItemAsync('lastActiveTime', Date.now().toString());
+                }
+                if (inactivityTimer.current) {
+                    clearTimeout(inactivityTimer.current);
+                }
+            }
+
+            appState.current = nextAppState;
+        });
+
+        return () => subscription.remove();
+    }, [userToken, logout, resetInactivityTimer]);
+
+    // Start/stop timer when login state changes
+    useEffect(() => {
+        if (userToken) {
+            resetInactivityTimer();
+        } else {
+            if (inactivityTimer.current) {
+                clearTimeout(inactivityTimer.current);
+                inactivityTimer.current = null;
+            }
+        }
+
+        return () => {
+            if (inactivityTimer.current) {
+                clearTimeout(inactivityTimer.current);
+            }
+        };
+    }, [userToken, resetInactivityTimer]);
+
+    // Hydrate auth on app start
     useEffect(() => {
         const hydrateAuth = async () => {
+            setIsLoading(true);
             try {
                 const token = await SecureStore.getItemAsync('userToken');
+                const storedUserInfo = await SecureStore.getItemAsync('userInfo');
+                const storedLastActive = await SecureStore.getItemAsync('lastActiveTime');
 
                 if (token) {
-                    // 1. Set the token so the Axios Interceptor can use it
+                    // Check if session expired while app was closed
+                    if (storedLastActive) {
+                        const timeSinceLastActive = Date.now() - parseInt(storedLastActive, 10);
+                        if (timeSinceLastActive >= INACTIVITY_TIMEOUT) {
+                            console.log('Session expired while app was closed');
+                            await clearAuthData();
+                            setIsLoading(false);
+                            return;
+                        }
+                    }
+
                     setUserToken(token);
+                    lastActiveTime.current = Date.now();
 
-                    // 2. Fetch fresh data from your /me endpoint
-                    const freshUser = await authService.getProfile();
-                    setUserInfo(freshUser);
+                    // Set local data first for instant UI update
+                    if (storedUserInfo) {
+                        setUserInfo(JSON.parse(storedUserInfo));
+                    }
 
-                    // 3. Keep the local storage updated
-                    await SecureStore.setItemAsync('userInfo', JSON.stringify(freshUser));
+                    // Refresh profile from API
+                    try {
+                        const freshUser = await authService.getProfile();
+                        setUserInfo(freshUser);
+                        await SecureStore.setItemAsync('userInfo', JSON.stringify(freshUser));
+                    } catch (apiErr) {
+                        console.log("Background profile refresh failed, using cached data.");
+                    }
                 }
             } catch (e) {
-                console.log("Token expired or network error, logging out...");
-                logout(); // Clear everything if the token is invalid
+                console.log("Hydration error:", e);
             } finally {
                 setIsLoading(false);
             }
@@ -59,53 +163,42 @@ export const AuthProvider = ({ children }) => {
         hydrateAuth();
     }, []);
 
+    // Login function
     const login = async (email, password) => {
         setIsLoading(true);
         try {
             const data = await authService.login(email, password);
-            // 1. The token is at data.token
+
             if (data.token) {
                 setUserToken(data.token);
                 await SecureStore.setItemAsync('userToken', data.token);
+                await SecureStore.setItemAsync('lastActiveTime', Date.now().toString());
             }
 
-            // 2. Map the user info correctly 
-            // Based on your JSON, 'name' and 'username' are at the top level
-            const userData = {
-                name: data.name,
-                username: data.username,
-                type: data.type
-            };
+            // Fetch full profile to get ID
+            const profile = await authService.getProfile();
+            setUserInfo(profile);
+            await SecureStore.setItemAsync('userInfo', JSON.stringify(profile));
 
-            setUserInfo(userData);
-            await SecureStore.setItemAsync('userInfo', JSON.stringify(userData));
+            lastActiveTime.current = Date.now();
 
         } catch (error) {
             throw error;
-        }
-        finally {
-            setIsLoading(false);
-        }
-    }
-    const logout = async () => {
-        setIsLoading(true);
-        try {
-            await SecureStore.deleteItemAsync('userToken');
-            await SecureStore.deleteItemAsync('userInfo');
-            setUserToken(null);
-            setUserInfo(null);
-        } catch (e) {
-            console.log('Logout error:', e);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ login, logout, isLoading, userToken, userInfo }}>
+        <AuthContext.Provider value={{ 
+            login, 
+            logout, 
+            isLoading, 
+            userToken, 
+            userInfo,
+            resetInactivityTimer 
+        }}>
             {children}
         </AuthContext.Provider>
     );
-
-
 };
