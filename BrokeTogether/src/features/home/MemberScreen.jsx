@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { 
-    View, Text, TouchableOpacity, ScrollView, 
-    Alert, ActivityIndicator, RefreshControl 
+import {
+    View, Text, TouchableOpacity, ScrollView,
+    Alert, ActivityIndicator, RefreshControl,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import homeService from '../../api/homeService';
+import expenseService from '../../api/expenseService';
 
 export default function MembersScreen() {
     const { userInfo } = useContext(AuthContext);
 
     const [home, setHome] = useState(null);
     const [members, setMembers] = useState([]);
+    const [balances, setBalances] = useState({});
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [deleting, setDeleting] = useState(null);
@@ -19,13 +22,17 @@ export default function MembersScreen() {
     const fetchData = useCallback(async () => {
         try {
             const homes = await homeService.getMyHomes();
-            
+
             if (homes && homes.length > 0) {
                 const activeHome = homes[0];
                 setHome(activeHome);
-                
-                const membersData = await homeService.getMembers(activeHome.id);
+
+                const [membersData, balanceMap] = await Promise.all([
+                    homeService.getMembers(activeHome.id),
+                    expenseService.getHomeBalances(activeHome.id),
+                ]);
                 setMembers(membersData || []);
+                setBalances(balanceMap || {});
             }
         } catch (err) {
             console.error("Error fetching data:", err);
@@ -71,8 +78,22 @@ export default function MembersScreen() {
         );
     };
 
+    const copyInviteCode = async () => {
+        if (home?.inviteCode) {
+            await Clipboard.setStringAsync(home.inviteCode);
+            Alert.alert("Copied!", "Invite code copied to clipboard.");
+        }
+    };
+
     const isCurrentUser = (memberId) => {
         return String(memberId) === String(userInfo?.id);
+    };
+
+    const isAdmin = home && home.creatorId === userInfo?.id;
+
+    const getMemberBalance = (memberId) => {
+        const val = balances[memberId] || balances[String(memberId)] || 0;
+        return parseFloat(val);
     };
 
     if (loading) {
@@ -94,81 +115,137 @@ export default function MembersScreen() {
         );
     }
 
+    // Sort: current user first, then alphabetical
+    const sortedMembers = [...members].sort((a, b) => {
+        if (isCurrentUser(a.id)) return -1;
+        if (isCurrentUser(b.id)) return 1;
+        return (a.name || '').localeCompare(b.name || '');
+    });
+
     return (
         <View className="flex-1 bg-slate-50">
-            <ScrollView 
+            <ScrollView
                 className="flex-1"
-                contentContainerStyle={{ padding: 24, paddingTop: 60 }}
+                showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
                 {/* Header */}
-                <View className="flex-row items-center mb-2">
-                    <Text className="text-2xl font-black text-slate-800">Roommates</Text>
-                    <View className="ml-2 bg-primary/10 px-2 py-1 rounded-full">
-                        <Text className="text-primary text-xs font-bold">{members.length}</Text>
+                <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
+                    <Text className="text-white/70 font-medium tracking-tight">
+                        {home.name}
+                    </Text>
+                    <Text className="text-white text-3xl font-black">Roommates</Text>
+                    <View className="flex-row items-center mt-3">
+                        <View className="bg-white/20 px-3 py-1.5 rounded-xl border border-white/30 flex-row items-center">
+                            <Ionicons name="people" size={14} color="white" />
+                            <Text className="text-white text-xs font-bold ml-1.5">
+                                {members.length} {members.length === 1 ? 'member' : 'members'}
+                            </Text>
+                        </View>
                     </View>
                 </View>
-                
-                <Text className="text-slate-400 text-sm mb-6">{home.name}</Text>
 
-                {members.length === 0 ? (
-                    <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
-                        <Ionicons name="people-outline" size={48} color="#cbd5e1" />
-                        <Text className="text-slate-400 text-center mt-4">
-                            No roommates found.
-                        </Text>
-                    </View>
-                ) : (
-                    members.map((member) => {
-                        const isSelf = isCurrentUser(member.id);
-                        const isBeingDeleted = deleting === member.id;
+                <View className="p-6 pt-5">
+                    {/* Invite Code Card */}
+                    <TouchableOpacity
+                        onPress={copyInviteCode}
+                        className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6 flex-row items-center"
+                        activeOpacity={0.7}
+                    >
+                        <View className="bg-primary/10 p-3 rounded-2xl mr-4">
+                            <Ionicons name="link" size={20} color="#E98074" />
+                        </View>
+                        <View className="flex-1">
+                            <Text className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                                Invite Code
+                            </Text>
+                            <Text className="text-slate-800 text-base font-mono font-bold mt-0.5">
+                                {home.inviteCode}
+                            </Text>
+                        </View>
+                        <Ionicons name="copy-outline" size={20} color="#cbd5e1" />
+                    </TouchableOpacity>
 
-                        return (
-                            <View 
-                                key={member.id} 
-                                className="flex-row items-center justify-between bg-white p-4 rounded-2xl mb-3 shadow-sm border border-slate-100"
-                            >
-                                <View className="flex-row items-center flex-1">
+                    {/* Members List */}
+                    {sortedMembers.length === 0 ? (
+                        <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
+                            <Ionicons name="people-outline" size={48} color="#cbd5e1" />
+                            <Text className="text-slate-400 text-center mt-4">
+                                No roommates found.
+                            </Text>
+                        </View>
+                    ) : (
+                        sortedMembers.map((member) => {
+                            const isSelf = isCurrentUser(member.id);
+                            const isBeingDeleted = deleting === member.id;
+                            const isMemberAdmin = home.creatorId === member.id;
+                            const balance = getMemberBalance(member.id);
+
+                            return (
+                                <View
+                                    key={member.id}
+                                    className={`flex-row items-center bg-white p-4 rounded-3xl mb-3 shadow-sm border ${isSelf ? 'border-primary/20' : 'border-slate-100'}`}
+                                >
                                     {/* Avatar */}
-                                    <View className="w-12 h-12 rounded-full items-center justify-center mr-4 bg-primary/10">
-                                        <Text className="text-primary font-bold text-lg">
+                                    <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${isSelf ? 'bg-primary/20' : 'bg-slate-100'}`}>
+                                        <Text className={`font-bold text-lg ${isSelf ? 'text-primary' : 'text-slate-500'}`}>
                                             {member.name ? member.name.charAt(0).toUpperCase() : '?'}
                                         </Text>
                                     </View>
 
-                                    {/* Name */}
+                                    {/* Info */}
                                     <View className="flex-1">
-                                        <Text className="font-semibold text-slate-700 text-base">
-                                            {member.name}
+                                        <View className="flex-row items-center">
+                                            <Text className="font-bold text-slate-800 text-base">
+                                                {member.name}
+                                            </Text>
                                             {isSelf && (
-                                                <Text className="text-slate-400 text-xs"> (You)</Text>
+                                                <View className="ml-2 bg-primary/10 px-2 py-0.5 rounded-full">
+                                                    <Text className="text-primary text-[10px] font-bold">You</Text>
+                                                </View>
                                             )}
+                                            {isMemberAdmin && (
+                                                <View className="ml-2 bg-amber-50 px-2 py-0.5 rounded-full">
+                                                    <Text className="text-amber-600 text-[10px] font-bold">Admin</Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                        {/* Balance */}
+                                        <Text className={`text-xs font-medium mt-1 ${
+                                            balance > 0 ? 'text-emerald-500' :
+                                            balance < 0 ? 'text-rose-500' : 'text-slate-400'
+                                        }`}>
+                                            {balance > 0
+                                                ? `Owed +$${balance.toFixed(2)}`
+                                                : balance < 0
+                                                    ? `Owes $${Math.abs(balance).toFixed(2)}`
+                                                    : 'Settled up'}
                                         </Text>
                                     </View>
+
+                                    {/* Remove Button - admin only, not for self */}
+                                    {isAdmin && !isSelf && (
+                                        <TouchableOpacity
+                                            onPress={() => handleRemoveMember(member)}
+                                            disabled={isBeingDeleted}
+                                            className="bg-rose-50 p-3 rounded-xl"
+                                        >
+                                            {isBeingDeleted ? (
+                                                <ActivityIndicator size="small" color="#f43f5e" />
+                                            ) : (
+                                                <Ionicons name="person-remove" size={18} color="#f43f5e" />
+                                            )}
+                                        </TouchableOpacity>
+                                    )}
                                 </View>
+                            );
+                        })
+                    )}
+                </View>
 
-                                {/* Delete Button - Show for everyone except yourself */}
-                                {!isSelf && (
-                                    <TouchableOpacity 
-                                        onPress={() => handleRemoveMember(member)}
-                                        disabled={isBeingDeleted}
-                                        className="bg-rose-50 p-3 rounded-xl"
-                                    >
-                                        {isBeingDeleted ? (
-                                            <ActivityIndicator size="small" color="#f43f5e" />
-                                        ) : (
-                                            <Ionicons name="person-remove" size={18} color="#f43f5e" />
-                                        )}
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        );
-                    })
-                )}
-
-                <View className="h-10" />
+                <View className="h-24" />
             </ScrollView>
         </View>
     );

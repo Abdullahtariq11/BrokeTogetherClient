@@ -40,6 +40,18 @@ const homeService = {
   getInviteCode: async (homeId) => {
     const response = await client.get(`/homes/${homeId}/invite-code`);
     return response.data;
+  },
+
+  // Rename a home (admin only)
+  renameHome: async (homeId, name) => {
+    const response = await client.put(`/homes/${homeId}`, { name });
+    return response.data;
+  },
+
+  // Leave a home
+  leaveHome: async (homeId) => {
+    const response = await client.delete(`/homes/${homeId}/leave`);
+    return response.data;
   }
 };
 

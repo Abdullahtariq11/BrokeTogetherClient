@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Share } from 'react-na
 import { AuthContext } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { userInfo, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
@@ -51,7 +51,10 @@ export default function ProfileScreen() {
         
         <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
           {/* Household Info */}
-          <TouchableOpacity className="flex-row items-center p-5 border-b border-slate-50">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('HouseholdSettings')}
+            className="flex-row items-center p-5 border-b border-slate-50"
+          >
             <Ionicons name="home-outline" size={22} color="#64748b" />
             <Text className="flex-1 ml-4 text-slate-700 font-medium">Household Settings</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
@@ -65,7 +68,10 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           {/* Support */}
-          <TouchableOpacity className="flex-row items-center p-5">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('HelpSupport')}
+            className="flex-row items-center p-5"
+          >
             <Ionicons name="help-circle-outline" size={22} color="#64748b" />
             <Text className="flex-1 ml-4 text-slate-700 font-medium">Help & Support</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
