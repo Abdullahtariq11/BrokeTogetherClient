@@ -9,10 +9,10 @@ A modern React Native mobile app for splitting expenses with roommates. Stop the
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="./screenshots/dashboard.png" width="200" alt="Dashboard"/>
-  <img src="./screenshots/add-expense.png" width="200" alt="Add Expense"/>
-  <img src="./screenshots/settle.png" width="200" alt="Settle Up"/>
-  <img src="./screenshots/members.png" width="200" alt="Members"/>
+  <img src="./Screenshots/dashboard.png" width="200" alt="Dashboard"/>
+  <img src="./Screenshots/add-expense.png" width="200" alt="Add Expense"/>
+  <img src="./Screenshots/login.png" width="200" alt="Settle Up"/>
+  <img src="./Screenshots/members.png" width="200" alt="Members"/>
 </p>
 
 ## ✨ Features
