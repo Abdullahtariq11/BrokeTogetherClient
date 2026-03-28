@@ -21,7 +21,7 @@ export default function HomeSetupScreen({ onHomeCreated }) {
       }
       onHomeCreated(); // Callback to refresh the Dashboard
     } catch (err) {
-      Alert.alert("Error", err.toString());
+      Alert.alert("Error", typeof err === 'string' ? err : "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

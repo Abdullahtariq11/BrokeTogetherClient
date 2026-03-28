@@ -34,7 +34,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
         setIsAdmin(activeHome.creatorId === userInfo?.id);
       }
     } catch (err) {
-      console.error('Failed to load home:', err);
+      // Failed to load home
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
       setEditing(false);
       Alert.alert('Success', 'Household name updated.');
     } catch (err) {
-      console.error('Rename failed:', err);
+      // Rename failed
       Alert.alert('Error', 'Failed to rename household. Please try again.');
     } finally {
       setSaving(false);
@@ -84,7 +84,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
               Alert.alert('Left Household', 'You have left the household.');
               navigation.navigate('Home');
             } catch (err) {
-              console.error('Leave failed:', err);
+              // Leave failed
               Alert.alert('Error', 'Failed to leave household. Please try again.');
             }
           },

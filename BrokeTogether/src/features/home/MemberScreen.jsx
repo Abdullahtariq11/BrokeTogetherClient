@@ -35,7 +35,7 @@ export default function MembersScreen() {
                 setBalances(balanceMap || {});
             }
         } catch (err) {
-            console.error("Error fetching data:", err);
+            // Failed to fetch member data
         } finally {
             setLoading(false);
             setRefreshing(false);

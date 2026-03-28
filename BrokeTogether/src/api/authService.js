@@ -38,7 +38,8 @@ const authService = {
                 name: fullName,
                 username: email,
                 password: password
-            })
+            });
+            return response.data;
         } catch (error) {
             throw error.response?.data?.message || "Registration failed.";
         }

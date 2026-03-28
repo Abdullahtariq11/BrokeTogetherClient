@@ -46,7 +46,7 @@ export default function DashboardScreen() {
                 setExpenses(recentExpenses || []);
             }
         } catch (err) {
-            console.error("Dashboard Load Error:", err);
+            // Dashboard load failed
         } finally {
             setLoading(false);
             setRefreshing(false);

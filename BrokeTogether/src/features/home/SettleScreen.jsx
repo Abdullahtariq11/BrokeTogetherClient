@@ -37,16 +37,10 @@ export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
                     expenseService.getHomeBalances(homeId)
                 ]);
                 
-                // DEBUG
-                console.log('=== SETTLE DEBUG ===');
-                console.log('userInfo:', userInfo?.id, userInfo?.name);
-                console.log('Members:', m);
-                console.log('Balances:', b);
-                
                 setAllMembers(m || []);
                 setBalanceMap(b || {});
             } catch (error) {
-                console.error("Settle Load Error:", error);
+                // Failed to load settle data
             } finally {
                 setLoading(false);
             }

@@ -7,6 +7,8 @@ import MembersScreen from '../features/home/MemberScreen';
 import ProfileScreen from '../features/profile/ProfileScreen';
 import HouseholdSettingsScreen from '../features/home/HouseholdSettingsScreen';
 import HelpSupportScreen from '../features/profile/HelpSupportScreen';
+import PrivacyPolicyScreen from '../features/profile/PrivacyPolicyScreen';
+import TermsConditionsScreen from '../features/profile/TermsConditionsScreen';
 
 const Tab = createBottomTabNavigator();
 const SettingsStack = createNativeStackNavigator();
@@ -17,6 +19,8 @@ function SettingsStackScreen() {
             <SettingsStack.Screen name="ProfileMain" component={ProfileScreen} />
             <SettingsStack.Screen name="HouseholdSettings" component={HouseholdSettingsScreen} />
             <SettingsStack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <SettingsStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+            <SettingsStack.Screen name="TermsConditions" component={TermsConditionsScreen} />
         </SettingsStack.Navigator>
     );
 }

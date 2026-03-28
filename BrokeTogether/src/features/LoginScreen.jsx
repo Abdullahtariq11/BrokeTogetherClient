@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { AuthContext } from '../context/AuthContext';
 import SignupScreen from './SignupScreen';
 
@@ -42,7 +41,7 @@ function LoginScreen() {
                 await login(email, password);
             } catch (err) {
                 setTimeout(() => {
-                    Alert.alert("Login Failed", err.toString());
+                    Alert.alert("Login Failed", typeof err === 'string' ? err : "Please check your credentials and try again.");
                 }, 100);
             }
         }

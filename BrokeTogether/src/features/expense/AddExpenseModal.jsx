@@ -23,15 +23,6 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [fetchingMembers, setFetchingMembers] = useState(false);
 
-  // DEBUG: Log to see what's happening
-  useEffect(() => {
-    if (allMembers.length > 0 && userInfo) {
-      console.log('=== DEBUG INFO ===');
-      console.log('userInfo.id:', userInfo.id, 'type:', typeof userInfo.id);
-      console.log('All members:', allMembers.map(m => ({ id: m.id, type: typeof m.id, name: m.name })));
-    }
-  }, [allMembers, userInfo]);
-
   // Filter out current user - compare by ID AND name as fallback
   const otherMembers = allMembers.filter(m => {
     const currentUserId = userInfo?.id;
@@ -64,10 +55,9 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
     setFetchingMembers(true);
     try {
       const data = await homeService.getMembers(homeId);
-      console.log('Raw members from API:', data);
       setAllMembers(data || []);
     } catch (err) {
-      console.error("Error loading members for split:", err);
+      // Failed to load members
     } finally {
       setFetchingMembers(false);
     }

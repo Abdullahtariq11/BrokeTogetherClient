@@ -28,7 +28,7 @@ export default function ProfileScreen({ navigation }) {
         message: 'Check out BrokeTogether - the best way to split bills with roommates!',
       });
     } catch (error) {
-      console.log(error.message);
+      // Share failed — silently handled
     }
   };
 
@@ -74,6 +74,29 @@ export default function ProfileScreen({ navigation }) {
           >
             <Ionicons name="help-circle-outline" size={22} color="#64748b" />
             <Text className="flex-1 ml-4 text-slate-700 font-medium">Help & Support</Text>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Legal */}
+        <Text className="text-slate-400 font-bold uppercase text-xs mt-8 mb-4 ml-2">Legal</Text>
+
+        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('PrivacyPolicy')}
+            className="flex-row items-center p-5 border-b border-slate-50"
+          >
+            <Ionicons name="shield-checkmark-outline" size={22} color="#64748b" />
+            <Text className="flex-1 ml-4 text-slate-700 font-medium">Privacy Policy</Text>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('TermsConditions')}
+            className="flex-row items-center p-5"
+          >
+            <Ionicons name="document-text-outline" size={22} color="#64748b" />
+            <Text className="flex-1 ml-4 text-slate-700 font-medium">Terms & Conditions</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
         </View>

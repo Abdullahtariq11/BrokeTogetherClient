@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
             }
             await clearAuthData();
         } catch (e) {
-            console.log('Logout error:', e);
+            // logout error — silently handled
         } finally {
             setIsLoading(false);
         }
@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         // Only set timer if user is logged in
         if (userToken) {
             inactivityTimer.current = setTimeout(() => {
-                console.log('Logging out due to inactivity');
                 logout();
             }, INACTIVITY_TIMEOUT);
 
@@ -75,7 +74,6 @@ export const AuthProvider = ({ children }) => {
                     const timeSinceLastActive = Date.now() - lastActiveTime.current;
 
                     if (timeSinceLastActive >= INACTIVITY_TIMEOUT) {
-                        console.log('Session expired while app was in background');
                         logout();
                     } else {
                         resetInactivityTimer();
@@ -129,7 +127,6 @@ export const AuthProvider = ({ children }) => {
                     if (storedLastActive) {
                         const timeSinceLastActive = Date.now() - parseInt(storedLastActive, 10);
                         if (timeSinceLastActive >= INACTIVITY_TIMEOUT) {
-                            console.log('Session expired while app was closed');
                             await clearAuthData();
                             setIsLoading(false);
                             return;
@@ -150,11 +147,11 @@ export const AuthProvider = ({ children }) => {
                         setUserInfo(freshUser);
                         await SecureStore.setItemAsync('userInfo', JSON.stringify(freshUser));
                     } catch (apiErr) {
-                        console.log("Background profile refresh failed, using cached data.");
+                        // Profile refresh failed — using cached data
                     }
                 }
             } catch (e) {
-                console.log("Hydration error:", e);
+                // Hydration error — silently handled
             } finally {
                 setIsLoading(false);
             }

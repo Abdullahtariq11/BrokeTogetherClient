@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Linking,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -72,8 +73,12 @@ function FAQItem({ item }) {
 }
 
 export default function HelpSupportScreen({ navigation }) {
-  const handleEmailPress = () => {
-    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=BrokeTogether Support`);
+  const handleEmailPress = async () => {
+    try {
+      await Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=BrokeTogether Support`);
+    } catch {
+      Alert.alert('Error', 'Unable to open email client.');
+    }
   };
 
   return (
