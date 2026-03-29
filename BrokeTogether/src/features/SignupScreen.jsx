@@ -56,6 +56,7 @@ export default function SignupScreen({ onBack }) {
               <Ionicons name="person-outline" size={20} color="#94a3b8" />
               <TextInput 
                 placeholder="Full Name"
+                placeholderTextColor="#94a3b8"
                 className="flex-1 ml-3 text-slate-700"
                 value={name}
                 onChangeText={setName}
@@ -70,6 +71,7 @@ export default function SignupScreen({ onBack }) {
               <Ionicons name="mail-outline" size={20} color="#94a3b8" />
               <TextInput 
                 placeholder="email@example.com"
+                placeholderTextColor="#94a3b8"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 className="flex-1 ml-3 text-slate-700"
@@ -86,6 +88,7 @@ export default function SignupScreen({ onBack }) {
               <Ionicons name="lock-closed-outline" size={20} color="#94a3b8" />
               <TextInput 
                 placeholder="Min. 6 characters"
+                placeholderTextColor="#94a3b8"
                 secureTextEntry
                 className="flex-1 ml-3 text-slate-700"
                 value={password}

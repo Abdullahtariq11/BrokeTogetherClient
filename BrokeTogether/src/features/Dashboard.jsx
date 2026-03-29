@@ -67,6 +67,21 @@ export default function DashboardScreen() {
         Alert.alert("Copied!", "Invite code copied to clipboard.");
     };
 
+    const handleLogout = () => {
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to sign out?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: () => logout()
+                }
+            ]
+        );
+    };
+
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center bg-slate-50">
@@ -115,7 +130,7 @@ export default function DashboardScreen() {
                         </View>
                         
                         <TouchableOpacity 
-                            onPress={logout} 
+                            onPress={handleLogout} 
                             className="bg-white/10 p-2 rounded-full border border-white/20"
                         >
                             <Ionicons name="log-out-outline" size={22} color="white" />

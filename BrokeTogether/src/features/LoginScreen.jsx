@@ -61,6 +61,7 @@ function LoginScreen() {
                     <TextInput
                         className="bg-white border border-secondary/30 p-4 rounded-2xl text-slate-900"
                         placeholder="example@gmail.com"
+                        placeholderTextColor="#94a3b8"
                         value={email}
                         onChangeText={(text) => {
                             setEmail(text);
@@ -79,6 +80,7 @@ function LoginScreen() {
                     <TextInput
                         className="bg-white border border-secondary/30 p-4 rounded-2xl text-slate-900"
                         placeholder="••••••••"
+                        placeholderTextColor="#94a3b8"
                         value={password}
                         onChangeText={(text) => {
                             setPassword(text);

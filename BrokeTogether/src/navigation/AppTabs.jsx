@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DashboardScreen from '../features/Dashboard';
 import MembersScreen from '../features/home/MemberScreen';
 import ProfileScreen from '../features/profile/ProfileScreen';
@@ -26,6 +27,8 @@ function SettingsStackScreen() {
 }
 
 export default function AppTabs() {
+    const insets = useSafeAreaInsets();
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -40,7 +43,11 @@ export default function AppTabs() {
                 tabBarActiveTintColor: '#E98074',
                 tabBarInactiveTintColor: 'gray',
                 headerShown: false,
-                tabBarStyle: { height: 60, paddingBottom: 10 }
+                tabBarStyle: {
+                    height: 60 + insets.bottom,
+                    paddingBottom: Math.max(insets.bottom, 10),
+                    paddingTop: 8
+                }
             })}
         >
             <Tab.Screen name="Home" component={DashboardScreen} />
