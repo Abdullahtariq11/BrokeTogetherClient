@@ -55,7 +55,7 @@ export default function SignupScreen({ onBack }) {
             <View className="flex-row items-center bg-slate-50 border border-slate-100 p-4 rounded-2xl">
               <Ionicons name="person-outline" size={20} color="#94a3b8" />
               <TextInput 
-                placeholder="Abdullah Tariq"
+                placeholder="Full Name"
                 className="flex-1 ml-3 text-slate-700"
                 value={name}
                 onChangeText={setName}

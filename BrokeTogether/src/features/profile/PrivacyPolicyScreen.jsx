@@ -97,9 +97,9 @@ We do not integrate with any advertising networks, analytics platforms, or socia
           </Section>
 
           <Section title="8. Children's Privacy">
-            BrokeTogether is not intended for use by anyone under the age of 18. We do not
-            knowingly collect personal information from minors. If we learn that we have
-            collected information from a child under 18, we will delete that information promptly.
+            BrokeTogether is not intended for use by anyone under the age of 13. We do not
+            knowingly collect personal information from children under 13. If we learn that we have
+            collected information from a child under 13, we will delete that information promptly.
           </Section>
 
           <Section title="9. Your Rights">

@@ -49,7 +49,7 @@ export default function TermsConditionsScreen({ navigation }) {
           </Section>
 
           <Section title="3. Eligibility">
-            You must be at least 18 years old to create an account and use BrokeTogether. By
+            You must be at least 13 years old to create an account and use BrokeTogether. By
             using the App, you represent and warrant that you meet this age requirement and have
             the legal capacity to enter into these Terms.
           </Section>
