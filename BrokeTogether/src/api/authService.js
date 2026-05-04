@@ -22,6 +22,10 @@ const authService = {
             });
             return response.data;
         } catch (error) {
+            const status = error.response?.status;
+            if (status === 400 || status === 401 || status === 403) {
+                throw "No account found with these credentials. Please check your email and password or create a new account.";
+            }
             throw error.response?.data?.message || "Login failed. Please check your credentials.";
         }
     },

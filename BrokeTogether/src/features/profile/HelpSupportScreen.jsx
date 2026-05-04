@@ -130,7 +130,7 @@ export default function HelpSupportScreen({ navigation }) {
         </View>
 
         <Text className="text-center text-slate-300 text-xs mt-10 mb-10">
-          BrokeTogether v1.0.0
+          BrokeTogether v1.0.4
         </Text>
       </View>
     </ScrollView>

@@ -169,7 +169,7 @@ ${CONTACT_EMAIL}`}
         </View>
 
         <Text className="text-center text-slate-300 text-xs mb-10">
-          BrokeTogether v1.0.0
+          BrokeTogether v1.0.4
         </Text>
       </View>
     </ScrollView>
