@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LAST_UPDATED = 'March 28, 2026';
-const CONTACT_EMAIL = 'support@broketogether.app';
+const LAST_UPDATED = 'May 4, 2026';
+const CONTACT_EMAIL = 'support.broketogether@gmail.com';
 
 function Section({ title, children }) {
   return (
@@ -81,11 +81,17 @@ While we take reasonable measures to protect your data, no method of electronic 
           </Section>
 
           <Section title="6. Data Retention & Deletion">
-            {`We retain your account and financial data for as long as your account is active. You may request deletion of your account and all associated data by contacting us at ${CONTACT_EMAIL}.
+            {`We retain your account and financial data for as long as your account is active.
+
+You may permanently delete your account at any time directly from the app by going to Profile → Delete Account. Upon confirming deletion, all of your personal data will be immediately and permanently removed from our systems, including your profile information, household memberships, and expense history.
+
+If you are the admin of a household, deleting your account will also permanently delete that household and all of its associated expenses and data for all members.
+
+If you are a member (not admin) of a household, deleting your account will remove you from that household. The household and its expense history will remain intact for the other members.
 
 When you leave a household, your access to that household's data is removed. Settlement and expense records involving you may be retained in the household's history for the other members' records.
 
-Upon account deletion, we will remove your personal information from our active systems within 30 days. Some data may persist in encrypted backups for up to 90 days before being permanently purged.`}
+Some data may persist in encrypted backups for up to 90 days before being permanently purged. If you prefer to request deletion via email, you may also contact us at ${CONTACT_EMAIL}.`}
           </Section>
 
           <Section title="7. Third-Party Services">

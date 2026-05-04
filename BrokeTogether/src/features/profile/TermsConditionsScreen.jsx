@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LAST_UPDATED = 'March 28, 2026';
-const CONTACT_EMAIL = 'support@broketogether.app';
+const LAST_UPDATED = 'May 4, 2026';
+const CONTACT_EMAIL = 'support.broketogether@gmail.com';
 
 function Section({ title, children }) {
   return (
@@ -133,12 +133,19 @@ Nothing in this section prevents either party from seeking injunctive or equitab
             or create derivative works from any part of the App without prior written consent.
           </Section>
 
-          <Section title="12. Termination">
+          <Section title="12. Termination & Account Deletion">
             {`We may suspend or terminate your access to the App at any time, with or without cause, and with or without notice. Upon termination:
 
 - Your right to use the App ceases immediately.
 - We may delete your account and associated data in accordance with our Privacy Policy.
-- Sections regarding Limitation of Liability, Indemnification, and Dispute Resolution shall survive termination.`}
+- Sections regarding Limitation of Liability, Indemnification, and Dispute Resolution shall survive termination.
+
+You may also delete your own account at any time by going to Profile → Delete Account within the App. By choosing to delete your account you acknowledge and agree that:
+
+- All your personal data, expense history, and household memberships will be permanently and irreversibly deleted.
+- If you are the admin of a household, that household and all of its data will be permanently deleted and all members will immediately lose access.
+- If you are a member (not admin) of a household, you will be removed from the household but the household and its data will remain for other members.
+- This action cannot be undone and we are unable to recover any deleted data.`}
           </Section>
 
           <Section title="13. Severability">
