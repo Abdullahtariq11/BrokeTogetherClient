@@ -10,16 +10,21 @@ import homeService from '../../api/homeService';
 import expenseService from '../../api/expenseService';
 
 export default function MembersScreen() {
-    const { userInfo } = useContext(AuthContext);
+    const { userInfo, isGuest, exitGuestMode } = useContext(AuthContext);
 
     const [home, setHome] = useState(null);
     const [members, setMembers] = useState([]);
     const [balances, setBalances] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!isGuest);
     const [refreshing, setRefreshing] = useState(false);
     const [deleting, setDeleting] = useState(null);
 
     const fetchData = useCallback(async () => {
+        if (isGuest) {
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
         try {
             const homes = await homeService.getMyHomes();
 
@@ -40,7 +45,7 @@ export default function MembersScreen() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, []);
+    }, [isGuest]);
 
     useEffect(() => {
         fetchData();
@@ -100,6 +105,32 @@ export default function MembersScreen() {
         return (
             <View className="flex-1 justify-center items-center bg-slate-50">
                 <ActivityIndicator size="large" color="#E98074" />
+            </View>
+        );
+    }
+
+    if (isGuest) {
+        return (
+            <View className="flex-1 bg-slate-50">
+                <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
+                    <Text className="text-white/70 font-medium tracking-tight">Roommates</Text>
+                    <Text className="text-white text-3xl font-black">People</Text>
+                </View>
+                <View className="flex-1 justify-center items-center p-6">
+                    <Ionicons name="people-outline" size={64} color="#cbd5e1" />
+                    <Text className="text-slate-600 text-center mt-4 font-bold text-lg">
+                        Sign in to see your roommates
+                    </Text>
+                    <Text className="text-slate-400 text-center text-sm mt-2 mb-6">
+                        Connect with your household members and track balances together.
+                    </Text>
+                    <TouchableOpacity
+                        onPress={exitGuestMode}
+                        className="bg-primary px-8 py-4 rounded-2xl shadow-lg shadow-primary/30"
+                    >
+                        <Text className="text-white font-bold text-base">Sign In or Create Account</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }

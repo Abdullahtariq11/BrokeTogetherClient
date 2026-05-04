@@ -10,7 +10,7 @@ import AppTabs from './src/navigation/AppTabs';
 import ActivityTracker from './src/component/ActivityTracker';
 
 const AppNav = () => {
-  const { isLoading, userToken } = useContext(AuthContext);
+  const { isLoading, userToken, isGuest } = useContext(AuthContext);
 
   // Strict boolean check for the spinner
   if (isLoading === true) {
@@ -21,11 +21,11 @@ const AppNav = () => {
     );
   }
 
-  
+
   return (
     <View className="flex-1">
-      {/* !! converts the string token into a strict boolean true/false */}
-      {!!userToken ? (
+      {/* Show app if user is logged in OR browsing as guest */}
+      {!!userToken || isGuest ? (
         <NavigationContainer>
           <AppTabs />
         </NavigationContainer>

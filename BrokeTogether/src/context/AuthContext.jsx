@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [userToken, setUserToken] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
+    const [isGuest, setIsGuest] = useState(false);
 
     // Inactivity tracking refs
     const inactivityTimer = useRef(null);
@@ -29,6 +30,25 @@ export const AuthProvider = ({ children }) => {
         setUserInfo(null);
     };
 
+    // Delete account function
+    const deleteAccount = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            if (inactivityTimer.current) {
+                clearTimeout(inactivityTimer.current);
+                inactivityTimer.current = null;
+            }
+            await authService.deleteAccount();
+            await clearAuthData();
+            setIsGuest(false);
+        } catch (e) {
+            setIsLoading(false);
+            throw e;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     // Logout function
     const logout = useCallback(async () => {
         setIsLoading(true);
@@ -38,11 +58,22 @@ export const AuthProvider = ({ children }) => {
                 inactivityTimer.current = null;
             }
             await clearAuthData();
+            setIsGuest(false);
         } catch (e) {
             // logout error — silently handled
         } finally {
             setIsLoading(false);
         }
+    }, []);
+
+    // Continue as guest - lets users browse the app without an account
+    const continueAsGuest = useCallback(() => {
+        setIsGuest(true);
+    }, []);
+
+    // Exit guest mode - returns to login screen
+    const exitGuestMode = useCallback(() => {
+        setIsGuest(false);
     }, []);
 
     // Reset the inactivity timer
@@ -187,13 +218,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ 
-            login, 
-            logout, 
-            isLoading, 
-            userToken, 
+        <AuthContext.Provider value={{
+            login,
+            logout,
+            deleteAccount,
+            isLoading,
+            userToken,
             userInfo,
-            resetInactivityTimer 
+            isGuest,
+            continueAsGuest,
+            exitGuestMode,
+            resetInactivityTimer
         }}>
             {children}
         </AuthContext.Provider>

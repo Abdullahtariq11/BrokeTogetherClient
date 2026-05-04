@@ -10,13 +10,13 @@ import AddExpenseModal from './expense/AddExpenseModal';
 import SettleScreen from './home/SettleScreen';
 
 export default function DashboardScreen() {
-    const { userInfo, logout } = useContext(AuthContext);
-    
+    const { userInfo, logout, isGuest, exitGuestMode } = useContext(AuthContext);
+
     // View Management
     const [currentView, setCurrentView] = useState('dashboard');
-    
+
     // Data State
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!isGuest);
     const [refreshing, setRefreshing] = useState(false);
     const [myHome, setMyHome] = useState(null);
     const [expenses, setExpenses] = useState([]);
@@ -26,6 +26,11 @@ export default function DashboardScreen() {
     const [isModalVisible, setModalVisible] = useState(false);
 
     const loadDashboardData = useCallback(async () => {
+        if (isGuest) {
+            setLoading(false);
+            setRefreshing(false);
+            return;
+        }
         try {
             const homes = await homeService.getMyHomes();
             if (homes && homes.length > 0) {
@@ -51,7 +56,7 @@ export default function DashboardScreen() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [userInfo?.id]);
+    }, [userInfo?.id, isGuest]);
 
     useEffect(() => {
         loadDashboardData();
@@ -88,6 +93,64 @@ export default function DashboardScreen() {
                 <ActivityIndicator size="large" color="#E98074" />
                 <Text className="mt-4 text-slate-500 font-medium">Syncing Household...</Text>
             </View>
+        );
+    }
+
+    if (isGuest) {
+        return (
+            <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ flexGrow: 1 }}>
+                <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
+                    <Text className="text-white/70 font-medium tracking-tight">Welcome to</Text>
+                    <Text className="text-white text-3xl font-black">BrokeTogether</Text>
+                    <Text className="text-white/80 mt-2">You're browsing as a guest</Text>
+                </View>
+
+                <View className="p-6">
+                    <Text className="text-slate-800 text-xl font-black mb-3">What you can do</Text>
+                    <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-3">
+                        <View className="flex-row items-center mb-3">
+                            <View className="bg-primary/10 p-3 rounded-2xl mr-3">
+                                <Ionicons name="home" size={22} color="#E98074" />
+                            </View>
+                            <Text className="text-slate-800 font-bold flex-1">Create or join a household</Text>
+                        </View>
+                        <View className="flex-row items-center mb-3">
+                            <View className="bg-emerald-50 p-3 rounded-2xl mr-3">
+                                <Ionicons name="receipt" size={22} color="#10b981" />
+                            </View>
+                            <Text className="text-slate-800 font-bold flex-1">Track shared expenses</Text>
+                        </View>
+                        <View className="flex-row items-center mb-3">
+                            <View className="bg-sky-50 p-3 rounded-2xl mr-3">
+                                <Ionicons name="calculator" size={22} color="#0ea5e9" />
+                            </View>
+                            <Text className="text-slate-800 font-bold flex-1">Auto-calculate balances</Text>
+                        </View>
+                        <View className="flex-row items-center">
+                            <View className="bg-amber-50 p-3 rounded-2xl mr-3">
+                                <Ionicons name="checkmark-done" size={22} color="#f59e0b" />
+                            </View>
+                            <Text className="text-slate-800 font-bold flex-1">Settle up easily</Text>
+                        </View>
+                    </View>
+
+                    <View className="bg-white p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 items-center mt-2">
+                        <Ionicons name="lock-closed-outline" size={36} color="#cbd5e1" />
+                        <Text className="text-slate-600 text-center mt-3 font-semibold">
+                            Sign in to start tracking expenses
+                        </Text>
+                        <Text className="text-slate-400 text-center text-xs mt-1 mb-4">
+                            All features require an account because they're tied to you and your household members.
+                        </Text>
+                        <TouchableOpacity
+                            onPress={exitGuestMode}
+                            className="bg-primary px-8 py-4 rounded-2xl w-full items-center shadow-lg shadow-primary/30"
+                        >
+                            <Text className="text-white font-bold text-base">Sign In or Create Account</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
         );
     }
 

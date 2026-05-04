@@ -46,10 +46,19 @@ const authService = {
     },
     getProfile: async () => {
         try {
-            const response = await client.get('/users/me'); // Or your specific endpoint path
+            const response = await client.get('/users/me');
             return response.data;
         } catch (error) {
             throw error.response?.data?.message || "Could not fetch profile";
+        }
+    },
+
+    deleteAccount: async () => {
+        try {
+            const response = await client.delete('/users/me');
+            return response.data;
+        } catch (error) {
+            throw error.response?.data?.message || "Could not delete account. Please try again.";
         }
     }
 };

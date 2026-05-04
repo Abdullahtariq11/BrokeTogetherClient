@@ -6,7 +6,7 @@ import SignupScreen from './SignupScreen';
 function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login, isLoading } = useContext(AuthContext);
+    const { login, isLoading, continueAsGuest } = useContext(AuthContext);
     const [errors, setErrors] = useState({});
     const [isSigningUp, setIsSigningUp] = useState(false);
 
@@ -110,6 +110,24 @@ function LoginScreen() {
                     Don't have an account? <Text className="text-primary font-bold">Sign Up</Text>
                 </Text>
             </TouchableOpacity>
+
+            {/* Divider */}
+            <View className="flex-row items-center mt-8 mb-4">
+                <View className="flex-1 h-px bg-secondary/30" />
+                <Text className="mx-4 text-secondary/60 text-sm">or</Text>
+                <View className="flex-1 h-px bg-secondary/30" />
+            </View>
+
+            {/* Continue as Guest Button */}
+            <TouchableOpacity
+                onPress={continueAsGuest}
+                className="border-2 border-primary p-4 rounded-2xl items-center"
+            >
+                <Text className="text-primary font-bold text-lg">Continue as Guest</Text>
+            </TouchableOpacity>
+            <Text className="text-secondary/60 text-xs text-center mt-2">
+                Browse the app. Sign in to create households and track expenses.
+            </Text>
         </View>
     )
 }
