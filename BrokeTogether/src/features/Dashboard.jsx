@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, Alert, TextInput, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
@@ -8,9 +8,16 @@ import expenseService from '../api/expenseService';
 import HomeSetupScreen from './home/HomeSetupScreen';
 import AddExpenseModal from './expense/AddExpenseModal';
 import SettleScreen from './home/SettleScreen';
+import ShoppingTab from './shopping/ShoppingTab';
+import RecurringTab from './expense/RecurringTab';
+import AnalyticsTab from './expense/AnalyticsTab';
 
-export default function DashboardScreen() {
+const HOME_LIMIT_FREE = 1;
+const HOME_LIMIT_PREMIUM = 3;
+
+export default function DashboardScreen({ navigation }) {
     const { userInfo, logout, isGuest, exitGuestMode } = useContext(AuthContext);
+    const isPremium = userInfo?.isPremium ?? false;
 
     // View Management
     const [currentView, setCurrentView] = useState('dashboard');
@@ -18,14 +25,33 @@ export default function DashboardScreen() {
     // Data State
     const [loading, setLoading] = useState(!isGuest);
     const [refreshing, setRefreshing] = useState(false);
+    const [allHomes, setAllHomes] = useState([]);
     const [myHome, setMyHome] = useState(null);
     const [expenses, setExpenses] = useState([]);
     const [myBalance, setMyBalance] = useState(0);
+    const [memberCount, setMemberCount] = useState(0);
 
     // Modal State
     const [isModalVisible, setModalVisible] = useState(false);
 
-    const loadDashboardData = useCallback(async () => {
+    // Home switcher state
+    const [showHomeSwitcher, setShowHomeSwitcher] = useState(false);
+    const [showAddHome, setShowAddHome] = useState(false);
+    const [addHomeMode, setAddHomeMode] = useState('create'); // 'create' | 'join'
+    const [addHomeInput, setAddHomeInput] = useState('');
+    const [addHomeLoading, setAddHomeLoading] = useState(false);
+
+    // Tab State
+    const [activeTab, setActiveTab] = useState('activity');
+    const [deletingExpenseId, setDeletingExpenseId] = useState(null);
+
+    const homeLimit = isPremium ? HOME_LIMIT_PREMIUM : HOME_LIMIT_FREE;
+    const atHomeLimit = allHomes.length >= homeLimit;
+
+    // Ref to always have current myHome inside the loadDashboardData callback
+    const myHomeRef = useRef(null);
+
+    const loadDashboardData = useCallback(async (keepActiveHome = null) => {
         if (isGuest) {
             setLoading(false);
             setRefreshing(false);
@@ -33,30 +59,74 @@ export default function DashboardScreen() {
         }
         try {
             const homes = await homeService.getMyHomes();
-            if (homes && homes.length > 0) {
-                const activeHome = homes[0];
+            const homesList = homes ? Array.from(homes) : [];
+            setAllHomes(homesList);
+            if (homesList.length > 0) {
+                const currentHome = myHomeRef.current;
+                const activeHome = keepActiveHome
+                    ? homesList.find(h => h.id === keepActiveHome.id) || homesList[0]
+                    : (currentHome ? homesList.find(h => h.id === currentHome.id) || homesList[0] : homesList[0]);
+                myHomeRef.current = activeHome;
                 setMyHome(activeHome);
 
-                const [balanceMap, recentExpenses] = await Promise.all([
+                const [balanceResult, expensesResult] = await Promise.allSettled([
                     expenseService.getHomeBalances(activeHome.id),
-                    expenseService.getHomeExpenses(activeHome.id)
+                    expenseService.getHomeExpenses(activeHome.id, 0, 20),
                 ]);
-                
-                // Extract your specific balance
-                if (userInfo?.id && balanceMap) {
-                    const rawValue = balanceMap[userInfo.id] || balanceMap[userInfo.id.toString()] || 0;
-                    setMyBalance(parseFloat(rawValue));
+
+                if (balanceResult.status === 'fulfilled') {
+                    const balanceMap = balanceResult.value;
+                    if (userInfo?.id && balanceMap) {
+                        const rawValue = balanceMap[userInfo.id] || balanceMap[userInfo.id.toString()] || 0;
+                        setMyBalance(parseFloat(rawValue));
+                        setMemberCount(Object.keys(balanceMap).length);
+                    }
                 }
 
-                setExpenses(recentExpenses || []);
+                if (expensesResult.status === 'fulfilled') {
+                    const data = expensesResult.value;
+                    const expenseList = Array.isArray(data) ? data : (data?.expenses || []);
+                    setExpenses(expenseList);
+                }
             }
-        } catch (err) {
+        } catch {
             // Dashboard load failed
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [userInfo?.id, isGuest]);
+    }, [userInfo?.id, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const switchHome = (home) => {
+        myHomeRef.current = home;
+        setMyHome(home);
+        setShowHomeSwitcher(false);
+        setActiveTab('activity');
+        setExpenses([]);
+        setMyBalance(0);
+        setMemberCount(0);
+        loadDashboardData(home);
+    };
+
+    const handleAddHome = async () => {
+        if (!addHomeInput.trim()) return Alert.alert('Error', 'Please enter a name or code.');
+        setAddHomeLoading(true);
+        try {
+            if (addHomeMode === 'join') {
+                await homeService.joinHome(addHomeInput.trim());
+            } else {
+                await homeService.createHome(addHomeInput.trim());
+            }
+            setShowAddHome(false);
+            setAddHomeInput('');
+            Alert.alert('Success', addHomeMode === 'join' ? 'Joined household!' : 'Household created!');
+            loadDashboardData();
+        } catch (err) {
+            Alert.alert('Error', typeof err === 'string' ? err : 'Something went wrong. Please try again.');
+        } finally {
+            setAddHomeLoading(false);
+        }
+    };
 
     useEffect(() => {
         loadDashboardData();
@@ -82,6 +152,30 @@ export default function DashboardScreen() {
                     text: "Logout",
                     style: "destructive",
                     onPress: () => logout()
+                }
+            ]
+        );
+    };
+
+    const handleDeleteExpense = (expense) => {
+        Alert.alert(
+            'Delete Expense',
+            `Delete "${expense.description}"? This will recalculate all balances.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete', style: 'destructive',
+                    onPress: async () => {
+                        setDeletingExpenseId(expense.id);
+                        try {
+                            await expenseService.deleteExpense(expense.id);
+                            loadDashboardData();
+                        } catch {
+                            Alert.alert('Error', 'Failed to delete expense. Please try again.');
+                        } finally {
+                            setDeletingExpenseId(null);
+                        }
+                    }
                 }
             ]
         );
@@ -158,10 +252,10 @@ export default function DashboardScreen() {
 
     if (currentView === 'settle') {
         return (
-            <SettleScreen 
-                homeId={myHome.id} 
+            <SettleScreen
+                homeId={myHome.id}
                 currentUserId={userInfo.id}
-                onBack={() => setCurrentView('dashboard')} 
+                onBack={() => setCurrentView('dashboard')}
                 onRefreshDashboard={onRefresh}
             />
         );
@@ -180,20 +274,36 @@ export default function DashboardScreen() {
                             <Text className="text-white/70 font-medium tracking-tight">
                                 Welcome back, {userInfo?.name}
                             </Text>
-                            <Text className="text-white text-3xl font-black">{myHome.name}</Text>
-                            
-                            <View className="flex-row items-center mt-3 bg-white/20 self-start px-3 py-1.5 rounded-xl border border-white/30">
-                                <Text className="text-white text-xs font-mono mr-3">
-                                    Code: {myHome.inviteCode}
-                                </Text>
-                                <TouchableOpacity onPress={copyInviteCode}>
-                                    <Ionicons name="copy-outline" size={16} color="white" />
-                                </TouchableOpacity>
+                            {/* Home name — tap to switch */}
+                            <TouchableOpacity
+                                onPress={() => setShowHomeSwitcher(true)}
+                                className="flex-row items-center gap-2 mt-0.5"
+                            >
+                                <Text className="text-white text-3xl font-black">{myHome.name}</Text>
+                                {allHomes.length > 0 && (
+                                    <Ionicons name="chevron-down" size={18} color="rgba(255,255,255,0.6)" />
+                                )}
+                            </TouchableOpacity>
+
+                            <View className="flex-row items-center mt-3">
+                                <View className="flex-row items-center bg-white/20 self-start px-3 py-1.5 rounded-xl border border-white/30">
+                                    <Text className="text-white text-xs font-mono mr-3">
+                                        Code: {myHome.inviteCode}
+                                    </Text>
+                                    <TouchableOpacity onPress={copyInviteCode}>
+                                        <Ionicons name="copy-outline" size={16} color="white" />
+                                    </TouchableOpacity>
+                                </View>
+                                {memberCount > 0 && (
+                                    <Text className="text-white/60 text-xs font-medium ml-3">
+                                        {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                                    </Text>
+                                )}
                             </View>
                         </View>
-                        
-                        <TouchableOpacity 
-                            onPress={handleLogout} 
+
+                        <TouchableOpacity
+                            onPress={handleLogout}
                             className="bg-white/10 p-2 rounded-full border border-white/20"
                         >
                             <Ionicons name="log-out-outline" size={22} color="white" />
@@ -209,28 +319,28 @@ export default function DashboardScreen() {
                                 Your Net Balance
                             </Text>
                             <Text className={`text-3xl font-black mt-1 ${
-                                myBalance > 0 ? 'text-emerald-500' : 
+                                myBalance > 0 ? 'text-emerald-500' :
                                 myBalance < 0 ? 'text-rose-500' : 'text-slate-400'
                             }`}>
-                                {myBalance > 0 ? `+$${myBalance.toFixed(2)}` : 
+                                {myBalance > 0 ? `+$${myBalance.toFixed(2)}` :
                                  myBalance < 0 ? `-$${Math.abs(myBalance).toFixed(2)}` : '$0.00'}
                             </Text>
                         </View>
-                        
+
                         <View className={`p-4 rounded-2xl ${
-                            myBalance > 0 ? 'bg-emerald-50' : 
+                            myBalance > 0 ? 'bg-emerald-50' :
                             myBalance < 0 ? 'bg-rose-50' : 'bg-slate-50'
                         }`}>
-                            <Ionicons 
+                            <Ionicons
                                 name={
-                                    myBalance > 0 ? "trending-up" : 
+                                    myBalance > 0 ? "trending-up" :
                                     myBalance < 0 ? "trending-down" : "checkmark-circle"
-                                } 
-                                size={28} 
+                                }
+                                size={28}
                                 color={
-                                    myBalance > 0 ? "#10b981" : 
+                                    myBalance > 0 ? "#10b981" :
                                     myBalance < 0 ? "#f43f5e" : "#cbd5e1"
-                                } 
+                                }
                             />
                         </View>
                     </View>
@@ -259,45 +369,167 @@ export default function DashboardScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* History List */}
-                <View className="p-6 pt-0">
-                    <Text className="text-slate-800 text-xl font-black mb-4 px-1">
-                        Recent Activity
-                    </Text>
-                    
-                    {expenses.length === 0 ? (
-                        <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
-                            <Ionicons name="receipt-outline" size={48} color="#cbd5e1" />
-                            <Text className="text-slate-400 text-center mt-4">
-                                No activity yet!
+                {/* Tab Bar */}
+                <View className="flex-row mx-6 mb-4 bg-slate-100 p-1 rounded-2xl">
+                    <TouchableOpacity
+                        onPress={() => setActiveTab('activity')}
+                        className="flex-1"
+                    >
+                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
+                            activeTab === 'activity' ? 'bg-white' : ''
+                        }`}>
+                            <Ionicons
+                                name="receipt-outline"
+                                size={15}
+                                color={activeTab === 'activity' ? '#E98074' : '#94a3b8'}
+                            />
+                            <Text className={`ml-1.5 font-bold text-sm ${
+                                activeTab === 'activity' ? 'text-primary' : 'text-slate-400'
+                            }`}>
+                                Activity
                             </Text>
                         </View>
-                    ) : (
-                        expenses.map((expense) => (
-                            <View 
-                                key={expense.id} 
-                                className="bg-white p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50"
-                            >
-                                <View className="flex-1">
-                                    <Text className="text-slate-800 font-bold text-base">
-                                        {expense.Description}
-                                    </Text>
-                                    <View className="flex-row items-center mt-1">
-                                        <Text className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                                            {expense.Category || 'General'}
-                                        </Text>
-                                        <View className="mx-2 w-1 h-1 rounded-full bg-slate-300" />
-                                    </View>
-                                </View>
-                                <Text className="text-primary font-black text-xl">
-                                    ${expense.amount?.toFixed(2)}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => setActiveTab('shopping')}
+                        className="flex-1"
+                    >
+                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
+                            activeTab === 'shopping' ? 'bg-white' : ''
+                        }`}>
+                            <Ionicons
+                                name="cart-outline"
+                                size={15}
+                                color={activeTab === 'shopping' ? '#E98074' : '#94a3b8'}
+                            />
+                            <Text className={`ml-1.5 font-bold text-sm ${
+                                activeTab === 'shopping' ? 'text-primary' : 'text-slate-400'
+                            }`}>
+                                Shopping
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => setActiveTab('recurring')}
+                        className="flex-1"
+                    >
+                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
+                            activeTab === 'recurring' ? 'bg-white' : ''
+                        }`}>
+                            <Ionicons
+                                name="repeat-outline"
+                                size={15}
+                                color={activeTab === 'recurring' ? '#E98074' : '#94a3b8'}
+                            />
+                            <Text className={`ml-1.5 font-bold text-sm ${
+                                activeTab === 'recurring' ? 'text-primary' : 'text-slate-400'
+                            }`}>
+                                Recurring
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => setActiveTab('analytics')}
+                        className="flex-1"
+                    >
+                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
+                            activeTab === 'analytics' ? 'bg-white' : ''
+                        }`}>
+                            <Ionicons
+                                name="bar-chart-outline"
+                                size={15}
+                                color={activeTab === 'analytics' ? '#E98074' : '#94a3b8'}
+                            />
+                            <Text className={`ml-1.5 font-bold text-sm ${
+                                activeTab === 'analytics' ? 'text-primary' : 'text-slate-400'
+                            }`}>
+                                {userInfo?.isPremium ? 'Analytics' : '👑'}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Activity Tab */}
+                {activeTab === 'activity' && (
+                    <View className="px-6 pt-0">
+                        <Text className="text-slate-800 text-xl font-black mb-4 px-1">
+                            Recent Activity
+                        </Text>
+
+                        {expenses.length === 0 ? (
+                            <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
+                                <Ionicons name="receipt-outline" size={48} color="#cbd5e1" />
+                                <Text className="text-slate-400 text-center mt-4">
+                                    No activity yet!
                                 </Text>
                             </View>
-                        ))
-                    )}
-                </View>
-                
-                <View className="h-24" />
+                        ) : (
+                            expenses.map((expense) => {
+                                const isSettlement = expense.Category === 'SETTLEMENT' || expense.category === 'SETTLEMENT';
+                                const isPayer = String(expense.payerId) === String(userInfo?.id);
+                                const isDeleting = deletingExpenseId === expense.id;
+                                return (
+                                <View
+                                    key={expense.id}
+                                    className="bg-white p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50"
+                                >
+                                    <View className="flex-1">
+                                        <Text className="text-slate-800 font-bold text-base">
+                                            {expense.description || expense.Description}
+                                        </Text>
+                                        <View className="flex-row items-center mt-1">
+                                            <Text className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                                                {expense.category || expense.Category || 'General'}
+                                            </Text>
+                                            {expense.payerName && (
+                                                <Text className="text-slate-300 text-[10px] ml-2">
+                                                    · {isPayer ? 'you' : expense.payerName}
+                                                </Text>
+                                            )}
+                                        </View>
+                                    </View>
+                                    <View className="items-end gap-2">
+                                        <Text className={`font-black text-xl ${isSettlement ? 'text-teal-500' : 'text-primary'}`}>
+                                            ${expense.amount?.toFixed(2)}
+                                        </Text>
+                                        {isPayer && !isSettlement && (
+                                            <TouchableOpacity
+                                                onPress={() => handleDeleteExpense(expense)}
+                                                disabled={isDeleting}
+                                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                            >
+                                                {isDeleting
+                                                    ? <ActivityIndicator size="small" color="#f87171" />
+                                                    : <Ionicons name="trash-outline" size={16} color="#f87171" />
+                                                }
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
+                                </View>
+                                );
+                            })
+                        )}
+                        <View className="h-24" />
+                    </View>
+                )}
+
+                {/* Shopping Tab */}
+                {activeTab === 'shopping' && (
+                    <ShoppingTab homeId={myHome.id} refreshTrigger={refreshing} />
+                )}
+
+                {/* Recurring Tab */}
+                {activeTab === 'recurring' && (
+                    <RecurringTab homeId={myHome.id} navigation={navigation} />
+                )}
+
+                {/* Analytics Tab */}
+                {activeTab === 'analytics' && (
+                    <AnalyticsTab homeId={myHome.id} navigation={navigation} />
+                )}
             </ScrollView>
 
             <AddExpenseModal
@@ -306,6 +538,170 @@ export default function DashboardScreen() {
                 homeId={myHome.id}
                 onRefresh={onRefresh}
             />
+
+            {/* Home Switcher Overlay */}
+            {showHomeSwitcher && (
+                <TouchableOpacity
+                    style={styles.overlay}
+                    activeOpacity={1}
+                    onPress={() => setShowHomeSwitcher(false)}
+                >
+                    <View className="bg-white rounded-t-[36px] pb-10 overflow-hidden">
+                        <View className="w-10 h-1 bg-slate-200 rounded-full self-center mt-4 mb-4" />
+                        <Text className="text-slate-800 text-lg font-black px-6 mb-4">Your Households</Text>
+
+                        {allHomes.map((h) => (
+                            <TouchableOpacity
+                                key={h.id}
+                                onPress={() => switchHome(h)}
+                                style={h.id === myHome.id ? styles.activeRow : null}
+                                className="flex-row items-center px-6 py-4"
+                            >
+                                <View style={h.id === myHome.id ? styles.activeAvatar : styles.inactiveAvatar}
+                                    className="w-10 h-10 rounded-2xl items-center justify-center mr-4">
+                                    <Text style={h.id === myHome.id ? styles.whiteText : styles.grayText}
+                                        className="font-black text-sm">
+                                        {h.name.charAt(0).toUpperCase()}
+                                    </Text>
+                                </View>
+                                <Text style={h.id === myHome.id ? styles.primaryText : styles.darkText}
+                                    className="flex-1 font-bold text-base">
+                                    {h.name}
+                                </Text>
+                                {h.id === myHome.id && (
+                                    <Ionicons name="checkmark" size={20} color="#E98074" />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+
+                        <View className="border-t border-slate-100 mt-2">
+                            {atHomeLimit ? (
+                                <View className="px-6 py-4">
+                                    <Text className="text-xs font-bold text-slate-400 text-center">
+                                        {isPremium
+                                            ? `Limit reached (${HOME_LIMIT_PREMIUM} households max)`
+                                            : 'Free plan: 1 household'}
+                                    </Text>
+                                    {!isPremium && (
+                                        <TouchableOpacity
+                                            onPress={() => { setShowHomeSwitcher(false); navigation?.navigate('Settings', { screen: 'Premium' }); }}
+                                            className="mt-2"
+                                        >
+                                            <Text className="text-xs font-bold text-primary text-center">
+                                                Upgrade for up to {HOME_LIMIT_PREMIUM} households →
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            ) : (
+                                <TouchableOpacity
+                                    onPress={() => { setShowHomeSwitcher(false); setAddHomeMode('create'); setAddHomeInput(''); setShowAddHome(true); }}
+                                    className="flex-row items-center px-6 py-4"
+                                >
+                                    <View className="w-10 h-10 rounded-2xl bg-emerald-50 items-center justify-center mr-4">
+                                        <Ionicons name="add" size={20} color="#10b981" />
+                                    </View>
+                                    <View>
+                                        <Text className="font-bold text-slate-700 text-base">Add Household</Text>
+                                        <Text className="text-[10px] text-slate-400">{allHomes.length}/{homeLimit} used</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            )}
+
+            {/* Add / Join Household Overlay */}
+            {showAddHome && (
+                <View style={styles.overlay}>
+                    <View className="bg-white rounded-t-[36px] p-6 pb-10">
+                        <View className="w-10 h-1 bg-slate-200 rounded-full self-center mb-5" />
+                        <Text className="text-slate-800 text-xl font-black mb-5">
+                            {addHomeMode === 'join' ? 'Join a Household' : 'Create a Household'}
+                        </Text>
+
+                        {/* Mode toggle */}
+                        <View className="flex-row gap-3 mb-4">
+                            {['create', 'join'].map((m) => (
+                                <TouchableOpacity
+                                    key={m}
+                                    onPress={() => { setAddHomeMode(m); setAddHomeInput(''); }}
+                                    disabled={addHomeLoading}
+                                    style={addHomeMode === m ? styles.activeToggle : styles.inactiveToggle}
+                                    className="flex-1 py-3 rounded-2xl items-center border"
+                                >
+                                    <Text style={addHomeMode === m ? styles.whiteText : styles.grayText}
+                                        className="font-bold text-sm">
+                                        {m === 'create' ? 'Create New' : 'Join with Code'}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <TextInput
+                            value={addHomeInput}
+                            onChangeText={setAddHomeInput}
+                            placeholder={addHomeMode === 'join' ? 'Invite code (e.g. AB123)' : 'Household name (e.g. Apt 4B)'}
+                            placeholderTextColor="#94a3b8"
+                            editable={!addHomeLoading}
+                            style={styles.textInput}
+                        />
+
+                        <View className="flex-row gap-3">
+                            <TouchableOpacity
+                                onPress={() => setShowAddHome(false)}
+                                disabled={addHomeLoading}
+                                className="flex-1 p-4 rounded-2xl items-center bg-slate-100"
+                            >
+                                <Text className="text-slate-600 font-bold">Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleAddHome}
+                                disabled={addHomeLoading || !addHomeInput.trim()}
+                                style={addHomeLoading || !addHomeInput.trim() ? styles.disabledBtn : styles.primaryBtn}
+                                className="flex-1 p-4 rounded-2xl items-center"
+                            >
+                                {addHomeLoading
+                                    ? <ActivityIndicator color="white" />
+                                    : <Text className="text-white font-bold">{addHomeMode === 'join' ? 'Join' : 'Create'}</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+        zIndex: 100,
+    },
+    activeRow: { backgroundColor: 'rgba(233,128,116,0.05)' },
+    activeAvatar: { backgroundColor: '#E98074' },
+    inactiveAvatar: { backgroundColor: '#f1f5f9' },
+    whiteText: { color: '#ffffff' },
+    grayText: { color: '#64748b' },
+    primaryText: { color: '#E98074' },
+    darkText: { color: '#334155' },
+    activeToggle: { backgroundColor: '#E98074', borderColor: '#E98074' },
+    inactiveToggle: { backgroundColor: '#f8fafc', borderColor: '#e2e8f0' },
+    textInput: {
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        color: '#1e293b',
+        fontSize: 16,
+        marginBottom: 20,
+        backgroundColor: '#f8fafc',
+    },
+    primaryBtn: { backgroundColor: '#E98074' },
+    disabledBtn: { backgroundColor: 'rgba(233,128,116,0.5)' },
+});

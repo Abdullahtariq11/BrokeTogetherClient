@@ -217,11 +217,42 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    /**
+     * Logs the user in using a JWT already obtained externally (e.g., Google OAuth).
+     * Stores the token and fetches the profile, exactly like login() does.
+     */
+    const loginWithToken = async (token) => {
+        setIsLoading(true);
+        try {
+            await SecureStore.setItemAsync('userToken', token);
+            await SecureStore.setItemAsync('lastActiveTime', Date.now().toString());
+            setUserToken(token);
+
+            const profile = await authService.getProfile();
+            setUserInfo(profile);
+            await SecureStore.setItemAsync('userInfo', JSON.stringify(profile));
+
+            lastActiveTime.current = Date.now();
+        } catch (error) {
+            await clearAuthData();
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updateUserInfo = async (updated) => {
+        setUserInfo(updated);
+        await SecureStore.setItemAsync('userInfo', JSON.stringify(updated));
+    };
+
     return (
         <AuthContext.Provider value={{
             login,
+            loginWithToken,
             logout,
             deleteAccount,
+            updateUserInfo,
             isLoading,
             userToken,
             userInfo,

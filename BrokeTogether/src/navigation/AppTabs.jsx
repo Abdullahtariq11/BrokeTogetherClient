@@ -10,6 +10,7 @@ import HouseholdSettingsScreen from '../features/home/HouseholdSettingsScreen';
 import HelpSupportScreen from '../features/profile/HelpSupportScreen';
 import PrivacyPolicyScreen from '../features/profile/PrivacyPolicyScreen';
 import TermsConditionsScreen from '../features/profile/TermsConditionsScreen';
+import PremiumScreen from '../features/profile/PremiumScreen';
 
 const Tab = createBottomTabNavigator();
 const SettingsStack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ function SettingsStackScreen() {
             <SettingsStack.Screen name="HelpSupport" component={HelpSupportScreen} />
             <SettingsStack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
             <SettingsStack.Screen name="TermsConditions" component={TermsConditionsScreen} />
+            <SettingsStack.Screen name="Premium" component={PremiumScreen} />
         </SettingsStack.Navigator>
     );
 }

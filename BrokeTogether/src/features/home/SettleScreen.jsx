@@ -121,31 +121,33 @@ export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
                                 key={member.id}
                                 onPress={() => handleSettle(member, balance)}
                                 disabled={isSettled || theyOweYou}
-                                className={`bg-white p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 ${(isSettled || theyOweYou) ? 'opacity-40' : ''}`}
+                                className="bg-white p-5 rounded-[24px] mb-3 shadow-sm border border-slate-50"
                             >
-                                <View>
-                                    <Text className="font-bold text-lg text-slate-800">
-                                        {member.name}
-                                    </Text>
-                                    <Text className={`font-black text-[10px] ${
-                                        theyOweYou ? 'text-emerald-500' :
-                                        youOweThem ? 'text-rose-500' : 'text-slate-400'
-                                    }`}>
-                                        {theyOweYou ? "OWES YOU" : youOweThem ? "YOU OWE THEM" : "ALL SETTLED"}
-                                    </Text>
-                                </View>
-                                <View className="items-end">
-                                    <Text className={`text-xl font-black ${
-                                        theyOweYou ? 'text-emerald-500' :
-                                        youOweThem ? 'text-rose-500' : 'text-slate-300'
-                                    }`}>
-                                        ${Math.abs(balance).toFixed(2)}
-                                    </Text>
-                                    {youOweThem && !isSettled && (
-                                        <Text className="text-[10px] text-rose-400 mt-1">
-                                            TAP TO PAY
+                                <View className={`flex-row justify-between items-center ${(isSettled || theyOweYou) ? 'opacity-40' : ''}`}>
+                                    <View>
+                                        <Text className="font-bold text-lg text-slate-800">
+                                            {member.name}
                                         </Text>
-                                    )}
+                                        <Text className={`font-black text-[10px] ${
+                                            theyOweYou ? 'text-emerald-500' :
+                                            youOweThem ? 'text-rose-500' : 'text-slate-400'
+                                        }`}>
+                                            {theyOweYou ? "OWES YOU" : youOweThem ? "YOU OWE THEM" : "ALL SETTLED"}
+                                        </Text>
+                                    </View>
+                                    <View className="items-end">
+                                        <Text className={`text-xl font-black ${
+                                            theyOweYou ? 'text-emerald-500' :
+                                            youOweThem ? 'text-rose-500' : 'text-slate-300'
+                                        }`}>
+                                            ${Math.abs(balance).toFixed(2)}
+                                        </Text>
+                                        {youOweThem && !isSettled && (
+                                            <Text className="text-[10px] text-rose-400 mt-1">
+                                                TAP TO PAY
+                                            </Text>
+                                        )}
+                                    </View>
                                 </View>
                             </TouchableOpacity>
                         );

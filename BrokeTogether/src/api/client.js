@@ -35,7 +35,7 @@ const checkMutationCooldown = (method, url) => {
 
 const client = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000, // 30s — enough for Railway cold starts (can take 10-30s)
 });
 
 // Request interceptor — attach auth token + enforce rate limits
@@ -63,6 +63,23 @@ client.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Response interceptor — handle 401 Unauthorized globally (expired/invalid token)
+client.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Clear stored credentials so the app returns to the login screen
+      try {
+        await SecureStore.deleteItemAsync('userToken');
+        await SecureStore.deleteItemAsync('userInfo');
+        await SecureStore.deleteItemAsync('lastActiveTime');
+      } catch (_) {}
+      // The AuthContext hydration on next render will find no token → show login
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default client;

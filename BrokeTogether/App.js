@@ -28,7 +28,6 @@ const AppNav = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Keep showing splash until both the timer and auth are done
   if (!splashDone || isLoading === true) {
     return (
       <View className="flex-1 bg-slate-800 justify-center items-center">
@@ -38,16 +37,13 @@ const AppNav = () => {
   }
 
   return (
-    <View className="flex-1">
-      {/* Show app if user is logged in OR browsing as guest */}
+    <NavigationContainer>
       {!!userToken || isGuest ? (
-        <NavigationContainer>
-          <AppTabs />
-        </NavigationContainer>
+        <AppTabs />
       ) : (
         <LoginScreen />
       )}
-    </View>
+    </NavigationContainer>
   );
 };
 

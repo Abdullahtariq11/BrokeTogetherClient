@@ -3,15 +3,28 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Share, Modal, TextInpu
 import { AuthContext } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import homeService from '../../api/homeService';
+import authService from '../../api/authService';
 
 export default function ProfileScreen({ navigation }) {
-  const { userInfo, logout, deleteAccount, isGuest, exitGuestMode } = useContext(AuthContext);
+  const { userInfo, logout, deleteAccount, updateUserInfo, isGuest, exitGuestMode } = useContext(AuthContext);
 
   const [isAdminOfHome, setIsAdminOfHome] = useState(false);
   const [adminHomeName, setAdminHomeName] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  // Edit name state
+  const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [savingName, setSavingName] = useState(false);
+
+  // Reset password state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
     if (!isGuest && userInfo?.id) {
@@ -26,6 +39,37 @@ export default function ProfileScreen({ navigation }) {
       }).catch(() => {});
     }
   }, [userInfo?.id, isGuest]);
+
+  const handleEditName = async () => {
+    if (!newName.trim()) return Alert.alert('Error', 'Name cannot be empty.');
+    setSavingName(true);
+    try {
+      const updated = await authService.editName(newName.trim());
+      await updateUserInfo(updated);
+      setShowEditNameModal(false);
+      Alert.alert('Success', 'Name updated successfully.');
+    } catch (err) {
+      Alert.alert('Error', typeof err === 'string' ? err : 'Failed to update name.');
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (newPassword !== confirmPassword) return Alert.alert('Error', 'New passwords do not match.');
+    if (newPassword.length < 6) return Alert.alert('Error', 'Password must be at least 6 characters.');
+    setSavingPassword(true);
+    try {
+      await authService.resetPassword(currentPassword, newPassword);
+      setShowPasswordModal(false);
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      Alert.alert('Success', 'Password updated successfully.');
+    } catch (err) {
+      Alert.alert('Error', typeof err === 'string' ? err : 'Failed to update password.');
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -107,6 +151,29 @@ export default function ProfileScreen({ navigation }) {
           </View>
         )}
 
+        {/* Premium Banner */}
+        {!isGuest && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Premium')}
+            className="mb-6"
+          >
+            <View className={`p-5 rounded-3xl flex-row items-center shadow-sm ${userInfo?.isPremium ? 'bg-amber-50 border border-amber-200' : 'bg-primary'}`}>
+              <View className={`w-10 h-10 rounded-full items-center justify-center mr-4 ${userInfo?.isPremium ? 'bg-amber-100' : 'bg-white/20'}`}>
+                <Ionicons name="star" size={20} color={userInfo?.isPremium ? '#d97706' : 'white'} />
+              </View>
+              <View className="flex-1">
+                <Text className={`font-black text-base ${userInfo?.isPremium ? 'text-amber-800' : 'text-white'}`}>
+                  {userInfo?.isPremium ? 'Premium Member' : 'Upgrade to Premium'}
+                </Text>
+                <Text className={`text-xs mt-0.5 ${userInfo?.isPremium ? 'text-amber-600' : 'text-white/80'}`}>
+                  {userInfo?.isPremium ? 'Manage your subscription' : 'Unlock shopping lists & more features'}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={userInfo?.isPremium ? '#d97706' : 'white'} />
+            </View>
+          </TouchableOpacity>
+        )}
+
         <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">Account Settings</Text>
 
         <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -120,6 +187,51 @@ export default function ProfileScreen({ navigation }) {
             {isGuest && <Ionicons name="lock-closed" size={14} color="#cbd5e1" style={{ marginRight: 6 }} />}
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
+
+          {/* Edit Name */}
+          {!isGuest && (
+            <TouchableOpacity
+              onPress={() => { setNewName(userInfo?.name ?? ''); setShowEditNameModal(true); }}
+              className="flex-row items-center p-5 border-b border-slate-50"
+            >
+              <Ionicons name="person-outline" size={22} color="#64748b" />
+              <Text className="flex-1 ml-4 text-slate-700 font-medium">Edit Name</Text>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          )}
+
+          {/* Change Password */}
+          {!isGuest && (
+            <TouchableOpacity
+              onPress={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setShowPasswordModal(true); }}
+              className="flex-row items-center p-5 border-b border-slate-50"
+            >
+              <Ionicons name="key-outline" size={22} color="#64748b" />
+              <Text className="flex-1 ml-4 text-slate-700 font-medium">Change Password</Text>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          )}
+
+          {/* Subscription */}
+          {!isGuest && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Premium')}
+              className="flex-row items-center p-5 border-b border-slate-50"
+            >
+              <Ionicons
+                name="star"
+                size={22}
+                color={userInfo?.isPremium ? '#d97706' : '#64748b'}
+              />
+              <Text className="flex-1 ml-4 text-slate-700 font-medium">Subscription</Text>
+              <View className={`px-2 py-0.5 rounded-full mr-2 ${userInfo?.isPremium ? 'bg-amber-100' : 'bg-slate-100'}`}>
+                <Text className={`text-xs font-bold ${userInfo?.isPremium ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {userInfo?.isPremium ? 'Premium' : 'Free'}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          )}
 
           {/* Share App */}
           <TouchableOpacity onPress={onShareApp} className="flex-row items-center p-5 border-b border-slate-50">
@@ -191,6 +303,62 @@ export default function ProfileScreen({ navigation }) {
         </Text>
       </View>
 
+      {/* Edit Name Modal */}
+      <Modal visible={showEditNameModal} transparent animationType="fade" onRequestClose={() => !savingName && setShowEditNameModal(false)}>
+        <View className="flex-1 justify-center items-center bg-black/60 px-6">
+          <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
+            <Text className="text-slate-800 text-xl font-black mb-4">Edit Name</Text>
+            <TextInput
+              autoFocus
+              value={newName}
+              onChangeText={setNewName}
+              placeholder="Your name"
+              maxLength={100}
+              editable={!savingName}
+              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-5 bg-slate-50"
+            />
+            <View className="flex-row gap-3">
+              <TouchableOpacity onPress={() => setShowEditNameModal(false)} disabled={savingName}
+                className="flex-1 p-4 rounded-2xl items-center bg-slate-100">
+                <Text className="text-slate-600 font-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleEditName} disabled={savingName}
+                className="flex-1 p-4 rounded-2xl items-center bg-primary">
+                {savingName ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold">Save</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Change Password Modal */}
+      <Modal visible={showPasswordModal} transparent animationType="fade" onRequestClose={() => !savingPassword && setShowPasswordModal(false)}>
+        <View className="flex-1 justify-center items-center bg-black/60 px-6">
+          <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
+            <Text className="text-slate-800 text-xl font-black mb-4">Change Password</Text>
+            <TextInput secureTextEntry value={currentPassword} onChangeText={setCurrentPassword}
+              placeholder="Current password" editable={!savingPassword}
+              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-3 bg-slate-50" />
+            <TextInput secureTextEntry value={newPassword} onChangeText={setNewPassword}
+              placeholder="New password" editable={!savingPassword}
+              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-3 bg-slate-50" />
+            <TextInput secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword}
+              placeholder="Confirm new password" editable={!savingPassword}
+              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-5 bg-slate-50" />
+            <View className="flex-row gap-3">
+              <TouchableOpacity onPress={() => setShowPasswordModal(false)} disabled={savingPassword}
+                className="flex-1 p-4 rounded-2xl items-center bg-slate-100">
+                <Text className="text-slate-600 font-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleResetPassword} disabled={savingPassword}
+                className="flex-1 p-4 rounded-2xl items-center bg-primary">
+                {savingPassword ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold">Update</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Delete Account Confirmation Modal */}
       <Modal
         visible={showDeleteModal}
@@ -245,13 +413,15 @@ export default function ProfileScreen({ navigation }) {
             <TouchableOpacity
               onPress={confirmDeleteAccount}
               disabled={confirmText !== 'DELETE' || deleting}
-              className={`p-4 rounded-2xl items-center mb-3 ${confirmText === 'DELETE' ? 'bg-red-600' : 'bg-red-200'}`}
+              className="mb-3"
             >
-              {deleting ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white font-black text-base">Delete My Account</Text>
-              )}
+              <View className={`p-4 rounded-2xl items-center ${confirmText === 'DELETE' ? 'bg-red-600' : 'bg-red-200'}`}>
+                {deleting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-black text-base">Delete My Account</Text>
+                )}
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity

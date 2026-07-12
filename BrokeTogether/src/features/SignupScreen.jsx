@@ -98,14 +98,15 @@ export default function SignupScreen({ onBack }) {
           </View>
 
           {/* Signup Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleSignup}
             disabled={loading}
-            className={`p-5 rounded-2xl items-center shadow-lg ${loading ? 'bg-slate-300' : 'bg-primary shadow-primary/30'}`}
           >
-            <Text className="text-white font-bold text-lg">
-              {loading ? "Creating Account..." : "Sign Up"}
-            </Text>
+            <View className={`p-5 rounded-2xl items-center shadow-lg ${loading ? 'bg-slate-300' : 'bg-primary shadow-primary/30'}`}>
+              <Text className="text-white font-bold text-lg">
+                {loading ? "Creating Account..." : "Sign Up"}
+              </Text>
+            </View>
           </TouchableOpacity>
 
           <View className="flex-row justify-center mt-8">

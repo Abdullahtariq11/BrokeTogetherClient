@@ -52,7 +52,13 @@ const homeService = {
   leaveHome: async (homeId) => {
     const response = await client.delete(`/homes/${homeId}/leave`);
     return response.data;
-  }
+  },
+
+  // Regenerate invite code (admin only)
+  regenerateInviteCode: async (homeId) => {
+    const response = await client.post(`/homes/inviteCode/${homeId}`);
+    return response.data;
+  },
 };
 
 export default homeService;

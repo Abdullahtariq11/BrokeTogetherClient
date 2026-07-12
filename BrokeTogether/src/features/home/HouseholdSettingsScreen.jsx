@@ -24,6 +24,9 @@ export default function HouseholdSettingsScreen({ navigation }) {
   const [newName, setNewName] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Regenerate invite code state
+  const [regenerating, setRegenerating] = useState(false);
+
   const loadHome = useCallback(async () => {
     try {
       const homes = await homeService.getMyHomes();
@@ -67,6 +70,32 @@ export default function HouseholdSettingsScreen({ navigation }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleRegenerateCode = () => {
+    Alert.alert(
+      'Regenerate Invite Code',
+      'The current code will stop working immediately. Anyone with the old code won\'t be able to join.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Regenerate',
+          style: 'destructive',
+          onPress: async () => {
+            setRegenerating(true);
+            try {
+              const updated = await homeService.regenerateInviteCode(home.id);
+              setHome(updated);
+              Alert.alert('Success', 'Invite code has been regenerated.');
+            } catch (err) {
+              Alert.alert('Error', 'Failed to regenerate invite code. Please try again.');
+            } finally {
+              setRegenerating(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleLeave = () => {
@@ -190,6 +219,38 @@ export default function HouseholdSettingsScreen({ navigation }) {
             </View>
           )}
         </View>
+
+        {/* Invite Code Section (admin only) */}
+        {isAdmin && (
+          <>
+            <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+              Invite Code
+            </Text>
+            <View className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 mb-6">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <Text className="text-slate-800 text-xl font-black tracking-widest">
+                    {home.inviteCode}
+                  </Text>
+                  <Text className="text-slate-400 text-xs mt-1">
+                    Share this code to invite people to your household
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={handleRegenerateCode}
+                  disabled={regenerating}
+                  className="bg-primary/10 p-2.5 rounded-xl ml-4"
+                >
+                  {regenerating ? (
+                    <ActivityIndicator size="small" color="#E98074" />
+                  ) : (
+                    <Ionicons name="refresh" size={20} color="#E98074" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </>
+        )}
 
         {/* Role Info */}
         <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">

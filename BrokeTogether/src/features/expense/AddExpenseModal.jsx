@@ -166,16 +166,18 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mb-6">
               {CATEGORIES.map((cat) => (
-                <TouchableOpacity 
+                <TouchableOpacity
                   key={cat}
                   onPress={() => setCategory(cat)}
-                  className={`mr-2 px-6 py-2 rounded-full border ${
-                    category === cat ? 'bg-primary border-primary' : 'bg-white border-slate-200'
-                  }`}
+                  className="mr-2"
                 >
-                  <Text className={`font-bold ${category === cat ? 'text-white' : 'text-slate-500'}`}>
-                    {cat}
-                  </Text>
+                  <View className={`px-6 py-2 rounded-full border ${
+                    category === cat ? 'bg-primary border-primary' : 'bg-white border-slate-200'
+                  }`}>
+                    <Text className={`font-bold ${category === cat ? 'text-white' : 'text-slate-500'}`}>
+                      {cat}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -216,28 +218,30 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                   const isSelected = selectedUserIds.includes(member.id);
                   
                   return (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={member.id}
                       onPress={() => toggleMember(member.id)}
-                      className={`flex-row items-center p-4 rounded-2xl mb-2 border ${
-                        isSelected ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-50'
-                      }`}
+                      className="mb-2"
                     >
-                      <Ionicons 
-                        name={isSelected ? "checkbox" : "square-outline"} 
-                        size={24} 
-                        color={isSelected ? "#E98074" : "#cbd5e1"} 
-                      />
-                      <View className="ml-3 flex-1">
-                        <Text className={`text-base ${isSelected ? 'text-slate-800 font-bold' : 'text-slate-500'}`}>
-                          {member.name}
-                        </Text>
+                      <View className={`flex-row items-center p-4 rounded-2xl border ${
+                        isSelected ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-50'
+                      }`}>
+                        <Ionicons
+                          name={isSelected ? "checkbox" : "square-outline"}
+                          size={24}
+                          color={isSelected ? "#E98074" : "#cbd5e1"}
+                        />
+                        <View className="ml-3 flex-1">
+                          <Text className={`text-base ${isSelected ? 'text-slate-800 font-bold' : 'text-slate-500'}`}>
+                            {member.name}
+                          </Text>
+                        </View>
+                        {isSelected && amount && (
+                          <Text className="text-primary font-bold">
+                            ${splitAmount.toFixed(2)}
+                          </Text>
+                        )}
                       </View>
-                      {isSelected && amount && (
-                        <Text className="text-primary font-bold">
-                          ${splitAmount.toFixed(2)}
-                        </Text>
-                      )}
                     </TouchableOpacity>
                   );
                 })
@@ -245,23 +249,25 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             </View>
 
             {/* Submit Button */}
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSubmit}
               disabled={loading || otherMembers.length === 0}
-              className={`p-5 rounded-2xl items-center shadow-lg mb-4 ${
-                loading || otherMembers.length === 0 ? 'bg-slate-300' : 'bg-primary shadow-primary/40'
-              }`}
+              className="mb-4"
             >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white font-black text-lg">
-                  {selectedUserIds.length === 0 
-                    ? "Select roommates" 
-                    : `Split $${splitAmount.toFixed(2)} each (${totalParticipants} people)`
-                  }
-                </Text>
-              )}
+              <View className={`p-5 rounded-2xl items-center shadow-lg ${
+                loading || otherMembers.length === 0 ? 'bg-slate-300' : 'bg-primary shadow-primary/40'
+              }`}>
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-black text-lg">
+                    {selectedUserIds.length === 0
+                      ? "Select roommates"
+                      : `Split $${splitAmount.toFixed(2)} each (${totalParticipants} people)`
+                    }
+                  </Text>
+                )}
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleClose} className="mb-10 items-center">
