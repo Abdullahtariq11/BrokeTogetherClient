@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
+import Purchases from 'react-native-purchases';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import * as SplashScreen from 'expo-splash-screen';
+import { REVENUECAT_API_KEY } from './src/config/revenuecat';
 import "./global.css";
 
 import LoginScreen from './src/features/LoginScreen';
@@ -12,6 +14,11 @@ import ActivityTracker from './src/component/ActivityTracker';
 
 // Keep splash screen visible until we manually hide it
 SplashScreen.preventAutoHideAsync();
+
+if (__DEV__) {
+  Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+}
+Purchases.configure({ apiKey: REVENUECAT_API_KEY });
 
 const SPLASH_DURATION = 2500; // milliseconds — adjust as needed
 

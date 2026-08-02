@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, Alert,
-  ActivityIndicator, Linking
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Purchases from 'react-native-purchases';
+import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import billingService from '../../api/billingService';
 import { AuthContext } from '../../context/AuthContext';
+import { PREMIUM_ENTITLEMENT_ID } from '../../config/revenuecat';
 
 const FEATURES = [
   { icon: 'cart-outline', text: 'Shared shopping list with price tracking' },
@@ -18,30 +21,45 @@ const FEATURES = [
 export default function PremiumScreen({ navigation }) {
   const { userInfo } = useContext(AuthContext);
   const [status, setStatus] = useState(null);
+  const [customerInfo, setCustomerInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const isPremium = status?.isPremium ?? userInfo?.isPremium ?? false;
+  // RevenueCat's on-device entitlement check wins when present — it's
+  // updated the instant a purchase/restore completes, without waiting on
+  // the backend's webhook-driven status.
+  const isPremium = customerInfo?.entitlements?.active?.[PREMIUM_ENTITLEMENT_ID]
+    ? true
+    : status?.isPremium ?? userInfo?.isPremium ?? false;
   const subscriptionStatus = status?.subscriptionStatus ?? userInfo?.subscriptionStatus ?? 'NONE';
 
-  useEffect(() => {
-    billingService.getStatus()
-      .then(setStatus)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const refreshCustomerInfo = useCallback(async () => {
+    try {
+      const info = await Purchases.getCustomerInfo();
+      setCustomerInfo(info);
+    } catch {
+      // RevenueCat unreachable — fall back to backend-reported status
+    }
   }, []);
+
+  useEffect(() => {
+    Promise.all([
+      billingService.getStatus().then(setStatus).catch(() => {}),
+      refreshCustomerInfo(),
+    ]).finally(() => setLoading(false));
+  }, [refreshCustomerInfo]);
 
   const handleUpgrade = async () => {
     setActionLoading(true);
     try {
-      const data = await billingService.createCheckoutSession();
-      if (data?.url) {
-        await Linking.openURL(data.url);
-      } else {
-        Alert.alert('Error', 'Could not get checkout link. Please try again.');
+      const result = await RevenueCatUI.presentPaywall();
+      if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
+        await refreshCustomerInfo();
+      } else if (result === PAYWALL_RESULT.ERROR) {
+        Alert.alert('Error', 'Something went wrong during purchase. Please try again.');
       }
     } catch {
-      Alert.alert('Error', 'Failed to start checkout. Please try again.');
+      Alert.alert('Error', 'Could not open the upgrade screen. Please try again.');
     } finally {
       setActionLoading(false);
     }
@@ -50,14 +68,25 @@ export default function PremiumScreen({ navigation }) {
   const handleManage = async () => {
     setActionLoading(true);
     try {
-      const data = await billingService.createPortalSession();
-      if (data?.url) {
-        await Linking.openURL(data.url);
-      } else {
-        Alert.alert('Error', 'Could not open billing portal. Please try again.');
+      await RevenueCatUI.presentCustomerCenter();
+      await refreshCustomerInfo();
+    } catch {
+      Alert.alert('Error', 'Could not open subscription management. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setActionLoading(true);
+    try {
+      const info = await Purchases.restorePurchases();
+      setCustomerInfo(info);
+      if (!info.entitlements.active[PREMIUM_ENTITLEMENT_ID]) {
+        Alert.alert('No purchases found', "We couldn't find an active subscription for this account.");
       }
     } catch {
-      Alert.alert('Error', 'Failed to open billing portal. Please try again.');
+      Alert.alert('Error', 'Failed to restore purchases. Please try again.');
     } finally {
       setActionLoading(false);
     }
@@ -181,8 +210,14 @@ export default function PremiumScreen({ navigation }) {
               </View>
             )}
 
+            {!isPremium && (
+              <TouchableOpacity onPress={handleRestore} disabled={actionLoading} className="mt-4 items-center">
+                <Text className="text-primary text-sm font-semibold">Restore Purchases</Text>
+              </TouchableOpacity>
+            )}
+
             <Text className="text-center text-slate-300 text-xs mt-8 mb-4">
-              Subscriptions are managed via Stripe. Cancel anytime.
+              Subscriptions are billed through the App Store or Google Play. Cancel anytime.
             </Text>
           </>
         )}

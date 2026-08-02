@@ -1,7 +1,17 @@
 import { createContext, useEffect, useState, useRef, useCallback } from "react";
 import * as SecureStore from 'expo-secure-store';
 import { AppState } from 'react-native';
+import Purchases from 'react-native-purchases';
 import authService from "../api/authService";
+
+// Links the RevenueCat app-user id to our backend user id so purchase
+// webhooks can be attributed to the right account. Never fatal — a failure
+// here shouldn't block login.
+const identifyPurchaser = async (userId) => {
+    try {
+        await Purchases.logIn(String(userId));
+    } catch (_) {}
+};
 
 export const AuthContext = createContext();
 
@@ -28,6 +38,9 @@ export const AuthProvider = ({ children }) => {
         await SecureStore.deleteItemAsync('lastActiveTime');
         setUserToken(null);
         setUserInfo(null);
+        try {
+            await Purchases.logOut();
+        } catch (_) {}
     };
 
     // Delete account function
@@ -169,7 +182,9 @@ export const AuthProvider = ({ children }) => {
 
                     // Set local data first for instant UI update
                     if (storedUserInfo) {
-                        setUserInfo(JSON.parse(storedUserInfo));
+                        const cachedUser = JSON.parse(storedUserInfo);
+                        setUserInfo(cachedUser);
+                        identifyPurchaser(cachedUser.id);
                     }
 
                     // Refresh profile from API
@@ -177,6 +192,7 @@ export const AuthProvider = ({ children }) => {
                         const freshUser = await authService.getProfile();
                         setUserInfo(freshUser);
                         await SecureStore.setItemAsync('userInfo', JSON.stringify(freshUser));
+                        identifyPurchaser(freshUser.id);
                     } catch (apiErr) {
                         // Profile refresh failed — using cached data
                     }
@@ -207,6 +223,7 @@ export const AuthProvider = ({ children }) => {
             const profile = await authService.getProfile();
             setUserInfo(profile);
             await SecureStore.setItemAsync('userInfo', JSON.stringify(profile));
+            await identifyPurchaser(profile.id);
 
             lastActiveTime.current = Date.now();
 
