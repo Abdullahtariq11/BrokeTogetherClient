@@ -8,5 +8,5 @@
 export const REVENUECAT_API_KEY = 'test_pTCbMjHCYDxDKdqHDnmMuulMibk';
 
 // Must match the Entitlement identifier configured in the RevenueCat
-// dashboard, with the lifetime/yearly/monthly products attached to it.
+// dashboard, with the monthly/yearly products attached to it.
 export const PREMIUM_ENTITLEMENT_ID = 'Broketogether Pro';
