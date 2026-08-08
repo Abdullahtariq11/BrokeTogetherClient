@@ -370,86 +370,41 @@ export default function DashboardScreen({ navigation }) {
                 </View>
 
                 {/* Tab Bar */}
-                <View className="flex-row mx-6 mb-4 bg-slate-100 p-1 rounded-2xl">
-                    <TouchableOpacity
-                        onPress={() => setActiveTab('activity')}
-                        className="flex-1"
-                    >
-                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
-                            activeTab === 'activity' ? 'bg-white' : ''
-                        }`}>
-                            <Ionicons
-                                name="receipt-outline"
-                                size={15}
-                                color={activeTab === 'activity' ? '#E98074' : '#94a3b8'}
-                            />
-                            <Text className={`ml-1.5 font-bold text-sm ${
-                                activeTab === 'activity' ? 'text-primary' : 'text-slate-400'
-                            }`}>
-                                Activity
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => setActiveTab('shopping')}
-                        className="flex-1"
-                    >
-                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
-                            activeTab === 'shopping' ? 'bg-white' : ''
-                        }`}>
-                            <Ionicons
-                                name="cart-outline"
-                                size={15}
-                                color={activeTab === 'shopping' ? '#E98074' : '#94a3b8'}
-                            />
-                            <Text className={`ml-1.5 font-bold text-sm ${
-                                activeTab === 'shopping' ? 'text-primary' : 'text-slate-400'
-                            }`}>
-                                Shopping
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => setActiveTab('recurring')}
-                        className="flex-1"
-                    >
-                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
-                            activeTab === 'recurring' ? 'bg-white' : ''
-                        }`}>
-                            <Ionicons
-                                name="repeat-outline"
-                                size={15}
-                                color={activeTab === 'recurring' ? '#E98074' : '#94a3b8'}
-                            />
-                            <Text className={`ml-1.5 font-bold text-sm ${
-                                activeTab === 'recurring' ? 'text-primary' : 'text-slate-400'
-                            }`}>
-                                Recurring
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        onPress={() => setActiveTab('analytics')}
-                        className="flex-1"
-                    >
-                        <View className={`py-2.5 rounded-xl items-center flex-row justify-center ${
-                            activeTab === 'analytics' ? 'bg-white' : ''
-                        }`}>
-                            <Ionicons
-                                name="bar-chart-outline"
-                                size={15}
-                                color={activeTab === 'analytics' ? '#E98074' : '#94a3b8'}
-                            />
-                            <Text className={`ml-1.5 font-bold text-sm ${
-                                activeTab === 'analytics' ? 'text-primary' : 'text-slate-400'
-                            }`}>
-                                {userInfo?.isPremium ? 'Analytics' : '👑'}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
+                <View className="flex-row mx-6 mb-4 bg-slate-100 p-1.5 rounded-3xl border border-slate-50 gap-1">
+                    {[
+                        { key: 'activity', label: 'Activity', icon: 'receipt-outline' },
+                        { key: 'shopping', label: 'Shopping', icon: 'cart-outline' },
+                        { key: 'recurring', label: 'Recurring', icon: 'repeat-outline' },
+                        { key: 'analytics', label: userInfo?.isPremium ? 'Analytics' : '👑', icon: 'bar-chart-outline' },
+                    ].map((tab) => {
+                        const isActive = activeTab === tab.key;
+                        return (
+                            <TouchableOpacity
+                                key={tab.key}
+                                onPress={() => setActiveTab(tab.key)}
+                                activeOpacity={0.7}
+                                className="flex-1"
+                            >
+                                <View className={`py-3 rounded-2xl items-center flex-row justify-center ${
+                                    isActive ? 'bg-white border border-primary/25' : ''
+                                }`}>
+                                    <Ionicons
+                                        name={tab.icon}
+                                        size={16}
+                                        color={isActive ? '#E98074' : '#64748b'}
+                                    />
+                                    <Text
+                                        numberOfLines={1}
+                                        className={`ml-1.5 font-bold text-xs ${
+                                            isActive ? 'text-primary' : 'text-slate-500'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </View>
 
                 {/* Activity Tab */}
