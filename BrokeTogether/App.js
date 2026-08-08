@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import Purchases from 'react-native-purchases';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
+import { ThemeProvider } from './src/context/ThemeContext';
 import * as SplashScreen from 'expo-splash-screen';
 import { REVENUECAT_API_KEY } from './src/config/revenuecat';
 import "./global.css";
@@ -57,11 +58,13 @@ const AppNav = () => {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <ActivityTracker>
-          <AppNav />
-        </ActivityTracker>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ActivityTracker>
+            <AppNav />
+          </ActivityTracker>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

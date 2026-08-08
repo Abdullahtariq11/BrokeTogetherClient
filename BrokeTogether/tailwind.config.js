@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         // Your brand palette
         primary: "#E98074",    // Salmon
+        "primary-dark": "#D05A4A", // Darker salmon, matches web dark-mode gradient
         secondary: "#8E8D8A",  // Sage/Gray
         background: "#F9FAFB", // Off-white
         accent: "#E85A4F",     // Darker Salmon for buttons

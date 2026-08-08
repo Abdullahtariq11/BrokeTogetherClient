@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useCallback, useRef } from 'rea
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, Alert, TextInput, StyleSheet } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 import { AuthContext } from '../context/AuthContext';
 import homeService from '../api/homeService';
 import expenseService from '../api/expenseService';
@@ -18,6 +19,8 @@ const HOME_LIMIT_PREMIUM = 3;
 export default function DashboardScreen({ navigation }) {
     const { userInfo, logout, isGuest, exitGuestMode } = useContext(AuthContext);
     const isPremium = userInfo?.isPremium ?? false;
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     // View Management
     const [currentView, setCurrentView] = useState('dashboard');
@@ -183,16 +186,16 @@ export default function DashboardScreen({ navigation }) {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50">
+            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
                 <ActivityIndicator size="large" color="#E98074" />
-                <Text className="mt-4 text-slate-500 font-medium">Syncing Household...</Text>
+                <Text className="mt-4 text-slate-500 dark:text-slate-400 font-medium">Syncing Household...</Text>
             </View>
         );
     }
 
     if (isGuest) {
         return (
-            <ScrollView className="flex-1 bg-slate-50" contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
                     <Text className="text-white/70 font-medium tracking-tight">Welcome to</Text>
                     <Text className="text-white text-3xl font-black">BrokeTogether</Text>
@@ -200,40 +203,40 @@ export default function DashboardScreen({ navigation }) {
                 </View>
 
                 <View className="p-6">
-                    <Text className="text-slate-800 text-xl font-black mb-3">What you can do</Text>
-                    <View className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-3">
+                    <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-3">What you can do</Text>
+                    <View className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-3">
                         <View className="flex-row items-center mb-3">
-                            <View className="bg-primary/10 p-3 rounded-2xl mr-3">
+                            <View className="bg-primary/10 dark:bg-primary/20 p-3 rounded-2xl mr-3">
                                 <Ionicons name="home" size={22} color="#E98074" />
                             </View>
-                            <Text className="text-slate-800 font-bold flex-1">Create or join a household</Text>
+                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Create or join a household</Text>
                         </View>
                         <View className="flex-row items-center mb-3">
-                            <View className="bg-emerald-50 p-3 rounded-2xl mr-3">
+                            <View className="bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="receipt" size={22} color="#10b981" />
                             </View>
-                            <Text className="text-slate-800 font-bold flex-1">Track shared expenses</Text>
+                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Track shared expenses</Text>
                         </View>
                         <View className="flex-row items-center mb-3">
-                            <View className="bg-sky-50 p-3 rounded-2xl mr-3">
+                            <View className="bg-sky-50 dark:bg-sky-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="calculator" size={22} color="#0ea5e9" />
                             </View>
-                            <Text className="text-slate-800 font-bold flex-1">Auto-calculate balances</Text>
+                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Auto-calculate balances</Text>
                         </View>
                         <View className="flex-row items-center">
-                            <View className="bg-amber-50 p-3 rounded-2xl mr-3">
+                            <View className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="checkmark-done" size={22} color="#f59e0b" />
                             </View>
-                            <Text className="text-slate-800 font-bold flex-1">Settle up easily</Text>
+                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Settle up easily</Text>
                         </View>
                     </View>
 
-                    <View className="bg-white p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 items-center mt-2">
-                        <Ionicons name="lock-closed-outline" size={36} color="#cbd5e1" />
-                        <Text className="text-slate-600 text-center mt-3 font-semibold">
+                    <View className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 dark:border-slate-700 items-center mt-2">
+                        <Ionicons name="lock-closed-outline" size={36} color={isDark ? '#475569' : '#cbd5e1'} />
+                        <Text className="text-slate-600 dark:text-slate-300 text-center mt-3 font-semibold">
                             Sign in to start tracking expenses
                         </Text>
-                        <Text className="text-slate-400 text-center text-xs mt-1 mb-4">
+                        <Text className="text-slate-400 dark:text-slate-500 text-center text-xs mt-1 mb-4">
                             All features require an account because they're tied to you and your household members.
                         </Text>
                         <TouchableOpacity
@@ -262,7 +265,7 @@ export default function DashboardScreen({ navigation }) {
     }
 
     return (
-        <View className="flex-1 bg-slate-50">
+        <View className="flex-1 bg-slate-50 dark:bg-slate-900">
             <ScrollView
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
@@ -313,9 +316,9 @@ export default function DashboardScreen({ navigation }) {
 
                 {/* Balance Card */}
                 <View className="px-6 -mt-10 mb-4">
-                    <View className="bg-white p-6 rounded-[30px] shadow-xl border border-slate-50 flex-row justify-between items-center">
+                    <View className="bg-white dark:bg-slate-800 p-6 rounded-[30px] shadow-xl border border-slate-50 dark:border-slate-700 flex-row justify-between items-center">
                         <View>
-                            <Text className="text-slate-400 font-bold text-[10px] uppercase tracking-[2px]">
+                            <Text className="text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[2px]">
                                 Your Net Balance
                             </Text>
                             <Text className={`text-3xl font-black mt-1 ${
@@ -328,8 +331,8 @@ export default function DashboardScreen({ navigation }) {
                         </View>
 
                         <View className={`p-4 rounded-2xl ${
-                            myBalance > 0 ? 'bg-emerald-50' :
-                            myBalance < 0 ? 'bg-rose-50' : 'bg-slate-50'
+                            myBalance > 0 ? 'bg-emerald-50 dark:bg-emerald-900/30' :
+                            myBalance < 0 ? 'bg-rose-50 dark:bg-rose-900/30' : 'bg-slate-50 dark:bg-slate-700'
                         }`}>
                             <Ionicons
                                 name={
@@ -349,28 +352,28 @@ export default function DashboardScreen({ navigation }) {
                 {/* Quick Actions */}
                 <View className="flex-row px-6 justify-between mb-6">
                     <TouchableOpacity
-                        className="bg-white flex-1 mr-2 p-5 rounded-3xl shadow-md items-center border border-slate-50"
+                        className="bg-white dark:bg-slate-800 flex-1 mr-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-slate-700"
                         onPress={() => setModalVisible(true)}
                     >
-                        <View className="bg-primary/10 p-3 rounded-2xl mb-2">
+                        <View className="bg-primary/10 dark:bg-primary/20 p-3 rounded-2xl mb-2">
                             <Ionicons name="add" size={24} color="#E98074" />
                         </View>
                         <Text className="text-primary font-bold text-sm">Add Bill</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        className="bg-white flex-1 ml-2 p-5 rounded-3xl shadow-md items-center border border-slate-50"
+                        className="bg-white dark:bg-slate-800 flex-1 ml-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-slate-700"
                         onPress={() => setCurrentView('settle')}
                     >
-                        <View className="bg-emerald-50 p-3 rounded-2xl mb-2">
+                        <View className="bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-2xl mb-2">
                             <Ionicons name="checkmark-done" size={24} color="#10b981" />
                         </View>
-                        <Text className="text-emerald-600 font-bold text-sm">Settle Up</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">Settle Up</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Tab Bar */}
-                <View className="flex-row mx-6 mb-4 bg-slate-100 p-1.5 rounded-3xl border border-slate-50 gap-1">
+                <View className="flex-row mx-6 mb-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-3xl border border-slate-50 dark:border-slate-700 gap-1">
                     {[
                         { key: 'activity', label: 'Activity', icon: 'receipt-outline' },
                         { key: 'shopping', label: 'Shopping', icon: 'cart-outline' },
@@ -386,7 +389,7 @@ export default function DashboardScreen({ navigation }) {
                                 className="flex-1"
                             >
                                 <View className={`py-3 rounded-2xl items-center flex-row justify-center ${
-                                    isActive ? 'bg-white border border-primary/25' : ''
+                                    isActive ? 'bg-white dark:bg-slate-700 border border-primary/25' : ''
                                 }`}>
                                     <Ionicons
                                         name={tab.icon}
@@ -410,14 +413,14 @@ export default function DashboardScreen({ navigation }) {
                 {/* Activity Tab */}
                 {activeTab === 'activity' && (
                     <View className="px-6 pt-0">
-                        <Text className="text-slate-800 text-xl font-black mb-4 px-1">
+                        <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-4 px-1">
                             Recent Activity
                         </Text>
 
                         {expenses.length === 0 ? (
-                            <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
-                                <Ionicons name="receipt-outline" size={48} color="#cbd5e1" />
-                                <Text className="text-slate-400 text-center mt-4">
+                            <View className="bg-white dark:bg-slate-800 p-12 rounded-[30px] items-center border border-dashed border-slate-200 dark:border-slate-700">
+                                <Ionicons name="receipt-outline" size={48} color={isDark ? '#475569' : '#cbd5e1'} />
+                                <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                                     No activity yet!
                                 </Text>
                             </View>
@@ -429,18 +432,18 @@ export default function DashboardScreen({ navigation }) {
                                 return (
                                 <View
                                     key={expense.id}
-                                    className="bg-white p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50"
+                                    className="bg-white dark:bg-slate-800 p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 dark:border-slate-700"
                                 >
                                     <View className="flex-1">
-                                        <Text className="text-slate-800 font-bold text-base">
+                                        <Text className="text-slate-800 dark:text-slate-100 font-bold text-base">
                                             {expense.description || expense.Description}
                                         </Text>
                                         <View className="flex-row items-center mt-1">
-                                            <Text className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                                            <Text className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-wider">
                                                 {expense.category || expense.Category || 'General'}
                                             </Text>
                                             {expense.payerName && (
-                                                <Text className="text-slate-300 text-[10px] ml-2">
+                                                <Text className="text-slate-300 dark:text-slate-600 text-[10px] ml-2">
                                                     · {isPayer ? 'you' : expense.payerName}
                                                 </Text>
                                             )}
@@ -501,38 +504,39 @@ export default function DashboardScreen({ navigation }) {
                     activeOpacity={1}
                     onPress={() => setShowHomeSwitcher(false)}
                 >
-                    <View className="bg-white rounded-t-[36px] pb-10 overflow-hidden">
-                        <View className="w-10 h-1 bg-slate-200 rounded-full self-center mt-4 mb-4" />
-                        <Text className="text-slate-800 text-lg font-black px-6 mb-4">Your Households</Text>
+                    <View className="bg-white dark:bg-slate-800 rounded-t-[36px] pb-10 overflow-hidden">
+                        <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mt-4 mb-4" />
+                        <Text className="text-slate-800 dark:text-slate-100 text-lg font-black px-6 mb-4">Your Households</Text>
 
-                        {allHomes.map((h) => (
-                            <TouchableOpacity
-                                key={h.id}
-                                onPress={() => switchHome(h)}
-                                style={h.id === myHome.id ? styles.activeRow : null}
-                                className="flex-row items-center px-6 py-4"
-                            >
-                                <View style={h.id === myHome.id ? styles.activeAvatar : styles.inactiveAvatar}
-                                    className="w-10 h-10 rounded-2xl items-center justify-center mr-4">
-                                    <Text style={h.id === myHome.id ? styles.whiteText : styles.grayText}
-                                        className="font-black text-sm">
-                                        {h.name.charAt(0).toUpperCase()}
-                                    </Text>
-                                </View>
-                                <Text style={h.id === myHome.id ? styles.primaryText : styles.darkText}
-                                    className="flex-1 font-bold text-base">
-                                    {h.name}
-                                </Text>
-                                {h.id === myHome.id && (
-                                    <Ionicons name="checkmark" size={20} color="#E98074" />
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                        {allHomes.map((h) => {
+                            const isActiveHome = h.id === myHome.id;
+                            return (
+                                <TouchableOpacity key={h.id} onPress={() => switchHome(h)}>
+                                    <View className={`flex-row items-center px-6 py-4 ${isActiveHome ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
+                                        <View className={`w-10 h-10 rounded-2xl items-center justify-center mr-4 ${
+                                            isActiveHome ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-700'
+                                        }`}>
+                                            <Text className={`font-black text-sm ${isActiveHome ? 'text-white' : 'text-slate-500'}`}>
+                                                {h.name.charAt(0).toUpperCase()}
+                                            </Text>
+                                        </View>
+                                        <Text className={`flex-1 font-bold text-base ${
+                                            isActiveHome ? 'text-primary' : 'text-slate-700 dark:text-slate-200'
+                                        }`}>
+                                            {h.name}
+                                        </Text>
+                                        {isActiveHome && (
+                                            <Ionicons name="checkmark" size={20} color="#E98074" />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
 
-                        <View className="border-t border-slate-100 mt-2">
+                        <View className="border-t border-slate-100 dark:border-slate-700 mt-2">
                             {atHomeLimit ? (
                                 <View className="px-6 py-4">
-                                    <Text className="text-xs font-bold text-slate-400 text-center">
+                                    <Text className="text-xs font-bold text-slate-400 dark:text-slate-500 text-center">
                                         {isPremium
                                             ? `Limit reached (${HOME_LIMIT_PREMIUM} households max)`
                                             : 'Free plan: 1 household'}
@@ -553,12 +557,12 @@ export default function DashboardScreen({ navigation }) {
                                     onPress={() => { setShowHomeSwitcher(false); setAddHomeMode('create'); setAddHomeInput(''); setShowAddHome(true); }}
                                     className="flex-row items-center px-6 py-4"
                                 >
-                                    <View className="w-10 h-10 rounded-2xl bg-emerald-50 items-center justify-center mr-4">
+                                    <View className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 items-center justify-center mr-4">
                                         <Ionicons name="add" size={20} color="#10b981" />
                                     </View>
                                     <View>
-                                        <Text className="font-bold text-slate-700 text-base">Add Household</Text>
-                                        <Text className="text-[10px] text-slate-400">{allHomes.length}/{homeLimit} used</Text>
+                                        <Text className="font-bold text-slate-700 dark:text-slate-200 text-base">Add Household</Text>
+                                        <Text className="text-[10px] text-slate-400 dark:text-slate-500">{allHomes.length}/{homeLimit} used</Text>
                                     </View>
                                 </TouchableOpacity>
                             )}
@@ -570,28 +574,35 @@ export default function DashboardScreen({ navigation }) {
             {/* Add / Join Household Overlay */}
             {showAddHome && (
                 <View style={styles.overlay}>
-                    <View className="bg-white rounded-t-[36px] p-6 pb-10">
-                        <View className="w-10 h-1 bg-slate-200 rounded-full self-center mb-5" />
-                        <Text className="text-slate-800 text-xl font-black mb-5">
+                    <View className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6 pb-10">
+                        <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mb-5" />
+                        <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-5">
                             {addHomeMode === 'join' ? 'Join a Household' : 'Create a Household'}
                         </Text>
 
                         {/* Mode toggle */}
                         <View className="flex-row gap-3 mb-4">
-                            {['create', 'join'].map((m) => (
-                                <TouchableOpacity
-                                    key={m}
-                                    onPress={() => { setAddHomeMode(m); setAddHomeInput(''); }}
-                                    disabled={addHomeLoading}
-                                    style={addHomeMode === m ? styles.activeToggle : styles.inactiveToggle}
-                                    className="flex-1 py-3 rounded-2xl items-center border"
-                                >
-                                    <Text style={addHomeMode === m ? styles.whiteText : styles.grayText}
-                                        className="font-bold text-sm">
-                                        {m === 'create' ? 'Create New' : 'Join with Code'}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
+                            {['create', 'join'].map((m) => {
+                                const isActiveMode = addHomeMode === m;
+                                return (
+                                    <TouchableOpacity
+                                        key={m}
+                                        onPress={() => { setAddHomeMode(m); setAddHomeInput(''); }}
+                                        disabled={addHomeLoading}
+                                        className="flex-1"
+                                    >
+                                        <View className={`py-3 rounded-2xl items-center border ${
+                                            isActiveMode
+                                                ? 'bg-primary border-primary'
+                                                : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                                        }`}>
+                                            <Text className={`font-bold text-sm ${isActiveMode ? 'text-white' : 'text-slate-500'}`}>
+                                                {m === 'create' ? 'Create New' : 'Join with Code'}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
                         </View>
 
                         <TextInput
@@ -600,27 +611,30 @@ export default function DashboardScreen({ navigation }) {
                             placeholder={addHomeMode === 'join' ? 'Invite code (e.g. AB123)' : 'Household name (e.g. Apt 4B)'}
                             placeholderTextColor="#94a3b8"
                             editable={!addHomeLoading}
-                            style={styles.textInput}
+                            className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-5 bg-slate-50 dark:bg-slate-700"
                         />
 
                         <View className="flex-row gap-3">
                             <TouchableOpacity
                                 onPress={() => setShowAddHome(false)}
                                 disabled={addHomeLoading}
-                                className="flex-1 p-4 rounded-2xl items-center bg-slate-100"
+                                className="flex-1 p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
                             >
-                                <Text className="text-slate-600 font-bold">Cancel</Text>
+                                <Text className="text-slate-600 dark:text-slate-300 font-bold">Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={handleAddHome}
                                 disabled={addHomeLoading || !addHomeInput.trim()}
-                                style={addHomeLoading || !addHomeInput.trim() ? styles.disabledBtn : styles.primaryBtn}
-                                className="flex-1 p-4 rounded-2xl items-center"
+                                className="flex-1"
                             >
-                                {addHomeLoading
-                                    ? <ActivityIndicator color="white" />
-                                    : <Text className="text-white font-bold">{addHomeMode === 'join' ? 'Join' : 'Create'}</Text>
-                                }
+                                <View className={`p-4 rounded-2xl items-center ${
+                                    addHomeLoading || !addHomeInput.trim() ? 'bg-primary/50' : 'bg-primary'
+                                }`}>
+                                    {addHomeLoading
+                                        ? <ActivityIndicator color="white" />
+                                        : <Text className="text-white font-bold">{addHomeMode === 'join' ? 'Join' : 'Create'}</Text>
+                                    }
+                                </View>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -637,26 +651,4 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         zIndex: 100,
     },
-    activeRow: { backgroundColor: 'rgba(233,128,116,0.05)' },
-    activeAvatar: { backgroundColor: '#E98074' },
-    inactiveAvatar: { backgroundColor: '#f1f5f9' },
-    whiteText: { color: '#ffffff' },
-    grayText: { color: '#64748b' },
-    primaryText: { color: '#E98074' },
-    darkText: { color: '#334155' },
-    activeToggle: { backgroundColor: '#E98074', borderColor: '#E98074' },
-    inactiveToggle: { backgroundColor: '#f8fafc', borderColor: '#e2e8f0' },
-    textInput: {
-        borderWidth: 1,
-        borderColor: '#e2e8f0',
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        color: '#1e293b',
-        fontSize: 16,
-        marginBottom: 20,
-        backgroundColor: '#f8fafc',
-    },
-    primaryBtn: { backgroundColor: '#E98074' },
-    disabledBtn: { backgroundColor: 'rgba(233,128,116,0.5)' },
 });
