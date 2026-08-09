@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import authService from '../api/authService';
 import { Ionicons } from '@expo/vector-icons';
 import SignupScreen from './SignupScreen';
+import ForgotPasswordScreen from './ForgotPasswordScreen';
 
 const MAX_ATTEMPTS = 5;
 
@@ -17,6 +18,7 @@ function LoginScreen() {
     const { login, loginWithToken, isLoading, continueAsGuest } = useContext(AuthContext);
     const [errors, setErrors] = useState({});
     const [isSigningUp, setIsSigningUp] = useState(false);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [failedAttempts, setFailedAttempts] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
@@ -68,6 +70,7 @@ function LoginScreen() {
     };
 
     if (isSigningUp) return <SignupScreen onBack={() => setIsSigningUp(false)} />;
+    if (isForgotPassword) return <ForgotPasswordScreen onBack={() => setIsForgotPassword(false)} />;
 
     // ── Account Locked Screen ────────────────────────────────────────
     if (isLocked) {
@@ -155,7 +158,12 @@ function LoginScreen() {
                 </View>
 
                 <View className="mt-4">
-                    <Text className="text-secondary mb-2 font-semibold">Password</Text>
+                    <View className="flex-row justify-between items-center mb-2">
+                        <Text className="text-secondary font-semibold">Password</Text>
+                        <TouchableOpacity onPress={() => setIsForgotPassword(true)}>
+                            <Text className="text-primary text-xs font-semibold">Forgot password?</Text>
+                        </TouchableOpacity>
+                    </View>
                     <TextInput
                         className="bg-white border border-secondary/30 p-4 rounded-2xl text-slate-900"
                         placeholder="••••••••"
