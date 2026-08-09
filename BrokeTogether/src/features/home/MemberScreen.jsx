@@ -103,7 +103,7 @@ export default function MembersScreen() {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50">
+            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
                 <ActivityIndicator size="large" color="#E98074" />
             </View>
         );
@@ -111,17 +111,17 @@ export default function MembersScreen() {
 
     if (isGuest) {
         return (
-            <View className="flex-1 bg-slate-50">
+            <View className="flex-1 bg-slate-50 dark:bg-slate-900">
                 <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
                     <Text className="text-white/70 font-medium tracking-tight">Roommates</Text>
                     <Text className="text-white text-3xl font-black">People</Text>
                 </View>
                 <View className="flex-1 justify-center items-center p-6">
                     <Ionicons name="people-outline" size={64} color="#cbd5e1" />
-                    <Text className="text-slate-600 text-center mt-4 font-bold text-lg">
+                    <Text className="text-slate-600 dark:text-slate-300 text-center mt-4 font-bold text-lg">
                         Sign in to see your roommates
                     </Text>
-                    <Text className="text-slate-400 text-center text-sm mt-2 mb-6">
+                    <Text className="text-slate-400 dark:text-slate-500 text-center text-sm mt-2 mb-6">
                         Connect with your household members and track balances together.
                     </Text>
                     <TouchableOpacity
@@ -137,9 +137,9 @@ export default function MembersScreen() {
 
     if (!home) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50 p-6">
+            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900 p-6">
                 <Ionicons name="home-outline" size={64} color="#cbd5e1" />
-                <Text className="text-slate-400 text-center mt-4">
+                <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                     You're not part of any home yet.
                 </Text>
             </View>
@@ -154,7 +154,7 @@ export default function MembersScreen() {
     });
 
     return (
-        <View className="flex-1 bg-slate-50">
+        <View className="flex-1 bg-slate-50 dark:bg-slate-900">
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
@@ -182,17 +182,17 @@ export default function MembersScreen() {
                     {/* Invite Code Card */}
                     <TouchableOpacity
                         onPress={copyInviteCode}
-                        className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6 flex-row items-center"
+                        className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 flex-row items-center"
                         activeOpacity={0.7}
                     >
-                        <View className="bg-primary/10 p-3 rounded-2xl mr-4">
+                        <View className="bg-primary/10 dark:bg-primary/20 p-3 rounded-2xl mr-4">
                             <Ionicons name="link" size={20} color="#E98074" />
                         </View>
                         <View className="flex-1">
-                            <Text className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                            <Text className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-wider">
                                 Invite Code
                             </Text>
-                            <Text className="text-slate-800 text-base font-mono font-bold mt-0.5">
+                            <Text className="text-slate-800 dark:text-slate-100 text-base font-mono font-bold mt-0.5">
                                 {home.inviteCode}
                             </Text>
                         </View>
@@ -201,9 +201,9 @@ export default function MembersScreen() {
 
                     {/* Members List */}
                     {sortedMembers.length === 0 ? (
-                        <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
+                        <View className="bg-white dark:bg-slate-800 p-12 rounded-[30px] items-center border border-dashed border-slate-200 dark:border-slate-700">
                             <Ionicons name="people-outline" size={48} color="#cbd5e1" />
-                            <Text className="text-slate-400 text-center mt-4">
+                            <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                                 No roommates found.
                             </Text>
                         </View>
@@ -217,11 +217,11 @@ export default function MembersScreen() {
                             return (
                                 <View
                                     key={member.id}
-                                    className={`flex-row items-center bg-white p-4 rounded-3xl mb-3 shadow-sm border ${isSelf ? 'border-primary/20' : 'border-slate-100'}`}
+                                    className={`flex-row items-center bg-white dark:bg-slate-800 p-4 rounded-3xl mb-3 shadow-sm border ${isSelf ? 'border-primary/20' : 'border-slate-100 dark:border-slate-700'}`}
                                 >
                                     {/* Avatar */}
-                                    <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${isSelf ? 'bg-primary/20' : 'bg-slate-100'}`}>
-                                        <Text className={`font-bold text-lg ${isSelf ? 'text-primary' : 'text-slate-500'}`}>
+                                    <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${isSelf ? 'bg-primary/20' : 'bg-slate-100 dark:bg-slate-700'}`}>
+                                        <Text className={`font-bold text-lg ${isSelf ? 'text-primary' : 'text-slate-500 dark:text-slate-300'}`}>
                                             {member.name ? member.name.charAt(0).toUpperCase() : '?'}
                                         </Text>
                                     </View>
@@ -229,24 +229,24 @@ export default function MembersScreen() {
                                     {/* Info */}
                                     <View className="flex-1">
                                         <View className="flex-row items-center">
-                                            <Text className="font-bold text-slate-800 text-base">
+                                            <Text className="font-bold text-slate-800 dark:text-slate-100 text-base">
                                                 {member.name}
                                             </Text>
                                             {isSelf && (
-                                                <View className="ml-2 bg-primary/10 px-2 py-0.5 rounded-full">
+                                                <View className="ml-2 bg-primary/10 dark:bg-primary/20 px-2 py-0.5 rounded-full">
                                                     <Text className="text-primary text-[10px] font-bold">You</Text>
                                                 </View>
                                             )}
                                             {isMemberAdmin && (
-                                                <View className="ml-2 bg-amber-50 px-2 py-0.5 rounded-full">
-                                                    <Text className="text-amber-600 text-[10px] font-bold">Admin</Text>
+                                                <View className="ml-2 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">
+                                                    <Text className="text-amber-600 dark:text-amber-400 text-[10px] font-bold">Admin</Text>
                                                 </View>
                                             )}
                                         </View>
                                         {/* Balance */}
                                         <Text className={`text-xs font-medium mt-1 ${
                                             balance > 0 ? 'text-emerald-500' :
-                                            balance < 0 ? 'text-rose-500' : 'text-slate-400'
+                                            balance < 0 ? 'text-rose-500' : 'text-slate-400 dark:text-slate-500'
                                         }`}>
                                             {balance > 0
                                                 ? `Owed +$${balance.toFixed(2)}`
@@ -261,7 +261,7 @@ export default function MembersScreen() {
                                         <TouchableOpacity
                                             onPress={() => handleRemoveMember(member)}
                                             disabled={isBeingDeleted}
-                                            className="bg-rose-50 p-3 rounded-xl"
+                                            className="bg-rose-50 dark:bg-rose-900/30 p-3 rounded-xl"
                                         >
                                             {isBeingDeleted ? (
                                                 <ActivityIndicator size="small" color="#f43f5e" />

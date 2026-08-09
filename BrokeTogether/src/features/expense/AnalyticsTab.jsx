@@ -8,8 +8,8 @@ const CHART_PALETTE = ['#E98074', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#
 
 function StatCard({ label, value, color = 'text-primary' }) {
   return (
-    <View className="flex-1 bg-white rounded-2xl p-4 items-center border border-slate-100 shadow-sm">
-      <Text className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{label}</Text>
+    <View className="flex-1 bg-white dark:bg-slate-800 rounded-2xl p-4 items-center border border-slate-100 dark:border-slate-700 shadow-sm">
+      <Text className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">{label}</Text>
       <Text className={`text-lg font-black ${color}`} numberOfLines={1}>{value}</Text>
     </View>
   );
@@ -19,10 +19,10 @@ function BarRow({ label, value, maxValue, color, pct }) {
   return (
     <View className="mb-3">
       <View className="flex-row justify-between mb-1">
-        <Text className="text-sm font-medium text-slate-700" numberOfLines={1}>{label}</Text>
-        <Text className="text-sm font-black text-slate-800">${parseFloat(value).toFixed(2)}</Text>
+        <Text className="text-sm font-medium text-slate-700 dark:text-slate-200" numberOfLines={1}>{label}</Text>
+        <Text className="text-sm font-black text-slate-800 dark:text-slate-100">${parseFloat(value).toFixed(2)}</Text>
       </View>
-      <View className="w-full bg-slate-100 rounded-full h-2">
+      <View className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
         <View
           className="h-2 rounded-full"
           style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color || '#E98074' }}
@@ -57,12 +57,12 @@ export default function AnalyticsTab({ homeId, navigation }) {
   if (!isPremium) {
     return (
       <View className="px-6 pt-4 pb-24 items-center">
-        <View className="bg-white rounded-3xl p-8 items-center border border-dashed border-slate-200 w-full">
-          <View className="w-16 h-16 bg-primary/10 rounded-full items-center justify-center mb-4">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl p-8 items-center border border-dashed border-slate-200 dark:border-slate-700 w-full">
+          <View className="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full items-center justify-center mb-4">
             <Ionicons name="bar-chart-outline" size={30} color="#E98074" />
           </View>
-          <Text className="text-slate-800 font-black text-lg text-center">Analytics</Text>
-          <Text className="text-slate-400 text-sm text-center mt-2 mb-5">
+          <Text className="text-slate-800 dark:text-slate-100 font-black text-lg text-center">Analytics</Text>
+          <Text className="text-slate-400 dark:text-slate-500 text-sm text-center mt-2 mb-5">
             See spending by category, monthly trends, and member breakdowns. Premium feature.
           </Text>
           <TouchableOpacity
@@ -89,7 +89,7 @@ export default function AnalyticsTab({ homeId, navigation }) {
     return (
       <View className="px-6 pt-4 pb-24 items-center">
         <Ionicons name="bar-chart-outline" size={48} color="#cbd5e1" />
-        <Text className="text-slate-400 text-center mt-4">No analytics data yet.</Text>
+        <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">No analytics data yet.</Text>
         <TouchableOpacity onPress={load} className="mt-3">
           <Text className="text-primary font-bold text-sm">Retry</Text>
         </TouchableOpacity>
@@ -124,28 +124,28 @@ export default function AnalyticsTab({ homeId, navigation }) {
         <StatCard
           label={totalSettlements > 0 ? 'Net Spend' : 'Top Category'}
           value={totalSettlements > 0 ? `$${(totalSpend - totalSettlements).toFixed(2)}` : (topCategory?.[0] ?? '—')}
-          color="text-slate-800"
+          color="text-slate-800 dark:text-slate-100"
         />
       </View>
 
       {/* Largest expense */}
       {analytics.largestExpenseAmount > 0 && (
-        <View className="bg-primary/10 border border-primary/20 rounded-2xl p-4 mb-4 flex-row items-center gap-3">
-          <View className="w-10 h-10 bg-primary/15 rounded-xl items-center justify-center">
+        <View className="bg-primary/10 dark:bg-primary/15 border border-primary/20 rounded-2xl p-4 mb-4 flex-row items-center gap-3">
+          <View className="w-10 h-10 bg-primary/15 dark:bg-primary/25 rounded-xl items-center justify-center">
             <Ionicons name="star" size={18} color="#E98074" />
           </View>
           <View className="flex-1">
             <Text className="text-[10px] font-bold uppercase tracking-wider text-primary/70 mb-0.5">Largest Expense</Text>
             <Text className="text-xl font-black text-primary">${parseFloat(analytics.largestExpenseAmount).toFixed(2)}</Text>
-            <Text className="text-sm text-slate-600" numberOfLines={1}>{analytics.largestExpenseDescription}</Text>
+            <Text className="text-sm text-slate-600 dark:text-slate-300" numberOfLines={1}>{analytics.largestExpenseDescription}</Text>
           </View>
         </View>
       )}
 
       {/* Spending by category */}
       {categoryEntries.length > 0 && (
-        <View className="bg-white rounded-2xl border border-slate-100 p-5 mb-4 shadow-sm">
-          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Your Spending by Category</Text>
+        <View className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 mb-4 shadow-sm">
+          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Your Spending by Category</Text>
           {categoryEntries
             .sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]))
             .map(([cat, amt], i) => (
@@ -162,8 +162,8 @@ export default function AnalyticsTab({ homeId, navigation }) {
 
       {/* Monthly totals */}
       {monthEntries.length > 0 && (
-        <View className="bg-white rounded-2xl border border-slate-100 p-5 mb-4 shadow-sm">
-          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Monthly Spend</Text>
+        <View className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 mb-4 shadow-sm">
+          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Monthly Spend</Text>
           {monthEntries.map(([month, amt]) => (
             <BarRow
               key={month}
@@ -178,8 +178,8 @@ export default function AnalyticsTab({ homeId, navigation }) {
 
       {/* Spending by member */}
       {memberEntries.length > 0 && (
-        <View className="bg-white rounded-2xl border border-slate-100 p-5 mb-4 shadow-sm">
-          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Household Contributions</Text>
+        <View className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 mb-4 shadow-sm">
+          <Text className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Household Contributions</Text>
           {memberEntries.map(([name, amt], i) => {
             const pct = memberTotal > 0 ? (parseFloat(amt) / memberTotal) * 100 : 0;
             return (
@@ -189,13 +189,13 @@ export default function AnalyticsTab({ homeId, navigation }) {
                     style={{ backgroundColor: CHART_PALETTE[i % CHART_PALETTE.length] }}>
                     <Text className="text-white font-black text-xs">{name.charAt(0).toUpperCase()}</Text>
                   </View>
-                  <Text className="flex-1 text-sm font-medium text-slate-700">{name}</Text>
-                  <Text className="text-xs text-slate-400">{pct.toFixed(0)}%</Text>
-                  <Text className="text-sm font-black text-slate-800">${parseFloat(amt).toFixed(2)}</Text>
+                  <Text className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">{name}</Text>
+                  <Text className="text-xs text-slate-400 dark:text-slate-500">{pct.toFixed(0)}%</Text>
+                  <Text className="text-sm font-black text-slate-800 dark:text-slate-100">${parseFloat(amt).toFixed(2)}</Text>
                 </View>
                 <View className="flex-row">
                   <View className="w-11" />
-                  <View className="flex-1 bg-slate-100 rounded-full h-1.5">
+                  <View className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">
                     <View className="h-1.5 rounded-full"
                       style={{ width: `${pct}%`, backgroundColor: CHART_PALETTE[i % CHART_PALETTE.length] }} />
                   </View>

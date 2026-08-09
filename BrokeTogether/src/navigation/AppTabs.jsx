@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../context/ThemeContext';
 import DashboardScreen from '../features/Dashboard';
 import MembersScreen from '../features/home/MemberScreen';
 import ProfileScreen from '../features/profile/ProfileScreen';
@@ -30,6 +31,7 @@ function SettingsStackScreen() {
 
 export default function AppTabs() {
     const insets = useSafeAreaInsets();
+    const { isDark } = useTheme();
 
     return (
         <Tab.Navigator
@@ -43,12 +45,14 @@ export default function AppTabs() {
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
                 tabBarActiveTintColor: '#E98074',
-                tabBarInactiveTintColor: 'gray',
+                tabBarInactiveTintColor: isDark ? '#64748b' : 'gray',
                 headerShown: false,
                 tabBarStyle: {
                     height: 60 + insets.bottom,
                     paddingBottom: Math.max(insets.bottom, 10),
-                    paddingTop: 8
+                    paddingTop: 8,
+                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                    borderTopColor: isDark ? '#334155' : '#f1f5f9'
                 }
             })}
         >

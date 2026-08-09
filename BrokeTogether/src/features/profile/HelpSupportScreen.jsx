@@ -50,11 +50,11 @@ function FAQItem({ item }) {
   return (
     <TouchableOpacity
       onPress={() => setExpanded(!expanded)}
-      className="border-b border-slate-50 p-5"
+      className="border-b border-slate-50 dark:border-slate-700 p-5"
       activeOpacity={0.7}
     >
       <View className="flex-row items-center justify-between">
-        <Text className="flex-1 text-slate-700 font-medium pr-4">
+        <Text className="flex-1 text-slate-700 dark:text-slate-200 font-medium pr-4">
           {item.question}
         </Text>
         <Ionicons
@@ -64,7 +64,7 @@ function FAQItem({ item }) {
         />
       </View>
       {expanded && (
-        <Text className="text-slate-500 text-sm mt-3 leading-5">
+        <Text className="text-slate-500 dark:text-slate-400 text-sm mt-3 leading-5">
           {item.answer}
         </Text>
       )}
@@ -82,7 +82,7 @@ export default function HelpSupportScreen({ navigation }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">
@@ -98,30 +98,30 @@ export default function HelpSupportScreen({ navigation }) {
 
       <View className="p-6 mt-4">
         {/* FAQ Section */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">
           Frequently Asked Questions
         </Text>
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden mb-6">
           {FAQS.map((faq, index) => (
             <FAQItem key={index} item={faq} />
           ))}
         </View>
 
         {/* Contact Section */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">
           Contact Us
         </Text>
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
           <TouchableOpacity
             onPress={handleEmailPress}
             className="flex-row items-center p-5"
           >
-            <View className="bg-blue-50 p-2.5 rounded-xl mr-4">
+            <View className="bg-blue-50 dark:bg-blue-900/30 p-2.5 rounded-xl mr-4">
               <Ionicons name="mail" size={20} color="#3b82f6" />
             </View>
             <View className="flex-1">
-              <Text className="text-slate-700 font-medium">Email Support</Text>
-              <Text className="text-slate-400 text-xs mt-0.5">
+              <Text className="text-slate-700 dark:text-slate-200 font-medium">Email Support</Text>
+              <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
                 {SUPPORT_EMAIL}
               </Text>
             </View>
@@ -129,7 +129,7 @@ export default function HelpSupportScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <Text className="text-center text-slate-300 text-xs mt-10 mb-10">
+        <Text className="text-center text-slate-300 dark:text-slate-600 text-xs mt-10 mb-10">
           BrokeTogether v1.0.4
         </Text>
       </View>

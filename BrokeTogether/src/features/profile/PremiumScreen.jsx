@@ -106,7 +106,7 @@ export default function PremiumScreen({ navigation }) {
   }[subscriptionStatus] ?? 'text-slate-400';
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary px-6 pt-16 pb-10 items-center rounded-b-[50px]">
         <TouchableOpacity
@@ -139,19 +139,19 @@ export default function PremiumScreen({ navigation }) {
         ) : (
           <>
             {/* Features list */}
-            <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-1">
+            <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-1">
               What's included
             </Text>
-            <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+            <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden mb-6">
               {FEATURES.map((f, i) => (
                 <View
                   key={i}
-                  className={`flex-row items-center p-5 ${i < FEATURES.length - 1 ? 'border-b border-slate-50' : ''}`}
+                  className={`flex-row items-center p-5 ${i < FEATURES.length - 1 ? 'border-b border-slate-50 dark:border-slate-700' : ''}`}
                 >
-                  <View className="w-9 h-9 bg-primary/10 rounded-full items-center justify-center mr-4">
+                  <View className="w-9 h-9 bg-primary/10 dark:bg-primary/20 rounded-full items-center justify-center mr-4">
                     <Ionicons name={f.icon} size={18} color="#E98074" />
                   </View>
-                  <Text className="text-slate-700 font-medium flex-1">{f.text}</Text>
+                  <Text className="text-slate-700 dark:text-slate-200 font-medium flex-1">{f.text}</Text>
                   <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
                 </View>
               ))}
@@ -178,7 +178,7 @@ export default function PremiumScreen({ navigation }) {
               <TouchableOpacity
                 onPress={handleManage}
                 disabled={actionLoading}
-                className="bg-white p-5 rounded-3xl items-center border border-slate-200 shadow-sm"
+                className="bg-white dark:bg-slate-800 p-5 rounded-3xl items-center border border-slate-200 dark:border-slate-700 shadow-sm"
               >
                 {actionLoading
                   ? <ActivityIndicator color="#E98074" />
@@ -193,18 +193,18 @@ export default function PremiumScreen({ navigation }) {
             )}
 
             {subscriptionStatus === 'PAST_DUE' && (
-              <View className="mt-4 bg-red-50 border border-red-200 rounded-2xl p-4 flex-row items-start">
+              <View className="mt-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex-row items-start">
                 <Ionicons name="warning-outline" size={18} color="#ef4444" style={{ marginTop: 1 }} />
-                <Text className="ml-2 text-red-600 text-sm flex-1">
+                <Text className="ml-2 text-red-600 dark:text-red-400 text-sm flex-1">
                   Your payment is past due. Please update your payment method to keep premium access.
                 </Text>
               </View>
             )}
 
             {subscriptionStatus === 'CANCELLED' && (
-              <View className="mt-4 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex-row items-start">
+              <View className="mt-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex-row items-start">
                 <Ionicons name="information-circle-outline" size={18} color="#d97706" style={{ marginTop: 1 }} />
-                <Text className="ml-2 text-amber-700 text-sm flex-1">
+                <Text className="ml-2 text-amber-700 dark:text-amber-400 text-sm flex-1">
                   Your subscription has been cancelled. You can resubscribe at any time.
                 </Text>
               </View>
@@ -216,7 +216,7 @@ export default function PremiumScreen({ navigation }) {
               </TouchableOpacity>
             )}
 
-            <Text className="text-center text-slate-300 text-xs mt-8 mb-4">
+            <Text className="text-center text-slate-300 dark:text-slate-600 text-xs mt-8 mb-4">
               Subscriptions are billed through the App Store or Google Play. Cancel anytime.
             </Text>
           </>

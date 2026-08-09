@@ -13,7 +13,7 @@ import LoginScreen from './src/features/LoginScreen';
 import AppTabs from './src/navigation/AppTabs';
 import ActivityTracker from './src/component/ActivityTracker';
 
-// Keep splash screen visible until we manually hide it
+// Keep splash screen visible until we manually hide it 
 SplashScreen.preventAutoHideAsync();
 
 if (__DEV__) {

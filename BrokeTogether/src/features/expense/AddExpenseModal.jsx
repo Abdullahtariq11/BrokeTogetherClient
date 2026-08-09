@@ -125,23 +125,24 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1 justify-end bg-black/60"
       >
-        <View className="bg-white p-6 rounded-t-[40px] shadow-2xl max-h-[90%]">
-          <View className="w-12 h-1 bg-slate-200 self-center rounded-full mb-6" />
-          
+        <View className="bg-white dark:bg-slate-800 p-6 rounded-t-[40px] shadow-2xl max-h-[90%]">
+          <View className="w-12 h-1 bg-slate-200 dark:bg-slate-600 self-center rounded-full mb-6" />
+
           <ScrollView showsVerticalScrollIndicator={false}>
-            <Text className="text-2xl font-bold text-slate-800 mb-6 text-center">
+            <Text className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
               New Expense
             </Text>
-            
+
             {/* Amount Input */}
             <View className="mb-4">
-              <Text className="text-slate-500 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">
+              <Text className="text-slate-500 dark:text-slate-400 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">
                 Amount
               </Text>
-              <TextInput 
+              <TextInput
                 placeholder="0.00"
+                placeholderTextColor="#94a3b8"
                 keyboardType="decimal-pad"
-                className="bg-slate-50 border border-slate-100 p-4 rounded-2xl text-2xl font-black text-primary"
+                className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-2xl font-black text-primary"
                 value={amount}
                 onChangeText={setAmount}
               />
@@ -149,19 +150,20 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
 
             {/* Description Input */}
             <View className="mb-6">
-              <Text className="text-slate-500 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">
+              <Text className="text-slate-500 dark:text-slate-400 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">
                 What was it for?
               </Text>
-              <TextInput 
+              <TextInput
                 placeholder="e.g. Weekly Groceries"
-                className="bg-slate-50 border border-slate-100 p-4 rounded-2xl text-lg text-slate-700 font-medium"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-lg text-slate-700 dark:text-slate-100 font-medium"
                 value={description}
                 onChangeText={setDescription}
               />
             </View>
 
             {/* Category Selector */}
-            <Text className="text-slate-500 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
+            <Text className="text-slate-500 dark:text-slate-400 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
               Category
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mb-6">
@@ -172,9 +174,9 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                   className="mr-2"
                 >
                   <View className={`px-6 py-2 rounded-full border ${
-                    category === cat ? 'bg-primary border-primary' : 'bg-white border-slate-200'
+                    category === cat ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
                   }`}>
-                    <Text className={`font-bold ${category === cat ? 'text-white' : 'text-slate-500'}`}>
+                    <Text className={`font-bold ${category === cat ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>
                       {cat}
                     </Text>
                   </View>
@@ -183,40 +185,40 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             </ScrollView>
 
             {/* Payer Info (You) */}
-            <Text className="text-slate-500 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
+            <Text className="text-slate-500 dark:text-slate-400 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
               Paid by
             </Text>
-            <View className="flex-row items-center p-4 rounded-2xl mb-4 bg-primary/5 border border-primary/20">
+            <View className="flex-row items-center p-4 rounded-2xl mb-4 bg-primary/5 dark:bg-primary/10 border border-primary/20">
               <View className="w-10 h-10 bg-primary/20 rounded-full items-center justify-center mr-3">
                 <Text className="text-primary font-bold">
                   {userInfo?.name?.charAt(0).toUpperCase() || '?'}
                 </Text>
               </View>
               <View className="flex-1">
-                <Text className="text-slate-800 font-bold">{userInfo?.name} (You)</Text>
+                <Text className="text-slate-800 dark:text-slate-100 font-bold">{userInfo?.name} (You)</Text>
                 <Text className="text-[10px] text-primary font-bold">PAYER - AUTO INCLUDED IN SPLIT</Text>
               </View>
               <Ionicons name="checkmark-circle" size={24} color="#E98074" />
             </View>
 
             {/* Split Selection */}
-            <Text className="text-slate-500 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
+            <Text className="text-slate-500 dark:text-slate-400 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">
               Split with ({otherMembers.length} roommates)
             </Text>
             <View className="mb-8">
               {fetchingMembers ? (
                 <ActivityIndicator color="#E98074" />
               ) : otherMembers.length === 0 ? (
-                <View className="bg-slate-50 p-6 rounded-2xl items-center">
+                <View className="bg-slate-50 dark:bg-slate-700 p-6 rounded-2xl items-center">
                   <Ionicons name="people-outline" size={32} color="#cbd5e1" />
-                  <Text className="text-slate-400 text-center mt-2">
+                  <Text className="text-slate-400 dark:text-slate-500 text-center mt-2">
                     No other roommates yet
                   </Text>
                 </View>
               ) : (
                 otherMembers.map((member) => {
                   const isSelected = selectedUserIds.includes(member.id);
-                  
+
                   return (
                     <TouchableOpacity
                       key={member.id}
@@ -224,7 +226,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                       className="mb-2"
                     >
                       <View className={`flex-row items-center p-4 rounded-2xl border ${
-                        isSelected ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-50'
+                        isSelected ? 'bg-primary/5 dark:bg-primary/10 border-primary/20' : 'bg-white dark:bg-slate-700 border-slate-50 dark:border-slate-600'
                       }`}>
                         <Ionicons
                           name={isSelected ? "checkbox" : "square-outline"}
@@ -232,7 +234,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                           color={isSelected ? "#E98074" : "#cbd5e1"}
                         />
                         <View className="ml-3 flex-1">
-                          <Text className={`text-base ${isSelected ? 'text-slate-800 font-bold' : 'text-slate-500'}`}>
+                          <Text className={`text-base ${isSelected ? 'text-slate-800 dark:text-slate-100 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
                             {member.name}
                           </Text>
                         </View>
@@ -255,7 +257,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
               className="mb-4"
             >
               <View className={`p-5 rounded-2xl items-center shadow-lg ${
-                loading || otherMembers.length === 0 ? 'bg-slate-300' : 'bg-primary shadow-primary/40'
+                loading || otherMembers.length === 0 ? 'bg-slate-300 dark:bg-slate-600' : 'bg-primary shadow-primary/40'
               }`}>
                 {loading ? (
                   <ActivityIndicator color="white" />
@@ -271,7 +273,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleClose} className="mb-10 items-center">
-              <Text className="text-slate-400 font-bold">Cancel</Text>
+              <Text className="text-slate-400 dark:text-slate-500 font-bold">Cancel</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

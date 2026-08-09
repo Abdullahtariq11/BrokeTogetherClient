@@ -115,7 +115,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
       {/* Header Profile Section */}
       <View className="bg-primary p-10 pt-20 rounded-b-[50px] items-center shadow-lg">
         <View className="w-24 h-24 bg-white/20 rounded-full items-center justify-center border-4 border-white/30 mb-4">
@@ -134,12 +134,12 @@ export default function ProfileScreen({ navigation }) {
       {/* Settings Options */}
       <View className="p-6 mt-4">
         {isGuest && (
-          <View className="bg-white p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 items-center mb-6">
+          <View className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 dark:border-slate-700 items-center mb-6">
             <Ionicons name="person-add-outline" size={36} color="#E98074" />
-            <Text className="text-slate-800 text-center mt-3 font-bold text-base">
+            <Text className="text-slate-800 dark:text-slate-100 text-center mt-3 font-bold text-base">
               Create an account to get started
             </Text>
-            <Text className="text-slate-400 text-center text-xs mt-1 mb-4">
+            <Text className="text-slate-400 dark:text-slate-500 text-center text-xs mt-1 mb-4">
               Sign in to create households, track expenses, and split bills with roommates.
             </Text>
             <TouchableOpacity
@@ -157,15 +157,15 @@ export default function ProfileScreen({ navigation }) {
             onPress={() => navigation.navigate('Premium')}
             className="mb-6"
           >
-            <View className={`p-5 rounded-3xl flex-row items-center shadow-sm ${userInfo?.isPremium ? 'bg-amber-50 border border-amber-200' : 'bg-primary'}`}>
-              <View className={`w-10 h-10 rounded-full items-center justify-center mr-4 ${userInfo?.isPremium ? 'bg-amber-100' : 'bg-white/20'}`}>
+            <View className={`p-5 rounded-3xl flex-row items-center shadow-sm ${userInfo?.isPremium ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800' : 'bg-primary'}`}>
+              <View className={`w-10 h-10 rounded-full items-center justify-center mr-4 ${userInfo?.isPremium ? 'bg-amber-100 dark:bg-amber-800/50' : 'bg-white/20'}`}>
                 <Ionicons name="star" size={20} color={userInfo?.isPremium ? '#d97706' : 'white'} />
               </View>
               <View className="flex-1">
-                <Text className={`font-black text-base ${userInfo?.isPremium ? 'text-amber-800' : 'text-white'}`}>
+                <Text className={`font-black text-base ${userInfo?.isPremium ? 'text-amber-800 dark:text-amber-300' : 'text-white'}`}>
                   {userInfo?.isPremium ? 'Premium Member' : 'Upgrade to Premium'}
                 </Text>
-                <Text className={`text-xs mt-0.5 ${userInfo?.isPremium ? 'text-amber-600' : 'text-white/80'}`}>
+                <Text className={`text-xs mt-0.5 ${userInfo?.isPremium ? 'text-amber-600 dark:text-amber-400' : 'text-white/80'}`}>
                   {userInfo?.isPremium ? 'Manage your subscription' : 'Unlock shopping lists & more features'}
                 </Text>
               </View>
@@ -174,16 +174,16 @@ export default function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         )}
 
-        <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">Account Settings</Text>
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">Account Settings</Text>
 
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
           {/* Household Info */}
           <TouchableOpacity
             onPress={() => isGuest ? exitGuestMode() : navigation.navigate('HouseholdSettings')}
-            className="flex-row items-center p-5 border-b border-slate-50"
+            className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700"
           >
             <Ionicons name="home-outline" size={22} color="#64748b" />
-            <Text className="flex-1 ml-4 text-slate-700 font-medium">Household Settings</Text>
+            <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Household Settings</Text>
             {isGuest && <Ionicons name="lock-closed" size={14} color="#cbd5e1" style={{ marginRight: 6 }} />}
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
@@ -192,10 +192,10 @@ export default function ProfileScreen({ navigation }) {
           {!isGuest && (
             <TouchableOpacity
               onPress={() => { setNewName(userInfo?.name ?? ''); setShowEditNameModal(true); }}
-              className="flex-row items-center p-5 border-b border-slate-50"
+              className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700"
             >
               <Ionicons name="person-outline" size={22} color="#64748b" />
-              <Text className="flex-1 ml-4 text-slate-700 font-medium">Edit Name</Text>
+              <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Edit Name</Text>
               <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
             </TouchableOpacity>
           )}
@@ -204,10 +204,10 @@ export default function ProfileScreen({ navigation }) {
           {!isGuest && (
             <TouchableOpacity
               onPress={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setShowPasswordModal(true); }}
-              className="flex-row items-center p-5 border-b border-slate-50"
+              className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700"
             >
               <Ionicons name="key-outline" size={22} color="#64748b" />
-              <Text className="flex-1 ml-4 text-slate-700 font-medium">Change Password</Text>
+              <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Change Password</Text>
               <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
             </TouchableOpacity>
           )}
@@ -216,16 +216,16 @@ export default function ProfileScreen({ navigation }) {
           {!isGuest && (
             <TouchableOpacity
               onPress={() => navigation.navigate('Premium')}
-              className="flex-row items-center p-5 border-b border-slate-50"
+              className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700"
             >
               <Ionicons
                 name="star"
                 size={22}
                 color={userInfo?.isPremium ? '#d97706' : '#64748b'}
               />
-              <Text className="flex-1 ml-4 text-slate-700 font-medium">Subscription</Text>
-              <View className={`px-2 py-0.5 rounded-full mr-2 ${userInfo?.isPremium ? 'bg-amber-100' : 'bg-slate-100'}`}>
-                <Text className={`text-xs font-bold ${userInfo?.isPremium ? 'text-amber-600' : 'text-slate-400'}`}>
+              <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Subscription</Text>
+              <View className={`px-2 py-0.5 rounded-full mr-2 ${userInfo?.isPremium ? 'bg-amber-100 dark:bg-amber-800/50' : 'bg-slate-100 dark:bg-slate-700'}`}>
+                <Text className={`text-xs font-bold ${userInfo?.isPremium ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {userInfo?.isPremium ? 'Premium' : 'Free'}
                 </Text>
               </View>
@@ -234,9 +234,9 @@ export default function ProfileScreen({ navigation }) {
           )}
 
           {/* Share App */}
-          <TouchableOpacity onPress={onShareApp} className="flex-row items-center p-5 border-b border-slate-50">
+          <TouchableOpacity onPress={onShareApp} className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700">
             <Ionicons name="share-social-outline" size={22} color="#64748b" />
-            <Text className="flex-1 ml-4 text-slate-700 font-medium">Invite Friends</Text>
+            <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Invite Friends</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
 
@@ -246,21 +246,21 @@ export default function ProfileScreen({ navigation }) {
             className="flex-row items-center p-5"
           >
             <Ionicons name="help-circle-outline" size={22} color="#64748b" />
-            <Text className="flex-1 ml-4 text-slate-700 font-medium">Help & Support</Text>
+            <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Help & Support</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
         </View>
 
         {/* Legal */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mt-8 mb-4 ml-2">Legal</Text>
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mt-8 mb-4 ml-2">Legal</Text>
 
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
           <TouchableOpacity
             onPress={() => navigation.navigate('PrivacyPolicy')}
-            className="flex-row items-center p-5 border-b border-slate-50"
+            className="flex-row items-center p-5 border-b border-slate-50 dark:border-slate-700"
           >
             <Ionicons name="shield-checkmark-outline" size={22} color="#64748b" />
-            <Text className="flex-1 ml-4 text-slate-700 font-medium">Privacy Policy</Text>
+            <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Privacy Policy</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
 
@@ -269,18 +269,18 @@ export default function ProfileScreen({ navigation }) {
             className="flex-row items-center p-5"
           >
             <Ionicons name="document-text-outline" size={22} color="#64748b" />
-            <Text className="flex-1 ml-4 text-slate-700 font-medium">Terms & Conditions</Text>
+            <Text className="flex-1 ml-4 text-slate-700 dark:text-slate-200 font-medium">Terms & Conditions</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
         </View>
 
         {/* Danger Zone */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mt-8 mb-4 ml-2">
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mt-8 mb-4 ml-2">
           {isGuest ? 'Account' : 'Danger Zone'}
         </Text>
         <TouchableOpacity
           onPress={isGuest ? exitGuestMode : handleLogout}
-          className="bg-red-50 p-5 rounded-3xl flex-row items-center border border-red-100 shadow-sm"
+          className="bg-red-50 dark:bg-red-900/30 p-5 rounded-3xl flex-row items-center border border-red-100 dark:border-red-800 shadow-sm"
         >
           <Ionicons name="log-out-outline" size={22} color="#ef4444" />
           <Text className="ml-4 text-red-500 font-bold text-base">
@@ -291,14 +291,14 @@ export default function ProfileScreen({ navigation }) {
         {!isGuest && (
           <TouchableOpacity
             onPress={handleDeleteAccount}
-            className="bg-red-100 p-5 rounded-3xl flex-row items-center border border-red-200 shadow-sm mt-3"
+            className="bg-red-100 dark:bg-red-900/40 p-5 rounded-3xl flex-row items-center border border-red-200 dark:border-red-800 shadow-sm mt-3"
           >
             <Ionicons name="trash-outline" size={22} color="#dc2626" />
-            <Text className="ml-4 text-red-600 font-bold text-base">Delete Account</Text>
+            <Text className="ml-4 text-red-600 dark:text-red-400 font-bold text-base">Delete Account</Text>
           </TouchableOpacity>
         )}
 
-        <Text className="text-center text-slate-300 text-xs mt-10 mb-10">
+        <Text className="text-center text-slate-300 dark:text-slate-600 text-xs mt-10 mb-10">
           BrokeTogether v1.0.4
         </Text>
       </View>
@@ -306,21 +306,22 @@ export default function ProfileScreen({ navigation }) {
       {/* Edit Name Modal */}
       <Modal visible={showEditNameModal} transparent animationType="fade" onRequestClose={() => !savingName && setShowEditNameModal(false)}>
         <View className="flex-1 justify-center items-center bg-black/60 px-6">
-          <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
-            <Text className="text-slate-800 text-xl font-black mb-4">Edit Name</Text>
+          <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full shadow-2xl">
+            <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-4">Edit Name</Text>
             <TextInput
               autoFocus
               value={newName}
               onChangeText={setNewName}
               placeholder="Your name"
+              placeholderTextColor="#94a3b8"
               maxLength={100}
               editable={!savingName}
-              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-5 bg-slate-50"
+              className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-5 bg-slate-50 dark:bg-slate-700"
             />
             <View className="flex-row gap-3">
               <TouchableOpacity onPress={() => setShowEditNameModal(false)} disabled={savingName}
-                className="flex-1 p-4 rounded-2xl items-center bg-slate-100">
-                <Text className="text-slate-600 font-bold">Cancel</Text>
+                className="flex-1 p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700">
+                <Text className="text-slate-600 dark:text-slate-300 font-bold">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleEditName} disabled={savingName}
                 className="flex-1 p-4 rounded-2xl items-center bg-primary">
@@ -334,21 +335,21 @@ export default function ProfileScreen({ navigation }) {
       {/* Change Password Modal */}
       <Modal visible={showPasswordModal} transparent animationType="fade" onRequestClose={() => !savingPassword && setShowPasswordModal(false)}>
         <View className="flex-1 justify-center items-center bg-black/60 px-6">
-          <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
-            <Text className="text-slate-800 text-xl font-black mb-4">Change Password</Text>
+          <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full shadow-2xl">
+            <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-4">Change Password</Text>
             <TextInput secureTextEntry value={currentPassword} onChangeText={setCurrentPassword}
-              placeholder="Current password" editable={!savingPassword}
-              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-3 bg-slate-50" />
+              placeholder="Current password" placeholderTextColor="#94a3b8" editable={!savingPassword}
+              className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-3 bg-slate-50 dark:bg-slate-700" />
             <TextInput secureTextEntry value={newPassword} onChangeText={setNewPassword}
-              placeholder="New password" editable={!savingPassword}
-              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-3 bg-slate-50" />
+              placeholder="New password" placeholderTextColor="#94a3b8" editable={!savingPassword}
+              className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-3 bg-slate-50 dark:bg-slate-700" />
             <TextInput secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword}
-              placeholder="Confirm new password" editable={!savingPassword}
-              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-5 bg-slate-50" />
+              placeholder="Confirm new password" placeholderTextColor="#94a3b8" editable={!savingPassword}
+              className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-5 bg-slate-50 dark:bg-slate-700" />
             <View className="flex-row gap-3">
               <TouchableOpacity onPress={() => setShowPasswordModal(false)} disabled={savingPassword}
-                className="flex-1 p-4 rounded-2xl items-center bg-slate-100">
-                <Text className="text-slate-600 font-bold">Cancel</Text>
+                className="flex-1 p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700">
+                <Text className="text-slate-600 dark:text-slate-300 font-bold">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleResetPassword} disabled={savingPassword}
                 className="flex-1 p-4 rounded-2xl items-center bg-primary">
@@ -367,46 +368,47 @@ export default function ProfileScreen({ navigation }) {
         onRequestClose={() => !deleting && setShowDeleteModal(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/60 px-6">
-          <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
+          <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full shadow-2xl">
             {/* Icon */}
             <View className="items-center mb-4">
-              <View className="w-16 h-16 bg-red-100 rounded-full items-center justify-center">
+              <View className="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full items-center justify-center">
                 <Ionicons name="warning-outline" size={32} color="#dc2626" />
               </View>
             </View>
 
-            <Text className="text-slate-800 text-xl font-black text-center mb-2">
+            <Text className="text-slate-800 dark:text-slate-100 text-xl font-black text-center mb-2">
               Delete Account
             </Text>
 
             {/* Admin warning */}
             {isAdminOfHome && (
-              <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
+              <View className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 mb-4">
                 <View className="flex-row items-start">
                   <Ionicons name="home-outline" size={18} color="#d97706" style={{ marginTop: 1 }} />
-                  <Text className="ml-2 text-amber-700 text-sm font-medium flex-1">
+                  <Text className="ml-2 text-amber-700 dark:text-amber-400 text-sm font-medium flex-1">
                     You are the admin of <Text className="font-black">"{adminHomeName}"</Text>. Deleting your account will permanently delete this household and remove all members from it.
                   </Text>
                 </View>
               </View>
             )}
 
-            <Text className="text-slate-500 text-sm text-center mb-5">
+            <Text className="text-slate-500 dark:text-slate-400 text-sm text-center mb-5">
               This will permanently delete your account and all associated data. {'\n'}
-              <Text className="font-bold text-slate-700">This cannot be undone.</Text>
+              <Text className="font-bold text-slate-700 dark:text-slate-200">This cannot be undone.</Text>
             </Text>
 
             {/* Confirm input */}
-            <Text className="text-slate-500 text-xs mb-2 ml-1">
+            <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2 ml-1">
               Type <Text className="font-black text-red-500">DELETE</Text> to confirm
             </Text>
             <TextInput
               value={confirmText}
               onChangeText={setConfirmText}
               placeholder="Type DELETE here"
+              placeholderTextColor="#94a3b8"
               autoCapitalize="characters"
               editable={!deleting}
-              className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 font-bold text-base mb-5 bg-slate-50"
+              className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 font-bold text-base mb-5 bg-slate-50 dark:bg-slate-700"
             />
 
             {/* Buttons */}
@@ -415,7 +417,7 @@ export default function ProfileScreen({ navigation }) {
               disabled={confirmText !== 'DELETE' || deleting}
               className="mb-3"
             >
-              <View className={`p-4 rounded-2xl items-center ${confirmText === 'DELETE' ? 'bg-red-600' : 'bg-red-200'}`}>
+              <View className={`p-4 rounded-2xl items-center ${confirmText === 'DELETE' ? 'bg-red-600' : 'bg-red-200 dark:bg-red-900/40'}`}>
                 {deleting ? (
                   <ActivityIndicator color="white" />
                 ) : (
@@ -427,9 +429,9 @@ export default function ProfileScreen({ navigation }) {
             <TouchableOpacity
               onPress={() => setShowDeleteModal(false)}
               disabled={deleting}
-              className="p-4 rounded-2xl items-center bg-slate-100"
+              className="p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
             >
-              <Text className="text-slate-600 font-bold text-base">Cancel</Text>
+              <Text className="text-slate-600 dark:text-slate-300 font-bold text-base">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

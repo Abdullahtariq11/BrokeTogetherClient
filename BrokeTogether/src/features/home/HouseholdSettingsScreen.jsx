@@ -124,7 +124,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-slate-50">
+      <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
         <ActivityIndicator size="large" color="#E98074" />
       </View>
     );
@@ -132,9 +132,9 @@ export default function HouseholdSettingsScreen({ navigation }) {
 
   if (!home) {
     return (
-      <View className="flex-1 justify-center items-center bg-slate-50 px-6">
+      <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900 px-6">
         <Ionicons name="home-outline" size={48} color="#cbd5e1" />
-        <Text className="text-slate-400 text-center mt-4">
+        <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
           You are not part of any household.
         </Text>
         <TouchableOpacity
@@ -148,7 +148,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">
@@ -164,16 +164,16 @@ export default function HouseholdSettingsScreen({ navigation }) {
 
       <View className="p-6 mt-4">
         {/* Household Name Section */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">
           Household Name
         </Text>
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 mb-6">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 mb-6">
           {editing ? (
             <View>
               <TextInput
                 value={newName}
                 onChangeText={setNewName}
-                className="text-slate-800 text-lg font-bold border-b border-slate-200 pb-2 mb-4"
+                className="text-slate-800 dark:text-slate-100 text-lg font-bold border-b border-slate-200 dark:border-slate-600 pb-2 mb-4"
                 autoFocus
                 maxLength={30}
               />
@@ -185,7 +185,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
                   }}
                   className="px-4 py-2 mr-3"
                 >
-                  <Text className="text-slate-400 font-medium">Cancel</Text>
+                  <Text className="text-slate-400 dark:text-slate-500 font-medium">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleRename}
@@ -203,15 +203,15 @@ export default function HouseholdSettingsScreen({ navigation }) {
           ) : (
             <View className="flex-row items-center justify-between">
               <View className="flex-1">
-                <Text className="text-slate-800 text-lg font-bold">{home.name}</Text>
-                <Text className="text-slate-400 text-xs mt-1">
+                <Text className="text-slate-800 dark:text-slate-100 text-lg font-bold">{home.name}</Text>
+                <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
                   Code: {home.inviteCode}
                 </Text>
               </View>
               {isAdmin && (
                 <TouchableOpacity
                   onPress={() => setEditing(true)}
-                  className="bg-slate-100 p-2.5 rounded-xl"
+                  className="bg-slate-100 dark:bg-slate-700 p-2.5 rounded-xl"
                 >
                   <Ionicons name="pencil" size={18} color="#64748b" />
                 </TouchableOpacity>
@@ -223,23 +223,23 @@ export default function HouseholdSettingsScreen({ navigation }) {
         {/* Invite Code Section (admin only) */}
         {isAdmin && (
           <>
-            <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+            <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">
               Invite Code
             </Text>
-            <View className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 mb-6">
+            <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 mb-6">
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
-                  <Text className="text-slate-800 text-xl font-black tracking-widest">
+                  <Text className="text-slate-800 dark:text-slate-100 text-xl font-black tracking-widest">
                     {home.inviteCode}
                   </Text>
-                  <Text className="text-slate-400 text-xs mt-1">
+                  <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
                     Share this code to invite people to your household
                   </Text>
                 </View>
                 <TouchableOpacity
                   onPress={handleRegenerateCode}
                   disabled={regenerating}
-                  className="bg-primary/10 p-2.5 rounded-xl ml-4"
+                  className="bg-primary/10 dark:bg-primary/20 p-2.5 rounded-xl ml-4"
                 >
                   {regenerating ? (
                     <ActivityIndicator size="small" color="#E98074" />
@@ -253,11 +253,11 @@ export default function HouseholdSettingsScreen({ navigation }) {
         )}
 
         {/* Role Info */}
-        <Text className="text-slate-400 font-bold uppercase text-xs mb-4 ml-2">
+        <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mb-4 ml-2">
           Your Role
         </Text>
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 mb-6 flex-row items-center">
-          <View className={`p-2.5 rounded-xl mr-4 ${isAdmin ? 'bg-amber-50' : 'bg-blue-50'}`}>
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 mb-6 flex-row items-center">
+          <View className={`p-2.5 rounded-xl mr-4 ${isAdmin ? 'bg-amber-50 dark:bg-amber-900/30' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
             <Ionicons
               name={isAdmin ? 'shield-checkmark' : 'person'}
               size={20}
@@ -265,10 +265,10 @@ export default function HouseholdSettingsScreen({ navigation }) {
             />
           </View>
           <View>
-            <Text className="text-slate-800 font-bold">
+            <Text className="text-slate-800 dark:text-slate-100 font-bold">
               {isAdmin ? 'Admin' : 'Member'}
             </Text>
-            <Text className="text-slate-400 text-xs mt-0.5">
+            <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">
               {isAdmin
                 ? 'You created this household'
                 : 'You can leave this household anytime'}
@@ -279,17 +279,17 @@ export default function HouseholdSettingsScreen({ navigation }) {
         {/* Leave Household (non-admin only) */}
         {!isAdmin && (
           <>
-            <Text className="text-slate-400 font-bold uppercase text-xs mt-4 mb-4 ml-2">
+            <Text className="text-slate-400 dark:text-slate-500 font-bold uppercase text-xs mt-4 mb-4 ml-2">
               Danger Zone
             </Text>
             <TouchableOpacity
               onPress={handleLeave}
-              className="bg-red-50 p-5 rounded-3xl flex-row items-center border border-red-100 shadow-sm"
+              className="bg-red-50 dark:bg-red-900/30 p-5 rounded-3xl flex-row items-center border border-red-100 dark:border-red-800 shadow-sm"
             >
               <Ionicons name="exit-outline" size={22} color="#ef4444" />
               <View className="ml-4">
                 <Text className="text-red-500 font-bold text-base">Leave Household</Text>
-                <Text className="text-red-300 text-xs mt-0.5">
+                <Text className="text-red-300 dark:text-red-400/70 text-xs mt-0.5">
                   You will lose access to shared expenses
                 </Text>
               </View>

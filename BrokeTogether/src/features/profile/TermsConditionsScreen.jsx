@@ -8,15 +8,15 @@ const CONTACT_EMAIL = 'support.broketogether@gmail.com';
 function Section({ title, children }) {
   return (
     <View className="mb-6">
-      <Text className="text-slate-800 font-bold text-base mb-2">{title}</Text>
-      <Text className="text-slate-500 text-sm leading-6">{children}</Text>
+      <Text className="text-slate-800 dark:text-slate-100 font-bold text-base mb-2">{title}</Text>
+      <Text className="text-slate-500 dark:text-slate-400 text-sm leading-6">{children}</Text>
     </View>
   );
 }
 
 export default function TermsConditionsScreen({ navigation }) {
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">
@@ -31,8 +31,8 @@ export default function TermsConditionsScreen({ navigation }) {
       </View>
 
       <View className="p-6 mt-4">
-        <View className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-6">
-          <Text className="text-slate-400 text-xs mb-4">Last updated: {LAST_UPDATED}</Text>
+        <View className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 mb-6">
+          <Text className="text-slate-400 dark:text-slate-500 text-xs mb-4">Last updated: {LAST_UPDATED}</Text>
 
           <Section title="1. Acceptance of Terms">
             By downloading, installing, or using BrokeTogether ("the App"), you agree to be
@@ -168,7 +168,7 @@ ${CONTACT_EMAIL}`}
           </Section>
         </View>
 
-        <Text className="text-center text-slate-300 text-xs mb-10">
+        <Text className="text-center text-slate-300 dark:text-slate-600 text-xs mb-10">
           BrokeTogether v1.0.4
         </Text>
       </View>

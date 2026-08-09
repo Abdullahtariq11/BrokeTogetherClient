@@ -17,14 +17,14 @@ function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => !loading && onClose()}>
       <View className="flex-1 justify-end pb-6 px-4 bg-black/50">
-        <View className="bg-white rounded-3xl p-6 shadow-2xl">
+        <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl">
           {/* header */}
           <View className="flex-row items-center mb-1">
-            <View className="bg-amber-50 p-3 rounded-2xl mr-3">
+            <View className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-2xl mr-3">
               <Ionicons name="receipt-outline" size={20} color="#f59e0b" />
             </View>
             <View className="flex-1">
-              <Text className="font-black text-slate-800 text-base" numberOfLines={1}>
+              <Text className="font-black text-slate-800 dark:text-slate-100 text-base" numberOfLines={1}>
                 {item.name}
               </Text>
               {item.price != null && (
@@ -35,7 +35,7 @@ function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
             </View>
           </View>
 
-          <Text className="text-slate-400 text-xs mt-3 mb-5">
+          <Text className="text-slate-400 dark:text-slate-500 text-xs mt-3 mb-5">
             How would you like to record this expense?
           </Text>
 
@@ -43,14 +43,14 @@ function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
           <TouchableOpacity
             onPress={onSplit}
             disabled={!!loading}
-            className="flex-row items-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-100 mb-3"
+            className="flex-row items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 border-2 border-emerald-100 dark:border-emerald-800 mb-3"
           >
-            <View className="bg-emerald-100 p-2 rounded-xl mr-4">
+            <View className="bg-emerald-100 dark:bg-emerald-800/50 p-2 rounded-xl mr-4">
               <Ionicons name="people-outline" size={20} color="#10b981" />
             </View>
             <View className="flex-1">
-              <Text className="font-bold text-slate-800 text-sm">Split Equally</Text>
-              <Text className="text-slate-400 text-xs mt-0.5">Divide the cost among all members</Text>
+              <Text className="font-bold text-slate-800 dark:text-slate-100 text-sm">Split Equally</Text>
+              <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Divide the cost among all members</Text>
             </View>
             {loading === 'split' && <ActivityIndicator size="small" color="#10b981" />}
           </TouchableOpacity>
@@ -59,14 +59,14 @@ function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
           <TouchableOpacity
             onPress={onPersonal}
             disabled={!!loading}
-            className="flex-row items-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-100 mb-4"
+            className="flex-row items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-100 dark:border-amber-800 mb-4"
           >
-            <View className="bg-amber-100 p-2 rounded-xl mr-4">
+            <View className="bg-amber-100 dark:bg-amber-800/50 p-2 rounded-xl mr-4">
               <Ionicons name="person-outline" size={20} color="#f59e0b" />
             </View>
             <View className="flex-1">
-              <Text className="font-bold text-slate-800 text-sm">My Expense</Text>
-              <Text className="text-slate-400 text-xs mt-0.5">Record as your personal expense</Text>
+              <Text className="font-bold text-slate-800 dark:text-slate-100 text-sm">My Expense</Text>
+              <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Record as your personal expense</Text>
             </View>
             {loading === 'personal' && <ActivityIndicator size="small" color="#f59e0b" />}
           </TouchableOpacity>
@@ -75,9 +75,9 @@ function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
           <TouchableOpacity
             onPress={onClose}
             disabled={!!loading}
-            className="py-3 rounded-2xl items-center bg-slate-100"
+            className="py-3 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
           >
-            <Text className="text-slate-500 font-semibold text-sm">Cancel</Text>
+            <Text className="text-slate-500 dark:text-slate-300 font-semibold text-sm">Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -98,33 +98,35 @@ function EditModal({ item, onSave, onClose, saving }) {
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => !saving && onClose()}>
       <View className="flex-1 justify-center items-center bg-black/50 px-6">
-        <View className="bg-white rounded-3xl p-6 w-full shadow-2xl">
-          <Text className="text-slate-800 text-xl font-black mb-4">Edit Item</Text>
+        <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full shadow-2xl">
+          <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-4">Edit Item</Text>
 
           <TextInput
             autoFocus
             value={editName}
             onChangeText={setEditName}
             placeholder="Item name"
+            placeholderTextColor="#94a3b8"
             editable={!saving}
-            className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-3 bg-slate-50"
+            className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-3 bg-slate-50 dark:bg-slate-700"
           />
           <TextInput
             value={editPrice}
             onChangeText={setEditPrice}
             placeholder="Price (optional)"
+            placeholderTextColor="#94a3b8"
             keyboardType="decimal-pad"
             editable={!saving}
-            className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-base mb-5 bg-slate-50"
+            className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-5 bg-slate-50 dark:bg-slate-700"
           />
 
           <View className="flex-row gap-3">
             <TouchableOpacity
               onPress={onClose}
               disabled={saving}
-              className="flex-1 p-4 rounded-2xl items-center bg-slate-100"
+              className="flex-1 p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
             >
-              <Text className="text-slate-600 font-bold">Cancel</Text>
+              <Text className="text-slate-600 dark:text-slate-300 font-bold">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSave}
@@ -152,7 +154,7 @@ function ItemRow({ item, onMark, onEdit, onDelete, onConvert, markingId, deletin
   const canConvert = item.isChecked && item.price != null && !item.convertedToExpense;
 
   return (
-    <View className={`bg-white rounded-[24px] p-4 mb-3 flex-row items-center shadow-sm border border-slate-50 ${item.isChecked ? 'opacity-70' : ''}`}>
+    <View className={`bg-white dark:bg-slate-800 rounded-[24px] p-4 mb-3 flex-row items-center shadow-sm border border-slate-50 dark:border-slate-700 ${item.isChecked ? 'opacity-70' : ''}`}>
       {/* Check toggle */}
       <TouchableOpacity
         onPress={() => onMark(item)}
@@ -171,13 +173,13 @@ function ItemRow({ item, onMark, onEdit, onDelete, onConvert, markingId, deletin
       {/* Name + meta */}
       <View className="flex-1 mr-2">
         <Text
-          className={`font-semibold text-base ${item.isChecked ? 'line-through text-slate-400' : 'text-slate-800'}`}
+          className={`font-semibold text-base ${item.isChecked ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100'}`}
           numberOfLines={1}
         >
           {item.name}
         </Text>
         {item.checkedByName ? (
-          <Text className="text-[10px] text-slate-400 mt-0.5">by {item.checkedByName}</Text>
+          <Text className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">by {item.checkedByName}</Text>
         ) : null}
       </View>
 
@@ -193,7 +195,7 @@ function ItemRow({ item, onMark, onEdit, onDelete, onConvert, markingId, deletin
         <TouchableOpacity
           onPress={() => onConvert(item)}
           disabled={busy}
-          className="bg-amber-50 p-2 rounded-xl mr-1"
+          className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-xl mr-1"
         >
           {isConverting
             ? <ActivityIndicator size="small" color="#f59e0b" />
@@ -206,7 +208,7 @@ function ItemRow({ item, onMark, onEdit, onDelete, onConvert, markingId, deletin
         <TouchableOpacity
           onPress={() => onEdit(item)}
           disabled={busy}
-          className="bg-sky-50 p-2 rounded-xl mr-1"
+          className="bg-sky-50 dark:bg-sky-900/30 p-2 rounded-xl mr-1"
         >
           <Ionicons name="pencil-outline" size={18} color="#38bdf8" />
         </TouchableOpacity>
@@ -216,7 +218,7 @@ function ItemRow({ item, onMark, onEdit, onDelete, onConvert, markingId, deletin
       <TouchableOpacity
         onPress={() => onDelete(item)}
         disabled={busy}
-        className="bg-rose-50 p-2 rounded-xl"
+        className="bg-rose-50 dark:bg-rose-900/30 p-2 rounded-xl"
       >
         {isDeleting
           ? <ActivityIndicator size="small" color="#f43f5e" />
@@ -375,13 +377,13 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
   return (
     <View className="px-6 pb-6">
       {/* Add item row */}
-      <View className="bg-white rounded-[24px] p-4 mb-4 shadow-sm border border-slate-50">
+      <View className="bg-white dark:bg-slate-800 rounded-[24px] p-4 mb-4 shadow-sm border border-slate-50 dark:border-slate-700">
         <TextInput
           value={name}
           onChangeText={setName}
           placeholder="Item name…"
           placeholderTextColor="#94a3b8"
-          className="border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-sm mb-2 bg-slate-50"
+          className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-sm mb-2 bg-slate-50 dark:bg-slate-700"
         />
         <View className="flex-row gap-2">
           <TextInput
@@ -390,7 +392,7 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
             placeholder="Price (optional)"
             placeholderTextColor="#94a3b8"
             keyboardType="decimal-pad"
-            className="flex-1 border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 text-sm bg-slate-50"
+            className="flex-1 border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-sm bg-slate-50 dark:bg-slate-700"
           />
           <TouchableOpacity
             testID="shopping-add-button"
@@ -410,15 +412,15 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
       {loading && (
         <View className="items-center py-10">
           <ActivityIndicator size="large" color="#E98074" />
-          <Text className="text-slate-400 mt-3 text-sm">Loading list…</Text>
+          <Text className="text-slate-400 dark:text-slate-500 mt-3 text-sm">Loading list…</Text>
         </View>
       )}
 
       {/* Empty state */}
       {!loading && items.length === 0 && (
-        <View className="bg-white rounded-[30px] py-12 items-center border-2 border-dashed border-slate-200">
+        <View className="bg-white dark:bg-slate-800 rounded-[30px] py-12 items-center border-2 border-dashed border-slate-200 dark:border-slate-700">
           <Ionicons name="cart-outline" size={48} color="#cbd5e1" />
-          <Text className="text-slate-400 text-center mt-4 px-6">
+          <Text className="text-slate-400 dark:text-slate-500 text-center mt-4 px-6">
             Your shopping list is empty — add an item above!
           </Text>
           <TouchableOpacity onPress={loadItems} className="mt-3">
@@ -449,7 +451,7 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
       {/* Purchased */}
       {!loading && checked.length > 0 && (
         <View>
-          <Text className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">
+          <Text className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 ml-1">
             Purchased
           </Text>
           {checked.map((item) => (
