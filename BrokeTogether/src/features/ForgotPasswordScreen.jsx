@@ -28,12 +28,12 @@ export default function ForgotPasswordScreen({ onBack }) {
 
     if (sent) {
         return (
-            <View className="flex-1 bg-background p-6 justify-center items-center">
-                <View className="w-20 h-20 bg-emerald-100 rounded-full items-center justify-center mb-6">
+            <View className="flex-1 bg-background dark:bg-slate-900 p-6 justify-center items-center">
+                <View className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/40 rounded-full items-center justify-center mb-6">
                     <Ionicons name="mail-open-outline" size={36} color="#10b981" />
                 </View>
-                <Text className="text-slate-800 text-2xl font-black text-center mb-2">Check your email</Text>
-                <Text className="text-secondary text-sm text-center mb-8">
+                <Text className="text-slate-800 dark:text-slate-100 text-2xl font-black text-center mb-2">Check your email</Text>
+                <Text className="text-secondary dark:text-slate-400 text-sm text-center mb-8">
                     If {email} is registered, you'll receive a reset link shortly.
                 </Text>
                 <TouchableOpacity
@@ -47,20 +47,20 @@ export default function ForgotPasswordScreen({ onBack }) {
     }
 
     return (
-        <View className="flex-1 bg-background p-6 justify-center">
-            <TouchableOpacity onPress={onBack} className="mb-8 w-10 h-10 items-center justify-center bg-white rounded-full self-start">
+        <View className="flex-1 bg-background dark:bg-slate-900 p-6 justify-center">
+            <TouchableOpacity onPress={onBack} className="mb-8 w-10 h-10 items-center justify-center bg-white dark:bg-slate-800 rounded-full self-start">
                 <Ionicons name="arrow-back" size={22} color="#64748b" />
             </TouchableOpacity>
 
-            <Text className="text-slate-800 text-3xl font-black mb-2">Forgot password?</Text>
-            <Text className="text-secondary text-base mb-8">
+            <Text className="text-slate-800 dark:text-slate-100 text-3xl font-black mb-2">Forgot password?</Text>
+            <Text className="text-secondary dark:text-slate-400 text-base mb-8">
                 Enter your email and we'll send you a reset link.
             </Text>
 
             <View>
-                <Text className="text-secondary mb-2 font-semibold">Email Address</Text>
+                <Text className="text-secondary dark:text-slate-300 mb-2 font-semibold">Email Address</Text>
                 <TextInput
-                    className="bg-white border border-secondary/30 p-4 rounded-2xl text-slate-900"
+                    className="bg-white dark:bg-slate-800 border border-secondary/30 dark:border-slate-600 p-4 rounded-2xl text-slate-900 dark:text-slate-100"
                     placeholder="example@gmail.com"
                     placeholderTextColor="#94a3b8"
                     value={email}
