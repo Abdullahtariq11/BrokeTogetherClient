@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, Alert,
-  ActivityIndicator
+  ActivityIndicator, Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Purchases from 'react-native-purchases';
@@ -28,10 +28,13 @@ export default function PremiumScreen({ navigation }) {
   // RevenueCat's on-device entitlement check wins when present — it's
   // updated the instant a purchase/restore completes, without waiting on
   // the backend's webhook-driven status.
-  const isPremium = customerInfo?.entitlements?.active?.[PREMIUM_ENTITLEMENT_ID]
-    ? true
-    : status?.isPremium ?? userInfo?.isPremium ?? false;
+  const hasRevenueCatEntitlement = !!customerInfo?.entitlements?.active?.[PREMIUM_ENTITLEMENT_ID];
+  const isPremium = hasRevenueCatEntitlement || status?.isPremium || userInfo?.isPremium || false;
   const subscriptionStatus = status?.subscriptionStatus ?? userInfo?.subscriptionStatus ?? 'NONE';
+
+  // True when the user subscribed via Stripe on the web — RevenueCat has no
+  // record of them, so we send them to the Stripe billing portal instead.
+  const isStripeSubscriber = isPremium && !hasRevenueCatEntitlement;
 
   const refreshCustomerInfo = useCallback(async () => {
     try {
@@ -68,8 +71,14 @@ export default function PremiumScreen({ navigation }) {
   const handleManage = async () => {
     setActionLoading(true);
     try {
-      await RevenueCatUI.presentCustomerCenter();
-      await refreshCustomerInfo();
+      if (isStripeSubscriber) {
+        // Subscribed via web — open the Stripe billing portal in the browser
+        const url = await billingService.getPortalUrl();
+        await Linking.openURL(url);
+      } else {
+        await RevenueCatUI.presentCustomerCenter();
+        await refreshCustomerInfo();
+      }
     } catch {
       Alert.alert('Error', 'Could not open subscription management. Please try again.');
     } finally {
@@ -217,7 +226,9 @@ export default function PremiumScreen({ navigation }) {
             )}
 
             <Text className="text-center text-slate-300 dark:text-slate-600 text-xs mt-8 mb-4">
-              Subscriptions are billed through the App Store or Google Play. Cancel anytime.
+              {isStripeSubscriber
+                ? 'Your subscription is managed through broketogether.ca. Cancel anytime.'
+                : 'Subscriptions are billed through the App Store or Google Play. Cancel anytime.'}
             </Text>
           </>
         )}

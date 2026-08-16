@@ -8,10 +8,15 @@ const expenseService = {
         return response.data;
     },
 
-    // Selective split (The one you just shared!)
+    // Selective split (legacy)
     createSelectiveExpense: async (expenseData) => {
-        // expenseData should include: { amount, description, category, homeId, userId: [1, 2, 3] }
         const response = await client.post('/expenses/selective', expenseData);
+        return response.data;
+    },
+
+    // New unified endpoint — EQUAL | PERSONAL | FIXED | CUSTOM
+    createSplitExpense: async (expenseData) => {
+        const response = await client.post('/expenses/split', expenseData);
         return response.data;
     },
 

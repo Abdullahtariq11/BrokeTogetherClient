@@ -58,15 +58,14 @@ const shoppingService = {
     await client.delete(`/shopping-items/item/${itemId}`);
   },
 
-  /**
-   * Convert a shopping item into an expense.
-   * @param {number} itemId
-   * @param {boolean} split  - true = equal split among all home members, false = personal expense
-   */
-  convertToExpense: async (itemId, split) => {
-    const response = await client.post(
-      `/shopping-items/item/${itemId}/convert?split=${split}`
-    );
+  // splitType: 'EQUAL' | 'PERSONAL' | 'FIXED' | 'CUSTOM'
+  convertToExpense: async (itemId, { splitType, userIds, exactSplits, payerFixedAmount } = {}) => {
+    const response = await client.post(`/shopping-items/item/${itemId}/convert`, {
+      splitType: splitType || 'EQUAL',
+      userIds: userIds || [],
+      exactSplits: exactSplits || null,
+      payerFixedAmount: payerFixedAmount || null,
+    });
     return response.data;
   },
 };

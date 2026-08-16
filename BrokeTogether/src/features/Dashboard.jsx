@@ -375,12 +375,13 @@ export default function DashboardScreen({ navigation }) {
                 {/* Tab Bar */}
                 <View className="flex-row mx-6 mb-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-3xl border border-slate-50 dark:border-slate-700 gap-1">
                     {[
-                        { key: 'activity', label: 'Activity', icon: 'receipt-outline' },
-                        { key: 'shopping', label: 'Shopping', icon: 'cart-outline' },
-                        { key: 'recurring', label: 'Recurring', icon: 'repeat-outline' },
-                        { key: 'analytics', label: userInfo?.isPremium ? 'Analytics' : '👑', icon: 'bar-chart-outline' },
+                        { key: 'activity',   label: 'Activity',   icon: 'receipt-outline'   },
+                        { key: 'shopping',   label: 'Shopping',   icon: 'cart-outline'      },
+                        { key: 'recurring',  label: 'Recurring',  icon: 'repeat-outline',   premium: true },
+                        { key: 'analytics',  label: 'Analytics',  icon: 'bar-chart-outline', premium: true },
                     ].map((tab) => {
                         const isActive = activeTab === tab.key;
+                        const locked = tab.premium && !isPremium;
                         return (
                             <TouchableOpacity
                                 key={tab.key}
@@ -391,15 +392,22 @@ export default function DashboardScreen({ navigation }) {
                                 <View className={`py-3 rounded-2xl items-center flex-row justify-center ${
                                     isActive ? 'bg-white dark:bg-slate-700 border border-primary/25' : ''
                                 }`}>
-                                    <Ionicons
-                                        name={tab.icon}
-                                        size={16}
-                                        color={isActive ? '#E98074' : '#64748b'}
-                                    />
+                                    <View className="relative">
+                                        <Ionicons
+                                            name={tab.icon}
+                                            size={16}
+                                            color={locked ? '#94a3b8' : isActive ? '#E98074' : '#64748b'}
+                                        />
+                                        {locked && (
+                                            <View className="absolute -top-1.5 -right-2 w-3.5 h-3.5 bg-amber-400 rounded-full items-center justify-center">
+                                                <Ionicons name="star" size={8} color="white" />
+                                            </View>
+                                        )}
+                                    </View>
                                     <Text
                                         numberOfLines={1}
                                         className={`ml-1.5 font-bold text-xs ${
-                                            isActive ? 'text-primary' : 'text-slate-500'
+                                            locked ? 'text-slate-400 dark:text-slate-500' : isActive ? 'text-primary' : 'text-slate-500'
                                         }`}
                                     >
                                         {tab.label}
@@ -448,6 +456,11 @@ export default function DashboardScreen({ navigation }) {
                                                 </Text>
                                             )}
                                         </View>
+                                        {expense.createdAt && (
+                                            <Text className="text-slate-300 dark:text-slate-600 text-[10px] font-medium mt-0.5">
+                                                {new Date(expense.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </Text>
+                                        )}
                                     </View>
                                     <View className="items-end gap-2">
                                         <Text className={`font-black text-xl ${isSettlement ? 'text-teal-500' : 'text-primary'}`}>

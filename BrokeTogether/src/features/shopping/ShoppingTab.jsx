@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -6,81 +6,232 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from '../../context/AuthContext';
 import shoppingService from '../../api/shoppingService';
+import homeService from '../../api/homeService';
+
+const SPLIT_TYPES = [
+  { value: 'EQUAL',    label: 'Equal',    desc: 'Split evenly' },
+  { value: 'PERSONAL', label: 'Personal', desc: 'Only you'     },
+  { value: 'FIXED',    label: 'Fixed',    desc: 'Set your share' },
+  { value: 'CUSTOM',   label: 'Custom',   desc: 'Per-person amounts' },
+];
 
 /* ─── Convert Modal ──────────────────────────────────────────── */
-function ConvertModal({ item, onSplit, onPersonal, onClose, loading }) {
+function ConvertModal({ item, homeId, onConvert, onClose, submitting }) {
+  const { userInfo } = useContext(AuthContext);
+  const [splitType, setSplitType]         = useState('EQUAL');
+  const [allMembers, setAllMembers]       = useState([]);
+  const [fetchingMembers, setFetchingMembers] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [payerFixed, setPayerFixed]       = useState('');
+  const [customAmounts, setCustomAmounts] = useState({});
+
+  const totalAmt = parseFloat(item.price || 0);
+  const otherMembers = allMembers.filter(m =>
+    String(m.id) !== String(userInfo?.id) &&
+    m.name?.toLowerCase().trim() !== userInfo?.name?.toLowerCase().trim()
+  );
+
+  useEffect(() => {
+    let active = true;
+    setFetchingMembers(true);
+    homeService.getMembers(homeId)
+      .then(data => { if (active) setAllMembers(data || []); })
+      .catch(() => {})
+      .finally(() => { if (active) setFetchingMembers(false); });
+    return () => { active = false; };
+  }, [homeId]);
+
+  useEffect(() => {
+    if (otherMembers.length > 0) setSelectedUserIds(otherMembers.map(m => m.id));
+  }, [allMembers]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setPayerFixed(''); setCustomAmounts({});
+  }, [splitType]);
+
+  const toggleMember = (id) =>
+    setSelectedUserIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+  const participantIds = splitType === 'PERSONAL' ? [] : selectedUserIds;
+  const totalPeople    = participantIds.length + 1;
+  const equalShare     = totalPeople > 0 ? totalAmt / totalPeople : 0;
+  const fixedRemainder = totalAmt - parseFloat(payerFixed || 0);
+  const fixedOther     = participantIds.length > 0 ? fixedRemainder / participantIds.length : 0;
+  const customTotal    = Object.values(customAmounts).reduce((s, v) => s + parseFloat(v || 0), 0);
+  const isBalanced     = Math.abs(customTotal - totalAmt) < 0.01;
+
+  const handleSubmit = () => {
+    if (splitType !== 'PERSONAL' && participantIds.length === 0)
+      return Alert.alert('Selection Required', 'Select at least one roommate.');
+    if (splitType === 'FIXED') {
+      const pf = parseFloat(payerFixed || 0);
+      if (isNaN(pf) || pf < 0 || pf > totalAmt)
+        return Alert.alert('Invalid Amount', "Your fixed share can't exceed the total.");
+    }
+    if (splitType === 'CUSTOM' && !isBalanced)
+      return Alert.alert('Amounts Mismatch', `Amounts must sum to $${totalAmt.toFixed(2)}.`);
+
+    const payload = { splitType, userIds: participantIds.map(Number) };
+    if (splitType === 'FIXED') payload.payerFixedAmount = parseFloat(payerFixed);
+    if (splitType === 'CUSTOM') {
+      const exactSplits = { [Number(userInfo.id)]: parseFloat(customAmounts[userInfo.id] || 0) };
+      for (const id of participantIds) exactSplits[Number(id)] = parseFloat(customAmounts[id] || 0);
+      payload.exactSplits = exactSplits;
+    }
+    onConvert(payload);
+  };
+
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={() => !loading && onClose()}>
-      <View className="flex-1 justify-end pb-6 px-4 bg-black/50">
-        <View className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl">
-          {/* header */}
-          <View className="flex-row items-center mb-1">
-            <View className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-2xl mr-3">
+    <Modal visible transparent animationType="slide" onRequestClose={() => !submitting && onClose()}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end bg-black/60">
+        <View className="bg-white dark:bg-slate-800 rounded-t-[32px] px-5 pt-5 pb-8 max-h-[88%]">
+          <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 self-center rounded-full mb-4" />
+
+          {/* Header */}
+          <View className="flex-row items-center mb-4">
+            <View className="bg-amber-50 dark:bg-amber-900/30 p-2.5 rounded-2xl mr-3">
               <Ionicons name="receipt-outline" size={20} color="#f59e0b" />
             </View>
             <View className="flex-1">
-              <Text className="font-black text-slate-800 dark:text-slate-100 text-base" numberOfLines={1}>
-                {item.name}
-              </Text>
-              {item.price != null && (
-                <Text className="text-primary font-bold text-sm">
-                  ${parseFloat(item.price).toFixed(2)}
-                </Text>
-              )}
+              <Text className="font-black text-slate-800 dark:text-slate-100 text-base" numberOfLines={1}>{item.name}</Text>
+              {item.price != null && <Text className="text-primary font-bold text-sm">${totalAmt.toFixed(2)}</Text>}
             </View>
           </View>
 
-          <Text className="text-slate-400 dark:text-slate-500 text-xs mt-3 mb-5">
-            How would you like to record this expense?
-          </Text>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            {/* Split type selector */}
+            <Text className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 ml-0.5">How to split</Text>
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {SPLIT_TYPES.map(st => (
+                <TouchableOpacity key={st.value} onPress={() => setSplitType(st.value)} className="flex-1 min-w-[44%]">
+                  <View className={`p-3 rounded-2xl border ${
+                    splitType === st.value
+                      ? 'bg-primary/10 dark:bg-primary/20 border-primary/40'
+                      : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                  }`}>
+                    <Text className={`text-sm font-bold ${splitType === st.value ? 'text-primary' : 'text-slate-700 dark:text-slate-200'}`}>{st.label}</Text>
+                    <Text className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{st.desc}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          {/* Split equally */}
-          <TouchableOpacity
-            onPress={onSplit}
-            disabled={!!loading}
-            className="flex-row items-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 border-2 border-emerald-100 dark:border-emerald-800 mb-3"
-          >
-            <View className="bg-emerald-100 dark:bg-emerald-800/50 p-2 rounded-xl mr-4">
-              <Ionicons name="people-outline" size={20} color="#10b981" />
+            {/* Payer row */}
+            <Text className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 ml-0.5">Paid by</Text>
+            <View className="flex-row items-center p-3.5 rounded-2xl mb-3 bg-primary/5 dark:bg-primary/10 border border-primary/20">
+              <View className="w-8 h-8 bg-primary/20 rounded-full items-center justify-center mr-3">
+                <Text className="text-primary font-bold text-xs">{userInfo?.name?.charAt(0).toUpperCase() || '?'}</Text>
+              </View>
+              <Text className="flex-1 text-slate-800 dark:text-slate-100 font-bold text-sm">{userInfo?.name} (You)</Text>
+              {splitType === 'EQUAL' && totalAmt > 0
+                ? <Text className="text-primary font-bold text-sm">${equalShare.toFixed(2)}</Text>
+                : splitType === 'PERSONAL'
+                ? <Text className="text-primary font-bold text-sm">${totalAmt.toFixed(2)}</Text>
+                : splitType === 'FIXED'
+                ? (
+                  <TextInput
+                    keyboardType="decimal-pad" placeholder="Your share" placeholderTextColor="#94a3b8"
+                    value={payerFixed} onChangeText={setPayerFixed}
+                    className="w-24 px-2 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+                  />
+                ) : splitType === 'CUSTOM' ? (
+                  <TextInput
+                    keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
+                    value={customAmounts[userInfo?.id] || ''}
+                    onChangeText={v => setCustomAmounts(p => ({ ...p, [userInfo.id]: v }))}
+                    className="w-20 px-2 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+                  />
+                ) : null}
             </View>
-            <View className="flex-1">
-              <Text className="font-bold text-slate-800 dark:text-slate-100 text-sm">Split Equally</Text>
-              <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Divide the cost among all members</Text>
-            </View>
-            {loading === 'split' && <ActivityIndicator size="small" color="#10b981" />}
-          </TouchableOpacity>
 
-          {/* Personal */}
-          <TouchableOpacity
-            onPress={onPersonal}
-            disabled={!!loading}
-            className="flex-row items-center p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-100 dark:border-amber-800 mb-4"
-          >
-            <View className="bg-amber-100 dark:bg-amber-800/50 p-2 rounded-xl mr-4">
-              <Ionicons name="person-outline" size={20} color="#f59e0b" />
-            </View>
-            <View className="flex-1">
-              <Text className="font-bold text-slate-800 dark:text-slate-100 text-sm">My Expense</Text>
-              <Text className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">Record as your personal expense</Text>
-            </View>
-            {loading === 'personal' && <ActivityIndicator size="small" color="#f59e0b" />}
-          </TouchableOpacity>
+            {/* PERSONAL notice */}
+            {splitType === 'PERSONAL' && (
+              <View className="bg-slate-50 dark:bg-slate-700 rounded-2xl p-3 mb-4">
+                <Text className="text-slate-400 dark:text-slate-500 text-xs text-center">Recorded only for you — no one else owes anything.</Text>
+              </View>
+            )}
 
-          {/* Cancel */}
-          <TouchableOpacity
-            onPress={onClose}
-            disabled={!!loading}
-            className="py-3 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
-          >
-            <Text className="text-slate-500 dark:text-slate-300 font-semibold text-sm">Cancel</Text>
-          </TouchableOpacity>
+            {/* FIXED remainder */}
+            {splitType === 'FIXED' && payerFixed && participantIds.length > 0 && (
+              <View className="bg-slate-50 dark:bg-slate-700 rounded-2xl p-3 mb-3">
+                <Text className="text-xs text-slate-400 dark:text-slate-500 text-center">
+                  Remainder ${fixedRemainder.toFixed(2)} ÷ {participantIds.length} = <Text className="text-primary font-bold">${fixedOther.toFixed(2)} each</Text>
+                </Text>
+              </View>
+            )}
+
+            {/* Member selection */}
+            {splitType !== 'PERSONAL' && (
+              <>
+                <Text className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 ml-0.5">Include members</Text>
+                {fetchingMembers ? (
+                  <ActivityIndicator color="#E98074" className="my-4" />
+                ) : otherMembers.length === 0 ? (
+                  <View className="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl items-center mb-4">
+                    <Text className="text-slate-400 dark:text-slate-500 text-sm">No other roommates</Text>
+                  </View>
+                ) : (
+                  <View className="mb-4">
+                    {otherMembers.map(m => {
+                      const sel = selectedUserIds.includes(m.id);
+                      return (
+                        <TouchableOpacity key={m.id} onPress={() => toggleMember(m.id)} className="mb-2">
+                          <View className={`flex-row items-center p-3.5 rounded-2xl border ${sel ? 'bg-primary/5 dark:bg-primary/10 border-primary/20' : 'bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-600'}`}>
+                            <Ionicons name={sel ? 'checkbox' : 'square-outline'} size={20} color={sel ? '#E98074' : '#cbd5e1'} />
+                            <Text className={`ml-3 flex-1 text-sm font-semibold ${sel ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>{m.name}</Text>
+                            {splitType === 'EQUAL' && sel && totalAmt > 0
+                              ? <Text className="text-primary font-bold text-sm">${equalShare.toFixed(2)}</Text>
+                              : splitType === 'FIXED' && sel && payerFixed
+                              ? <Text className="text-primary font-bold text-sm">${fixedOther.toFixed(2)}</Text>
+                              : splitType === 'CUSTOM' && sel
+                              ? (
+                                <TextInput
+                                  keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
+                                  value={customAmounts[m.id] || ''}
+                                  onChangeText={v => setCustomAmounts(p => ({ ...p, [m.id]: v }))}
+                                  onStartShouldSetResponder={() => true}
+                                  className="w-20 px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+                                />
+                              ) : null}
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
+
+            {/* CUSTOM balance */}
+            {splitType === 'CUSTOM' && totalAmt > 0 && (
+              <View className={`rounded-2xl p-3 mb-4 ${isBalanced ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-amber-50 dark:bg-amber-900/20'}`}>
+                <Text className={`text-xs font-semibold text-center ${isBalanced ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {isBalanced ? '✓ Amounts balance' : `Assigned $${customTotal.toFixed(2)} of $${totalAmt.toFixed(2)}`}
+                </Text>
+              </View>
+            )}
+
+            {/* Submit */}
+            <TouchableOpacity onPress={handleSubmit} disabled={submitting}>
+              <View className={`p-4 rounded-2xl items-center mb-3 ${submitting ? 'bg-slate-300 dark:bg-slate-600' : 'bg-primary'}`}>
+                {submitting ? <ActivityIndicator color="white" /> : <Text className="text-white font-black text-base">Convert to Expense</Text>}
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => !submitting && onClose()} disabled={submitting} className="items-center pb-2">
+              <Text className="text-slate-400 dark:text-slate-500 font-bold">Cancel</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -247,7 +398,7 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
   // modal targets
   const [editTarget,    setEditTarget]    = useState(null);
   const [convertTarget, setConvertTarget] = useState(null);
-  const [convertLoading, setConvertLoading] = useState(null); // 'split' | 'personal' | null
+  const [convertLoading, setConvertLoading] = useState(null);
 
   /* ── data loading ─────────────────────────────────────── */
   const loadItems = useCallback(async () => {
@@ -352,18 +503,17 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
     setConvertTarget(item);
   };
 
-  const handleConvert = async (split) => {
+  const handleConvert = async (payload) => {
     const item = convertTarget;
-    const key = split ? 'split' : 'personal';
-    setConvertLoading(key);
+    setConvertLoading('submitting');
     setConvertingId(item.id);
     try {
-      await shoppingService.convertToExpense(item.id, split);
+      await shoppingService.convertToExpense(item.id, payload);
       setConvertTarget(null);
-      Alert.alert('Success', split ? 'Expense added and split among all members!' : 'Recorded as your personal expense.');
+      Alert.alert('Success', 'Expense recorded!');
       await loadItems();
     } catch (err) {
-      Alert.alert('Error', 'Failed to convert item.');
+      Alert.alert('Error', err.response?.data?.message || 'Failed to convert item.');
     } finally {
       setConvertLoading(null);
       setConvertingId(null);
@@ -484,9 +634,9 @@ export default function ShoppingTab({ homeId, refreshTrigger }) {
       {convertTarget && (
         <ConvertModal
           item={convertTarget}
-          loading={convertLoading}
-          onSplit={() => handleConvert(true)}
-          onPersonal={() => handleConvert(false)}
+          homeId={homeId}
+          submitting={!!convertLoading}
+          onConvert={handleConvert}
           onClose={() => { if (!convertLoading) setConvertTarget(null); }}
         />
       )}
