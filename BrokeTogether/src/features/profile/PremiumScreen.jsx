@@ -115,7 +115,7 @@ export default function PremiumScreen({ navigation }) {
   }[subscriptionStatus] ?? 'text-slate-400';
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary px-6 pt-16 pb-10 items-center rounded-b-[50px]">
         <TouchableOpacity

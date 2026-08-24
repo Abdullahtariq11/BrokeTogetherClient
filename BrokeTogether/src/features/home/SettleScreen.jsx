@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 import { AuthContext } from '../../context/AuthContext';
 import expenseService from '../../api/expenseService';
 import homeService from '../../api/homeService';
@@ -8,7 +9,9 @@ import homeService from '../../api/homeService';
 export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
     // Get userInfo directly from context instead of relying on prop
     const { userInfo } = useContext(AuthContext);
-    
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
+
     const [allMembers, setAllMembers] = useState([]);
     const [balanceMap, setBalanceMap] = useState({});
     const [loading, setLoading] = useState(true);
@@ -82,25 +85,25 @@ export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50">
+            <View className="flex-1 justify-center items-center bg-slate-100 dark:bg-slate-900">
                 <ActivityIndicator size="large" color="#E98074" />
             </View>
         );
     }
 
     return (
-        <View className="flex-1 bg-slate-50 pt-12 px-6">
+        <View className="flex-1 bg-slate-100 dark:bg-slate-900 pt-12 px-6">
             <TouchableOpacity onPress={onBack} className="mb-4">
-                <Ionicons name="close" size={28} color="#334155" />
+                <Ionicons name="close" size={28} color={isDark ? '#e2e8f0' : '#334155'} />
             </TouchableOpacity>
 
-            <Text className="text-2xl font-black mb-6">Roommate Ledger</Text>
+            <Text className="text-2xl font-black mb-6 text-slate-800 dark:text-slate-100">Roommate Ledger</Text>
 
             <ScrollView showsVerticalScrollIndicator={false}>
                 {otherMembers.length === 0 ? (
-                    <View className="bg-white p-12 rounded-[30px] items-center border border-dashed border-slate-200">
-                        <Ionicons name="people-outline" size={48} color="#cbd5e1" />
-                        <Text className="text-slate-400 text-center mt-4">
+                    <View className="bg-white dark:bg-slate-800 p-12 rounded-[30px] items-center border border-dashed border-slate-200 dark:border-slate-700">
+                        <Ionicons name="people-outline" size={48} color={isDark ? '#475569' : '#cbd5e1'} />
+                        <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                             No roommates to settle with
                         </Text>
                     </View>
@@ -121,16 +124,16 @@ export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
                                 key={member.id}
                                 onPress={() => handleSettle(member, balance)}
                                 disabled={isSettled || theyOweYou}
-                                className="bg-white p-5 rounded-[24px] mb-3 shadow-sm border border-slate-50"
+                                className="bg-white dark:bg-slate-800 p-5 rounded-[24px] mb-3 shadow-sm border border-slate-50 dark:border-slate-700"
                             >
                                 <View className={`flex-row justify-between items-center ${(isSettled || theyOweYou) ? 'opacity-40' : ''}`}>
                                     <View>
-                                        <Text className="font-bold text-lg text-slate-800">
+                                        <Text className="font-bold text-lg text-slate-800 dark:text-slate-100">
                                             {member.name}
                                         </Text>
                                         <Text className={`font-black text-[10px] ${
                                             theyOweYou ? 'text-emerald-500' :
-                                            youOweThem ? 'text-rose-500' : 'text-slate-400'
+                                            youOweThem ? 'text-rose-500' : 'text-slate-400 dark:text-slate-500'
                                         }`}>
                                             {theyOweYou ? "OWES YOU" : youOweThem ? "YOU OWE THEM" : "ALL SETTLED"}
                                         </Text>
@@ -138,7 +141,7 @@ export default function SettleScreen({ homeId, onBack, onRefreshDashboard }) {
                                     <View className="items-end">
                                         <Text className={`text-xl font-black ${
                                             theyOweYou ? 'text-emerald-500' :
-                                            youOweThem ? 'text-rose-500' : 'text-slate-300'
+                                            youOweThem ? 'text-rose-500' : 'text-slate-300 dark:text-slate-600'
                                         }`}>
                                             ${Math.abs(balance).toFixed(2)}
                                         </Text>

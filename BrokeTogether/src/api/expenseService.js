@@ -36,7 +36,7 @@ const expenseService = {
      * @param {number} homeId
      * @param {number} page  - zero-based page index (default 0)
      * @param {number} size  - page size (default 20)
-     * @returns {{ expenses, hasMore, page }}
+     * @returns {{ expenses, hasMore, page, lastSettledAt }}
      */
     getHomeExpenses: async (homeId, page = 0, size = 20) => {
         const response = await client.get(`/expenses/home/${homeId}/history?page=${page}&size=${size}`);

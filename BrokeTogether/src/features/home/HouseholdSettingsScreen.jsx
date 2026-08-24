@@ -124,7 +124,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
+      <View className="flex-1 justify-center items-center bg-slate-100 dark:bg-slate-900">
         <ActivityIndicator size="large" color="#E98074" />
       </View>
     );
@@ -132,7 +132,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
 
   if (!home) {
     return (
-      <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900 px-6">
+      <View className="flex-1 justify-center items-center bg-slate-100 dark:bg-slate-900 px-6">
         <Ionicons name="home-outline" size={48} color="#cbd5e1" />
         <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
           You are not part of any household.
@@ -148,7 +148,7 @@ export default function HouseholdSettingsScreen({ navigation }) {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">

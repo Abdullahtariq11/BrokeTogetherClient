@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 jest.mock('../../context/AuthContext', () => {
   const RN_React = require('react');
@@ -45,11 +46,15 @@ import DashboardScreen from '../Dashboard';
 
 const baseNavigation = () => ({ navigate: jest.fn(), goBack: jest.fn() });
 
+const testInsets = { top: 0, left: 0, right: 0, bottom: 0 };
+
 const renderDashboard = async (authValue, navigation = baseNavigation()) =>
   render(
-    <AuthContext.Provider value={authValue}>
-      <DashboardScreen navigation={navigation} />
-    </AuthContext.Provider>
+    <SafeAreaProvider initialMetrics={{ frame: { x: 0, y: 0, width: 0, height: 0 }, insets: testInsets }}>
+      <AuthContext.Provider value={authValue}>
+        <DashboardScreen navigation={navigation} />
+      </AuthContext.Provider>
+    </SafeAreaProvider>
   );
 
 describe('DashboardScreen', () => {

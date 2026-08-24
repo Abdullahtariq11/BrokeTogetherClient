@@ -36,6 +36,9 @@ const checkMutationCooldown = (method, url) => {
 const client = axios.create({
   baseURL: API_URL,
   timeout: 30000, // 30s — enough for Railway cold starts (can take 10-30s)
+  // Tells the backend to issue long-lived (30-day) login tokens instead of the
+  // 24-hour web session — see AuthController#login.
+  headers: { 'X-Client-Platform': 'mobile' },
 });
 
 // Request interceptor — attach auth token + enforce rate limits
@@ -74,7 +77,6 @@ client.interceptors.response.use(
       try {
         await SecureStore.deleteItemAsync('userToken');
         await SecureStore.deleteItemAsync('userInfo');
-        await SecureStore.deleteItemAsync('lastActiveTime');
       } catch (_) {}
       // The AuthContext hydration on next render will find no token → show login
     }

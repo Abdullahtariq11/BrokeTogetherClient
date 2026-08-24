@@ -11,7 +11,6 @@ import "./global.css";
 
 import LoginScreen from './src/features/LoginScreen';
 import AppTabs from './src/navigation/AppTabs';
-import ActivityTracker from './src/component/ActivityTracker';
 
 // Keep splash screen visible until we manually hide it 
 SplashScreen.preventAutoHideAsync();
@@ -60,9 +59,7 @@ export default function App() {
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <ActivityTracker>
-            <AppNav />
-          </ActivityTracker>
+          <AppNav />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

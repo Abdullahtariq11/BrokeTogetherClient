@@ -28,20 +28,21 @@ export default function HomeSetupScreen({ onHomeCreated }) {
   };
 
   return (
-    <View className="flex-1 bg-background p-8 justify-center">
-      <Text className="text-3xl font-bold text-slate-800 mb-2">
+    <View className="flex-1 bg-background dark:bg-slate-900 p-8 justify-center">
+      <Text className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">
         {isJoining ? "Join a Home" : "Create a Home"}
       </Text>
-      <Text className="text-slate-500 mb-8">
-        {isJoining 
-          ? "Enter the invite code shared by your roommate." 
+      <Text className="text-slate-500 dark:text-slate-400 mb-8">
+        {isJoining
+          ? "Enter the invite code shared by your roommate."
           : "Start a new group to track expenses with roommates."}
       </Text>
 
       <View className="mb-6">
         <TextInput
-          className="bg-white border border-slate-200 p-4 rounded-2xl text-lg"
+          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-4 rounded-2xl text-lg text-slate-800 dark:text-slate-100"
           placeholder={isJoining ? "Invite Code (e.g. AB123)" : "Home Name (e.g. Apartment 4B)"}
+          placeholderTextColor="#94a3b8"
           value={inputValue}
           onChangeText={setInputValue}
           autoCapitalize={isJoining ? "characters" : "words"}

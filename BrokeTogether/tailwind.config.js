@@ -14,7 +14,7 @@ module.exports = {
         primary: "#E98074",    // Salmon
         "primary-dark": "#D05A4A", // Darker salmon, matches web dark-mode gradient
         secondary: "#8E8D8A",  // Sage/Gray
-        background: "#F9FAFB", // Off-white
+        background: "#F1F5F9", // Light slate — darker than pure white for better card contrast
         accent: "#E85A4F",     // Darker Salmon for buttons
       },
     },

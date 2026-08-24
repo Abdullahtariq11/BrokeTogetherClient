@@ -103,7 +103,7 @@ export default function MembersScreen() {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
+            <View className="flex-1 justify-center items-center bg-slate-100 dark:bg-slate-900">
                 <ActivityIndicator size="large" color="#E98074" />
             </View>
         );
@@ -111,7 +111,7 @@ export default function MembersScreen() {
 
     if (isGuest) {
         return (
-            <View className="flex-1 bg-slate-50 dark:bg-slate-900">
+            <View className="flex-1 bg-slate-100 dark:bg-slate-900">
                 <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
                     <Text className="text-white/70 font-medium tracking-tight">Roommates</Text>
                     <Text className="text-white text-3xl font-black">People</Text>
@@ -137,7 +137,7 @@ export default function MembersScreen() {
 
     if (!home) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900 p-6">
+            <View className="flex-1 justify-center items-center bg-slate-100 dark:bg-slate-900 p-6">
                 <Ionicons name="home-outline" size={64} color="#cbd5e1" />
                 <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                     You're not part of any home yet.
@@ -154,7 +154,7 @@ export default function MembersScreen() {
     });
 
     return (
-        <View className="flex-1 bg-slate-50 dark:bg-slate-900">
+        <View className="flex-1 bg-slate-100 dark:bg-slate-900">
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}

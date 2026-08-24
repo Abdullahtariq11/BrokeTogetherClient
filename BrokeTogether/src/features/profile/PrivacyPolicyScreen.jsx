@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LAST_UPDATED = 'May 4, 2026';
+const LAST_UPDATED = 'August 22, 2026';
 const CONTACT_EMAIL = 'support.broketogether@gmail.com';
 
 function Section({ title, children }) {
@@ -16,7 +16,7 @@ function Section({ title, children }) {
 
 export default function PrivacyPolicyScreen({ navigation }) {
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">
@@ -53,7 +53,7 @@ Financial Data: Expense descriptions, amounts, categories, split allocations, se
 
 Device & Usage Data: We may collect basic device information (operating system, app version) for the purpose of troubleshooting and improving app performance. We do not collect location data, contacts, or device identifiers for advertising purposes.
 
-Authentication Tokens: Secure session tokens are stored locally on your device using platform-native encrypted storage (iOS Keychain / Android EncryptedSharedPreferences) to keep you signed in.`}
+Authentication Tokens: Secure session tokens are stored locally on your device using platform-native encrypted storage (iOS Keychain / Android EncryptedSharedPreferences) to keep you signed in. On the mobile app, this session stays active for up to 30 days without needing to log in again, even if you close the app; on the web app, sessions expire after 24 hours. You can end your session at any time from Profile → Logout.`}
           </Section>
 
           <Section title="3. How We Use Your Information">

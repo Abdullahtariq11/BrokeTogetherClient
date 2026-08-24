@@ -15,6 +15,7 @@ import AnalyticsTab from './expense/AnalyticsTab';
 
 const HOME_LIMIT_FREE = 1;
 const HOME_LIMIT_PREMIUM = 3;
+const ACTIVITY_PAGE_SIZE = 5;
 
 export default function DashboardScreen({ navigation }) {
     const { userInfo, logout, isGuest, exitGuestMode } = useContext(AuthContext);
@@ -31,6 +32,10 @@ export default function DashboardScreen({ navigation }) {
     const [allHomes, setAllHomes] = useState([]);
     const [myHome, setMyHome] = useState(null);
     const [expenses, setExpenses] = useState([]);
+    const [expensesPage, setExpensesPage] = useState(0);
+    const [hasMoreExpenses, setHasMoreExpenses] = useState(false);
+    const [loadingMoreExpenses, setLoadingMoreExpenses] = useState(false);
+    const [lastSettledAt, setLastSettledAt] = useState(null);
     const [myBalance, setMyBalance] = useState(0);
     const [memberCount, setMemberCount] = useState(0);
 
@@ -74,7 +79,7 @@ export default function DashboardScreen({ navigation }) {
 
                 const [balanceResult, expensesResult] = await Promise.allSettled([
                     expenseService.getHomeBalances(activeHome.id),
-                    expenseService.getHomeExpenses(activeHome.id, 0, 20),
+                    expenseService.getHomeExpenses(activeHome.id, 0, ACTIVITY_PAGE_SIZE),
                 ]);
 
                 if (balanceResult.status === 'fulfilled') {
@@ -90,6 +95,9 @@ export default function DashboardScreen({ navigation }) {
                     const data = expensesResult.value;
                     const expenseList = Array.isArray(data) ? data : (data?.expenses || []);
                     setExpenses(expenseList);
+                    setExpensesPage(0);
+                    setHasMoreExpenses(Array.isArray(data) ? false : !!data?.hasMore);
+                    setLastSettledAt(Array.isArray(data) ? null : (data?.lastSettledAt || null));
                 }
             }
         } catch {
@@ -106,6 +114,8 @@ export default function DashboardScreen({ navigation }) {
         setShowHomeSwitcher(false);
         setActiveTab('activity');
         setExpenses([]);
+        setExpensesPage(0);
+        setHasMoreExpenses(false);
         setMyBalance(0);
         setMemberCount(0);
         loadDashboardData(home);
@@ -140,6 +150,23 @@ export default function DashboardScreen({ navigation }) {
         loadDashboardData();
     };
 
+    const handleLoadMoreActivity = async () => {
+        if (!myHome || loadingMoreExpenses) return;
+        const nextPage = expensesPage + 1;
+        setLoadingMoreExpenses(true);
+        try {
+            const data = await expenseService.getHomeExpenses(myHome.id, nextPage, ACTIVITY_PAGE_SIZE);
+            const newExpenses = Array.isArray(data) ? data : (data?.expenses || []);
+            setExpenses((prev) => [...prev, ...newExpenses]);
+            setExpensesPage(nextPage);
+            setHasMoreExpenses(Array.isArray(data) ? false : !!data?.hasMore);
+        } catch {
+            // Load more failed — leave state as-is so the user can retry
+        } finally {
+            setLoadingMoreExpenses(false);
+        }
+    };
+
     const copyInviteCode = async () => {
         await Clipboard.setStringAsync(myHome.inviteCode);
         Alert.alert("Copied!", "Invite code copied to clipboard.");
@@ -163,7 +190,7 @@ export default function DashboardScreen({ navigation }) {
     const handleDeleteExpense = (expense) => {
         Alert.alert(
             'Delete Expense',
-            `Delete "${expense.description}"? This will recalculate all balances.`,
+            `Delete "${expense.description || expense.Description}"? This will recalculate all balances.`,
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
@@ -186,7 +213,7 @@ export default function DashboardScreen({ navigation }) {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900">
+            <View className="flex-1 justify-center items-center bg-slate-200 dark:bg-slate-900">
                 <ActivityIndicator size="large" color="#E98074" />
                 <Text className="mt-4 text-slate-500 dark:text-slate-400 font-medium">Syncing Household...</Text>
             </View>
@@ -195,7 +222,7 @@ export default function DashboardScreen({ navigation }) {
 
     if (isGuest) {
         return (
-            <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView className="flex-1 bg-slate-200 dark:bg-slate-900" contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
                     <Text className="text-white/70 font-medium tracking-tight">Welcome to</Text>
                     <Text className="text-white text-3xl font-black">BrokeTogether</Text>
@@ -265,7 +292,7 @@ export default function DashboardScreen({ navigation }) {
     }
 
     return (
-        <View className="flex-1 bg-slate-50 dark:bg-slate-900">
+        <View className="flex-1 bg-slate-200 dark:bg-slate-900">
             <ScrollView
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
@@ -389,8 +416,8 @@ export default function DashboardScreen({ navigation }) {
                                 activeOpacity={0.7}
                                 className="flex-1"
                             >
-                                <View className={`py-3 rounded-2xl items-center flex-row justify-center ${
-                                    isActive ? 'bg-white dark:bg-slate-700 border border-primary/25' : ''
+                                <View className={`py-3 rounded-2xl items-center flex-row justify-center border ${
+                                    isActive ? 'bg-white dark:bg-slate-700 border-primary/25' : 'border-transparent'
                                 }`}>
                                     <View className="relative">
                                         <Ionicons
@@ -437,10 +464,12 @@ export default function DashboardScreen({ navigation }) {
                                 const isSettlement = expense.Category === 'SETTLEMENT' || expense.category === 'SETTLEMENT';
                                 const isPayer = String(expense.payerId) === String(userInfo?.id);
                                 const isDeleting = deletingExpenseId === expense.id;
+                                const isPreSettled = !isSettlement && !!lastSettledAt && !!expense.createdAt &&
+                                    new Date(expense.createdAt) < new Date(lastSettledAt);
                                 return (
                                 <View
                                     key={expense.id}
-                                    className="bg-white dark:bg-slate-800 p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 dark:border-slate-700"
+                                    className={`bg-white dark:bg-slate-800 p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 dark:border-slate-700 ${isPreSettled ? 'opacity-50' : ''}`}
                                 >
                                     <View className="flex-1">
                                         <Text className="text-slate-800 dark:text-slate-100 font-bold text-base">
@@ -455,6 +484,11 @@ export default function DashboardScreen({ navigation }) {
                                                     · {isPayer ? 'you' : expense.payerName}
                                                 </Text>
                                             )}
+                                            {isPreSettled && (
+                                                <Text className="text-emerald-500 text-[10px] ml-2 font-bold">
+                                                    · SETTLED
+                                                </Text>
+                                            )}
                                         </View>
                                         {expense.createdAt && (
                                             <Text className="text-slate-300 dark:text-slate-600 text-[10px] font-medium mt-0.5">
@@ -466,7 +500,7 @@ export default function DashboardScreen({ navigation }) {
                                         <Text className={`font-black text-xl ${isSettlement ? 'text-teal-500' : 'text-primary'}`}>
                                             ${expense.amount?.toFixed(2)}
                                         </Text>
-                                        {isPayer && !isSettlement && (
+                                        {isPayer && (
                                             <TouchableOpacity
                                                 onPress={() => handleDeleteExpense(expense)}
                                                 disabled={isDeleting}
@@ -482,6 +516,18 @@ export default function DashboardScreen({ navigation }) {
                                 </View>
                                 );
                             })
+                        )}
+                        {hasMoreExpenses && (
+                            <TouchableOpacity
+                                onPress={handleLoadMoreActivity}
+                                disabled={loadingMoreExpenses}
+                                className="bg-white dark:bg-slate-800 py-4 rounded-[24px] items-center shadow-sm border border-slate-50 dark:border-slate-700 mb-3"
+                            >
+                                {loadingMoreExpenses
+                                    ? <ActivityIndicator size="small" color="#E98074" />
+                                    : <Text className="text-primary font-bold text-sm">See All</Text>
+                                }
+                            </TouchableOpacity>
                         )}
                         <View className="h-24" />
                     </View>
