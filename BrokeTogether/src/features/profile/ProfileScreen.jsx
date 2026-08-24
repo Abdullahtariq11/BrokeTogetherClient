@@ -115,7 +115,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header Profile Section */}
       <View className="bg-primary p-10 pt-20 rounded-b-[50px] items-center shadow-lg">
         <View className="w-24 h-24 bg-white/20 rounded-full items-center justify-center border-4 border-white/30 mb-4">
@@ -127,7 +127,7 @@ export default function ProfileScreen({ navigation }) {
           {isGuest ? 'Guest' : (userInfo?.name || 'User Name')}
         </Text>
         <Text className="text-white/80 text-base">
-          {isGuest ? 'Browsing without an account' : (userInfo?.username || 'user@email.com')}
+          {isGuest ? 'Browsing without an account' : (userInfo?.email || 'user@email.com')}
         </Text>
       </View>
 

@@ -42,7 +42,7 @@ const FAQS = [
   },
 ];
 
-const SUPPORT_EMAIL = 'support@broketogether.app';
+const SUPPORT_EMAIL = 'support.broketogether@gmail.com';
 
 function FAQItem({ item }) {
   const [expanded, setExpanded] = useState(false);
@@ -82,7 +82,7 @@ export default function HelpSupportScreen({ navigation }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">

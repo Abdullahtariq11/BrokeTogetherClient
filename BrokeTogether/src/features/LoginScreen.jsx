@@ -75,7 +75,7 @@ function LoginScreen() {
     // ── Account Locked Screen ────────────────────────────────────────
     if (isLocked) {
         return (
-            <View className="flex-1 bg-slate-50 dark:bg-slate-900 p-6 justify-center items-center">
+            <View className="flex-1 bg-slate-100 dark:bg-slate-900 p-6 justify-center items-center">
                 <View className="w-20 h-20 bg-red-100 dark:bg-red-900/40 rounded-full items-center justify-center mb-6">
                     <Ionicons name="lock-closed" size={36} color="#ef4444" />
                 </View>

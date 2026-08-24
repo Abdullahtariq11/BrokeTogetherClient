@@ -18,12 +18,23 @@ const SPLIT_TYPES = [
   { value: 'CUSTOM',  label: 'Custom',   desc: 'Enter exact amount per person' },
 ];
 
+// Strips anything that isn't a digit or decimal point, and keeps only the first
+// decimal point — keyboardType="decimal-pad" only picks the on-screen keyboard,
+// it doesn't stop paste or a hardware keyboard from entering letters.
+const sanitizeAmountInput = (text) => {
+  const cleaned = text.replace(/[^0-9.]/g, '');
+  const firstDot = cleaned.indexOf('.');
+  if (firstDot === -1) return cleaned;
+  return cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+};
+
 export default function AddExpenseModal({ visible, onClose, homeId, onRefresh }) {
   const { userInfo } = useContext(AuthContext);
 
   const [amount, setAmount]           = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory]       = useState('General');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [splitType, setSplitType]     = useState('EQUAL');
   const [loading, setLoading]         = useState(false);
 
@@ -79,6 +90,8 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
       return ['Invalid Amount', 'Please enter a valid amount.'];
     if (!description || description.trim().length < 3)
       return ['Invalid Description', 'Please add a short description (min 3 chars).'];
+    if (isCustomCategory && !category.trim())
+      return ['Category Required', 'Enter a name for your custom category.'];
     if (splitType !== 'PERSONAL' && participantIds.length === 0)
       return ['Selection Required', 'Select at least one roommate.'];
     if (splitType === 'FIXED') {
@@ -101,7 +114,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
       const payload = {
         totalAmount: totalAmt,
         description: description.trim(),
-        category,
+        category: category.trim(),
         homeId: Number(homeId),
         splitType,
         userIds: participantIds.map(Number),
@@ -130,7 +143,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
   };
 
   const resetForm = () => {
-    setAmount(''); setDescription(''); setCategory('General');
+    setAmount(''); setDescription(''); setCategory('General'); setIsCustomCategory(false);
     setSplitType('EQUAL'); setSelectedUserIds([]); setPayerFixed(''); setCustomAmounts({});
   };
 
@@ -166,7 +179,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
               placeholder="0.00"
               placeholderTextColor="#94a3b8"
               value={customAmounts[member.id] || ''}
-              onChangeText={(v) => setCustomAmounts(p => ({ ...p, [member.id]: v }))}
+              onChangeText={(v) => setCustomAmounts(p => ({ ...p, [member.id]: sanitizeAmountInput(v) }))}
               onStartShouldSetResponder={() => true}
               className="w-20 px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
             />
@@ -196,7 +209,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
               placeholder="0.00" placeholderTextColor="#94a3b8"
               keyboardType="decimal-pad"
               className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-2xl font-black text-primary mb-4"
-              value={amount} onChangeText={setAmount}
+              value={amount} onChangeText={(v) => setAmount(sanitizeAmountInput(v))}
             />
 
             {/* Description */}
@@ -208,18 +221,42 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             />
 
             {/* Category */}
-            <Text className="text-slate-500 dark:text-slate-400 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">Category</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
-              {CATEGORIES.map(cat => (
-                <TouchableOpacity key={cat} onPress={() => setCategory(cat)} className="mr-2">
-                  <View className={`px-5 py-2 rounded-full border ${
-                    category === cat ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
-                  }`}>
-                    <Text className={`font-bold text-sm ${category === cat ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>{cat}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <View className="flex-row items-center justify-between mb-3 ml-1 mr-1">
+              <Text className="text-slate-500 dark:text-slate-400 font-semibold uppercase text-[10px] tracking-widest">Category</Text>
+              <TouchableOpacity onPress={() => {
+                const next = !isCustomCategory;
+                setIsCustomCategory(next);
+                setCategory(next ? '' : 'General');
+              }}>
+                <View className={`px-3 py-1 rounded-full border flex-row items-center ${
+                  isCustomCategory ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                }`}>
+                  <Ionicons name="add" size={12} color={isCustomCategory ? '#ffffff' : '#E98074'} />
+                  <Text className={`font-bold text-[11px] ml-1 ${isCustomCategory ? 'text-white' : 'text-primary'}`}>Custom</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            {isCustomCategory ? (
+              <TextInput
+                placeholder="Enter category name" placeholderTextColor="#94a3b8"
+                maxLength={30}
+                autoFocus
+                className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-base text-slate-700 dark:text-slate-100 font-medium mb-6"
+                value={category} onChangeText={setCategory}
+              />
+            ) : (
+              <View className="flex-row flex-wrap gap-2 mb-6">
+                {CATEGORIES.map(cat => (
+                  <TouchableOpacity key={cat} onPress={() => setCategory(cat)}>
+                    <View className={`px-5 py-2 rounded-full border ${
+                      category === cat ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                    }`}>
+                      <Text className={`font-bold text-sm ${category === cat ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>{cat}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {/* Split type */}
             <Text className="text-slate-500 dark:text-slate-400 mb-3 ml-1 font-semibold uppercase text-[10px] tracking-widest">How to split</Text>
@@ -260,7 +297,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
               ) : splitType === 'FIXED' ? (
                 <TextInput
                   keyboardType="decimal-pad" placeholder="Your share" placeholderTextColor="#94a3b8"
-                  value={payerFixed} onChangeText={setPayerFixed}
+                  value={payerFixed} onChangeText={(v) => setPayerFixed(sanitizeAmountInput(v))}
                   className="w-28 px-3 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
                 />
               ) : null}
@@ -269,7 +306,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 <TextInput
                   keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
                   value={customAmounts[userInfo?.id] || ''}
-                  onChangeText={(v) => setCustomAmounts(p => ({ ...p, [userInfo.id]: v }))}
+                  onChangeText={(v) => setCustomAmounts(p => ({ ...p, [userInfo.id]: sanitizeAmountInput(v) }))}
                   className="w-20 px-2 py-1 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
                 />
               ) : null}

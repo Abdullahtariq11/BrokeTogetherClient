@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LAST_UPDATED = 'May 4, 2026';
+const LAST_UPDATED = 'August 22, 2026';
 const CONTACT_EMAIL = 'support.broketogether@gmail.com';
 
 function Section({ title, children }) {
@@ -16,7 +16,7 @@ function Section({ title, children }) {
 
 export default function TermsConditionsScreen({ navigation }) {
   return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <ScrollView className="flex-1 bg-slate-100 dark:bg-slate-900">
       {/* Header */}
       <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
         <View className="flex-row items-center">
@@ -62,7 +62,9 @@ export default function TermsConditionsScreen({ navigation }) {
 - All activity that occurs under your account.
 - Notifying us immediately if you suspect unauthorized access to your account.
 
-We reserve the right to suspend or terminate accounts that violate these Terms or are used for fraudulent purposes.`}
+We reserve the right to suspend or terminate accounts that violate these Terms or are used for fraudulent purposes.
+
+To reduce how often you need to log in, the mobile app keeps you signed in for up to 30 days after your last login, even if you close the app. Because of this, you are responsible for keeping your device secured (e.g. with a passcode or biometric lock) and for logging out of the mobile app on shared or borrowed devices.`}
           </Section>
 
           <Section title="5. Acceptable Use">

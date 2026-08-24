@@ -37,7 +37,7 @@ export default function SignupScreen({ onBack }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-white dark:bg-slate-900"
+      className="flex-1 bg-slate-100 dark:bg-slate-900"
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         <View className="px-8 pt-20 pb-10">

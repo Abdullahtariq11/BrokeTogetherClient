@@ -4,6 +4,7 @@ import {
   TextInput, Alert, ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthContext } from '../../context/AuthContext';
 import recurringExpenseService from '../../api/recurringExpenseService';
 
@@ -25,6 +26,7 @@ function FrequencyBadge({ frequency }) {
 export default function RecurringTab({ homeId, navigation }) {
   const { userInfo } = useContext(AuthContext);
   const isPremium = userInfo?.isPremium ?? false;
+  const insets = useSafeAreaInsets();
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,7 @@ export default function RecurringTab({ homeId, navigation }) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('General');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [frequency, setFrequency] = useState('MONTHLY');
   const [splitType, setSplitType] = useState('SPLIT');
   const [saving, setSaving] = useState(false);
@@ -60,6 +63,9 @@ export default function RecurringTab({ homeId, navigation }) {
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
       return Alert.alert('Error', 'Enter a valid amount greater than 0.');
     }
+    if (isCustomCategory && !category.trim()) {
+      return Alert.alert('Error', 'Enter a name for your custom category.');
+    }
 
     setSaving(true);
     try {
@@ -67,13 +73,14 @@ export default function RecurringTab({ homeId, navigation }) {
         homeId,
         description: description.trim(),
         amount: parsedAmount,
-        category: category || null,
+        category: category.trim() || null,
         frequency,
         splitType,
       });
       setItems(prev => [created, ...prev]);
       setShowAdd(false);
-      setDescription(''); setAmount(''); setCategory('General'); setFrequency('MONTHLY'); setSplitType('SPLIT');
+      setDescription(''); setAmount(''); setCategory('General'); setIsCustomCategory(false);
+      setFrequency('MONTHLY'); setSplitType('SPLIT');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Failed to create recurring expense.';
       Alert.alert('Error', msg);
@@ -209,7 +216,10 @@ export default function RecurringTab({ homeId, navigation }) {
       {/* Add Modal */}
       <Modal visible={showAdd} transparent animationType="slide" onRequestClose={() => !saving && setShowAdd(false)}>
         <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6 pb-10">
+          <View
+            className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6"
+            style={{ paddingBottom: Math.max(insets.bottom, 24) }}
+          >
             <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mb-5" />
             <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-5">New Recurring Expense</Text>
 
@@ -287,23 +297,42 @@ export default function RecurringTab({ homeId, navigation }) {
 
             {/* Category */}
             <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold mb-2 ml-1">CATEGORY (optional)</Text>
-            <View className="flex-row flex-wrap gap-2 mb-6">
-              {CATEGORIES.map(c => (
-                <TouchableOpacity
-                  key={c}
-                  onPress={() => setCategory(c)}
-                  disabled={saving}
-                >
-                  <View className={`px-3 py-1.5 rounded-xl border ${
-                    category === c ? 'bg-primary border-primary' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
-                  }`}>
-                    <Text className={`text-xs font-bold ${category === c ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>
-                      {c}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+            <View className="flex-row flex-wrap gap-2 mb-3">
+              {CATEGORIES.map(c => {
+                const isOther = c === 'Other';
+                const isActive = isOther ? isCustomCategory : (!isCustomCategory && category === c);
+                return (
+                  <TouchableOpacity
+                    key={c}
+                    onPress={() => {
+                      if (isOther) { setIsCustomCategory(true); setCategory(''); }
+                      else { setIsCustomCategory(false); setCategory(c); }
+                    }}
+                    disabled={saving}
+                  >
+                    <View className={`px-3 py-1.5 rounded-xl border ${
+                      isActive ? 'bg-primary border-primary' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                    }`}>
+                      <Text className={`text-xs font-bold ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>
+                        {c}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
+            {isCustomCategory ? (
+              <TextInput
+                placeholder="Enter category name" placeholderTextColor="#94a3b8"
+                maxLength={30}
+                autoFocus
+                editable={!saving}
+                className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-3 rounded-2xl text-sm text-slate-700 dark:text-slate-100 font-medium mb-6"
+                value={category} onChangeText={setCategory}
+              />
+            ) : (
+              <View className="mb-3" />
+            )}
 
             {/* Buttons */}
             <View className="flex-row gap-3">
