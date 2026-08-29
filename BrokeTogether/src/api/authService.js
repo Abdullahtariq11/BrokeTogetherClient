@@ -109,6 +109,22 @@ const authService = {
     },
 
     /**
+     * Mobile Sign in with Apple — sends the identity token from
+     * expo-apple-authentication to the backend, which verifies it with Apple
+     * and returns a BrokeTogether JWT.
+     * @param {string} identityToken - JWT from AppleAuthentication.signInAsync()
+     * @param {string} [fullName] - Only present on the user's first sign-in; Apple omits it afterward.
+     */
+    appleMobileLogin: async (identityToken, fullName) => {
+        try {
+            const response = await client.post('/auth/apple/mobile', { identityToken, fullName });
+            return response.data; // { token, username, name }
+        } catch (error) {
+            throw error.response?.data?.message || "Apple sign-in failed. Please try again.";
+        }
+    },
+
+    /**
      * Sends a password reset email to the given address.
      * Always returns success to prevent email enumeration.
      * @param {string} email

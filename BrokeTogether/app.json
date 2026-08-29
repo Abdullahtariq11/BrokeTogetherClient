@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.broketogether.app",
       "buildNumber": "3",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }

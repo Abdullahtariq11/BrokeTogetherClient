@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import * as ExpoLinking from 'expo-linking';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { AuthContext } from '../context/AuthContext';
 import authService from '../api/authService';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +22,7 @@ function LoginScreen() {
     const [isSigningUp, setIsSigningUp] = useState(false);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [appleLoading, setAppleLoading] = useState(false);
     const [failedAttempts, setFailedAttempts] = useState(0);
     const [isLocked, setIsLocked] = useState(false);
     const [lockMessage, setLockMessage] = useState('');
@@ -60,12 +63,47 @@ function LoginScreen() {
     const handleGoogleSignIn = async () => {
         setGoogleLoading(true);
         try {
-            // Open backend Google OAuth in a browser — same as web app
-            await WebBrowser.openBrowserAsync(BACKEND_GOOGLE_URL);
+            // openAuthSessionAsync watches for the redirect back to our app scheme and
+            // closes the browser automatically, unlike openBrowserAsync which just leaves
+            // the user stranded on the backend's web callback page.
+            const redirectUrl = ExpoLinking.createURL('oauth-callback');
+            const result = await WebBrowser.openAuthSessionAsync(`${BACKEND_GOOGLE_URL}?mobile=true`, redirectUrl);
+
+            if (result.type === 'success' && result.url) {
+                const { queryParams } = ExpoLinking.parse(result.url);
+                if (queryParams?.token) {
+                    await loginWithToken(queryParams.token);
+                } else {
+                    Alert.alert('Error', 'Google sign-in did not return a valid token. Please try again.');
+                }
+            }
         } catch {
-            Alert.alert('Error', 'Could not open Google Sign-In. Please try again.');
+            Alert.alert('Error', 'Could not sign in with Google. Please try again.');
         } finally {
             setGoogleLoading(false);
+        }
+    };
+
+    const handleAppleSignIn = async () => {
+        setAppleLoading(true);
+        try {
+            const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+            });
+            const fullName = credential.fullName?.givenName
+                ? `${credential.fullName.givenName} ${credential.fullName.familyName || ''}`.trim()
+                : undefined;
+            const data = await authService.appleMobileLogin(credential.identityToken, fullName);
+            await loginWithToken(data.token);
+        } catch (err) {
+            if (err.code !== 'ERR_REQUEST_CANCELED') {
+                Alert.alert('Error', typeof err === 'string' ? err : 'Could not sign in with Apple. Please try again.');
+            }
+        } finally {
+            setAppleLoading(false);
         }
     };
 
@@ -214,6 +252,22 @@ function LoginScreen() {
                     </>
                 )}
             </TouchableOpacity>
+
+            {Platform.OS === 'ios' && (
+                appleLoading ? (
+                    <View className="p-4 rounded-2xl items-center mb-3">
+                        <ActivityIndicator color="#000" />
+                    </View>
+                ) : (
+                    <AppleAuthentication.AppleAuthenticationButton
+                        buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                        cornerRadius={16}
+                        style={{ height: 56, width: '100%', marginBottom: 12 }}
+                        onPress={handleAppleSignIn}
+                    />
+                )
+            )}
 
             <TouchableOpacity
                 onPress={continueAsGuest}
