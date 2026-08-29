@@ -386,7 +386,11 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                   : 'bg-primary'
               }`}>
                 {loading ? <ActivityIndicator color="white" /> : (
-                  <Text className="text-white font-black text-lg">Add Expense</Text>
+                  <Text className={`font-black text-lg ${
+                    (splitType !== 'PERSONAL' && otherMembers.length === 0)
+                      ? 'text-slate-500 dark:text-slate-300'
+                      : 'text-white'
+                  }`}>Add Expense</Text>
                 )}
               </View>
             </TouchableOpacity>
