@@ -151,6 +151,7 @@ export const AuthProvider = ({ children }) => {
             const profile = await authService.getProfile();
             setUserInfo(profile);
             await SecureStore.setItemAsync('userInfo', JSON.stringify(profile));
+            await identifyPurchaser(profile.id);
         } catch (error) {
             await clearAuthData();
             throw error;
