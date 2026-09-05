@@ -125,7 +125,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
       }
 
       if (splitType === 'CUSTOM') {
-        const exactSplits = { [Number(userInfo.id)]: parseFloat(customAmounts[userInfo.id] || 0) };
+        const exactSplits = { [Number(userInfo?.id)]: parseFloat(customAmounts[userInfo?.id] || 0) };
         for (const id of participantIds) exactSplits[Number(id)] = parseFloat(customAmounts[id] || 0);
         payload.exactSplits = exactSplits;
       }
@@ -306,7 +306,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 <TextInput
                   keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
                   value={customAmounts[userInfo?.id] || ''}
-                  onChangeText={(v) => setCustomAmounts(p => ({ ...p, [userInfo.id]: sanitizeAmountInput(v) }))}
+                  onChangeText={(v) => setCustomAmounts(p => ({ ...p, [userInfo?.id]: sanitizeAmountInput(v) }))}
                   className="w-20 px-2 py-1 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
                 />
               ) : null}

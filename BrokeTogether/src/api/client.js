@@ -68,6 +68,15 @@ client.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Notified when a 401 clears stored credentials, so AuthContext can also
+// reset its in-memory state (userToken/userInfo). Hydration only runs once on
+// app mount, so without this the app would keep rendering as "logged in"
+// with a token that's already gone from storage.
+let onUnauthorized = null;
+export const setUnauthorizedHandler = (handler) => {
+  onUnauthorized = handler;
+};
+
 // Response interceptor — handle 401 Unauthorized globally (expired/invalid token)
 client.interceptors.response.use(
   (res) => res,
@@ -78,7 +87,12 @@ client.interceptors.response.use(
         await SecureStore.deleteItemAsync('userToken');
         await SecureStore.deleteItemAsync('userInfo');
       } catch (_) {}
-      // The AuthContext hydration on next render will find no token → show login
+      // Reset AuthContext's in-memory state to match (see setUnauthorizedHandler above)
+      if (onUnauthorized) {
+        try {
+          onUnauthorized();
+        } catch (_) {}
+      }
     }
     return Promise.reject(error);
   }

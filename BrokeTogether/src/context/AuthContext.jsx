@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, useCallback } from "react";
 import * as SecureStore from 'expo-secure-store';
 import Purchases from 'react-native-purchases';
 import authService from "../api/authService";
+import { setUnauthorizedHandler } from "../api/client";
 
 // Links the RevenueCat app-user id to our backend user id so purchase
 // webhooks can be attributed to the right account. Never fatal — a failure
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     const [isGuest, setIsGuest] = useState(false);
 
     // Clear all auth data
-    const clearAuthData = async () => {
+    const clearAuthData = useCallback(async () => {
         await SecureStore.deleteItemAsync('userToken');
         await SecureStore.deleteItemAsync('userInfo');
         setUserToken(null);
@@ -36,7 +37,21 @@ export const AuthProvider = ({ children }) => {
         try {
             await Purchases.logOut();
         } catch (_) {}
-    };
+    }, []);
+
+    // If the API layer ever sees a 401 (shouldn't happen within the token's
+    // 30-day life, but can from a revoked/rotated secret, a deleted account,
+    // etc.), it clears SecureStore directly (see client.js) since it has no
+    // access to this context. Registering here keeps React state in sync —
+    // otherwise userToken/userInfo would stay stale in memory even though the
+    // token is already gone from storage.
+    useEffect(() => {
+        setUnauthorizedHandler(() => {
+            setIsGuest(false);
+            clearAuthData();
+        });
+        return () => setUnauthorizedHandler(null);
+    }, [clearAuthData]);
 
     // Delete account function
     const deleteAccount = useCallback(async () => {
@@ -87,11 +102,18 @@ export const AuthProvider = ({ children }) => {
                 if (token) {
                     setUserToken(token);
 
-                    // Set local data first for instant UI update
+                    // Set local data first for instant UI update. Guarded on its own —
+                    // a corrupted/malformed cached value must not abort the function
+                    // before the fallback profile fetch below runs, or userInfo would
+                    // stay null indefinitely while userToken stays set.
                     if (storedUserInfo) {
-                        const cachedUser = JSON.parse(storedUserInfo);
-                        setUserInfo(cachedUser);
-                        identifyPurchaser(cachedUser.id);
+                        try {
+                            const cachedUser = JSON.parse(storedUserInfo);
+                            setUserInfo(cachedUser);
+                            identifyPurchaser(cachedUser.id);
+                        } catch (parseErr) {
+                            // Corrupted cache — ignore and rely on the API refresh below
+                        }
                     }
 
                     // Refresh profile from API
