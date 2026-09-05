@@ -82,7 +82,7 @@ function ConvertModal({ item, homeId, onConvert, onClose, submitting }) {
     const payload = { splitType, userIds: participantIds.map(Number) };
     if (splitType === 'FIXED') payload.payerFixedAmount = parseFloat(payerFixed);
     if (splitType === 'CUSTOM') {
-      const exactSplits = { [Number(userInfo.id)]: parseFloat(customAmounts[userInfo.id] || 0) };
+      const exactSplits = { [Number(userInfo?.id)]: parseFloat(customAmounts[userInfo?.id] || 0) };
       for (const id of participantIds) exactSplits[Number(id)] = parseFloat(customAmounts[id] || 0);
       payload.exactSplits = exactSplits;
     }
@@ -146,7 +146,7 @@ function ConvertModal({ item, homeId, onConvert, onClose, submitting }) {
                   <TextInput
                     keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
                     value={customAmounts[userInfo?.id] || ''}
-                    onChangeText={v => setCustomAmounts(p => ({ ...p, [userInfo.id]: v }))}
+                    onChangeText={v => setCustomAmounts(p => ({ ...p, [userInfo?.id]: v }))}
                     className="w-20 px-2 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
                   />
                 ) : null}

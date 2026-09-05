@@ -284,7 +284,7 @@ export default function DashboardScreen({ navigation }) {
         return (
             <SettleScreen
                 homeId={myHome.id}
-                currentUserId={userInfo.id}
+                currentUserId={userInfo?.id}
                 onBack={() => setCurrentView('dashboard')}
                 onRefreshDashboard={onRefresh}
             />
@@ -576,7 +576,7 @@ export default function DashboardScreen({ navigation }) {
                                             isActiveHome ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-700'
                                         }`}>
                                             <Text className={`font-black text-sm ${isActiveHome ? 'text-white' : 'text-slate-500'}`}>
-                                                {h.name.charAt(0).toUpperCase()}
+                                                {(h.name || '?').charAt(0).toUpperCase()}
                                             </Text>
                                         </View>
                                         <Text className={`flex-1 font-bold text-base ${
