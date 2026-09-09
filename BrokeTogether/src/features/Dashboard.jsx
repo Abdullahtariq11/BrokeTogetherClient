@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, Alert, TextInput, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, ActivityIndicator, Alert, TextInput, StyleSheet, Button } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
@@ -228,6 +229,11 @@ export default function DashboardScreen({ navigation }) {
                     <Text className="text-white text-3xl font-black">BrokeTogether</Text>
                     <Text className="text-white/80 mt-2">You're browsing as a guest</Text>
                 </View>
+                {__DEV__ && (
+                    // Temporary — tap once to confirm events reach the Sentry dashboard,
+                    // then remove this button.
+                    <Button title='Send test error to Sentry' onPress={() => { Sentry.captureException(new Error('First error')); }} />
+                )}
 
                 <View className="p-6">
                     <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-3">What you can do</Text>
