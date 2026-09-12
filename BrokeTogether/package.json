@@ -45,6 +45,11 @@
     "yup": "^1.7.1"
   },
   "private": true,
+  "expo": {
+    "autolinking": {
+      "exclude": ["@expo/dom-webview"]
+    }
+  },
   "devDependencies": {
     "@testing-library/react-native": "^14.0.1",
     "babel-preset-expo": "^54.0.9",
