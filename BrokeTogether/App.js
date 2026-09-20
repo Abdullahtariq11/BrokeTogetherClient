@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import Purchases from 'react-native-purchases';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
+import { HomeProvider } from './src/context/HomeContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 import * as SplashScreen from 'expo-splash-screen';
 import { REVENUECAT_API_KEY } from './src/config/revenuecat';
@@ -104,7 +105,9 @@ export default Sentry.wrap(function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <AppNav />
+            <HomeProvider>
+              <AppNav />
+            </HomeProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

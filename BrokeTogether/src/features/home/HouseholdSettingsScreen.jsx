@@ -10,10 +10,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
+import { useHome } from '../../context/HomeContext';
 import homeService from '../../api/homeService';
 
 export default function HouseholdSettingsScreen({ navigation }) {
   const { userInfo } = useContext(AuthContext);
+  const { activeHomeId, hydrated: homeHydrated } = useHome();
 
   const [home, setHome] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,10 @@ export default function HouseholdSettingsScreen({ navigation }) {
     try {
       const homes = await homeService.getMyHomes();
       if (homes && homes.length > 0) {
-        const activeHome = homes[0];
+        // Match whatever household is active on the Home tab instead of
+        // independently defaulting to homes[0] — otherwise this screen could
+        // silently show/edit a different household than the one you're on.
+        const activeHome = homes.find(h => h.id === activeHomeId) || homes[0];
         setHome(activeHome);
         setNewName(activeHome.name);
         setIsAdmin(activeHome.creatorId === userInfo?.id);
@@ -41,11 +46,11 @@ export default function HouseholdSettingsScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }, [userInfo?.id]);
+  }, [userInfo?.id, activeHomeId]);
 
   useEffect(() => {
-    loadHome();
-  }, [loadHome]);
+    if (homeHydrated) loadHome();
+  }, [loadHome, homeHydrated]);
 
   const handleRename = async () => {
     const trimmed = newName.trim();

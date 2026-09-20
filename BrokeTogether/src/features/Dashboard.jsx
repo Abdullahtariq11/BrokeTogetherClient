@@ -5,6 +5,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import { AuthContext } from '../context/AuthContext';
+import { useHome } from '../context/HomeContext';
 import homeService from '../api/homeService';
 import expenseService from '../api/expenseService';
 import HomeSetupScreen from './home/HomeSetupScreen';
@@ -20,6 +21,7 @@ const ACTIVITY_PAGE_SIZE = 5;
 
 export default function DashboardScreen({ navigation }) {
     const { userInfo, logout, isGuest, exitGuestMode } = useContext(AuthContext);
+    const { activeHomeId, setActiveHome, hydrated: homeHydrated } = useHome();
     const isPremium = userInfo?.isPremium ?? false;
     const { colorScheme } = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -57,8 +59,12 @@ export default function DashboardScreen({ navigation }) {
     const homeLimit = isPremium ? HOME_LIMIT_PREMIUM : HOME_LIMIT_FREE;
     const atHomeLimit = allHomes.length >= homeLimit;
 
-    // Ref to always have current myHome inside the loadDashboardData callback
+    // Refs so loadDashboardData can read the latest values without needing
+    // them in its dependency array (which would recreate/refire the effect
+    // below on every home switch).
     const myHomeRef = useRef(null);
+    const activeHomeIdRef = useRef(activeHomeId);
+    useEffect(() => { activeHomeIdRef.current = activeHomeId; }, [activeHomeId]);
 
     const loadDashboardData = useCallback(async (keepActiveHome = null) => {
         if (isGuest) {
@@ -74,9 +80,18 @@ export default function DashboardScreen({ navigation }) {
                 const currentHome = myHomeRef.current;
                 const activeHome = keepActiveHome
                     ? homesList.find(h => h.id === keepActiveHome.id) || homesList[0]
-                    : (currentHome ? homesList.find(h => h.id === currentHome.id) || homesList[0] : homesList[0]);
+                    : currentHome
+                        ? homesList.find(h => h.id === currentHome.id) || homesList[0]
+                        // First load this session (fresh mount) — prefer the household
+                        // that's remembered as active app-wide (shared with the People
+                        // tab and Household Settings) over just picking homesList[0].
+                        : homesList.find(h => h.id === activeHomeIdRef.current) || homesList[0];
                 myHomeRef.current = activeHome;
                 setMyHome(activeHome);
+                if (activeHome.id !== activeHomeIdRef.current) {
+                    activeHomeIdRef.current = activeHome.id;
+                    setActiveHome(activeHome.id);
+                }
 
                 const [balanceResult, expensesResult] = await Promise.allSettled([
                     expenseService.getHomeBalances(activeHome.id),
@@ -107,10 +122,12 @@ export default function DashboardScreen({ navigation }) {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [userInfo?.id, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [userInfo?.id, isGuest, setActiveHome]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const switchHome = (home) => {
         myHomeRef.current = home;
+        activeHomeIdRef.current = home.id;
+        setActiveHome(home.id);
         setMyHome(home);
         setShowHomeSwitcher(false);
         setActiveTab('activity');
@@ -143,8 +160,11 @@ export default function DashboardScreen({ navigation }) {
     };
 
     useEffect(() => {
-        loadDashboardData();
-    }, [loadDashboardData]);
+        // Wait for the shared active-household id to finish hydrating from
+        // storage so the very first load doesn't race it and pick the wrong
+        // household before it's available.
+        if (homeHydrated) loadDashboardData();
+    }, [loadDashboardData, homeHydrated]);
 
     const onRefresh = () => {
         setRefreshing(true);
