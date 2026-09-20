@@ -45,12 +45,30 @@ describe('shoppingService', () => {
     });
   });
 
-  it('convertToExpense includes the split flag as a query param', async () => {
+  it('convertToExpense posts the split payload for the item', async () => {
     client.post.mockResolvedValue({ data: { converted: true } });
 
-    await shoppingService.convertToExpense(7, true);
+    await shoppingService.convertToExpense(7, { splitType: 'EQUAL', userIds: [2, 3] });
 
-    expect(client.post).toHaveBeenCalledWith('/shopping-items/item/7/convert?split=true');
+    expect(client.post).toHaveBeenCalledWith('/shopping-items/item/7/convert', {
+      splitType: 'EQUAL',
+      userIds: [2, 3],
+      exactSplits: null,
+      payerFixedAmount: null,
+    });
+  });
+
+  it('convertToExpense defaults to an EQUAL split with no members when called bare', async () => {
+    client.post.mockResolvedValue({ data: { converted: true } });
+
+    await shoppingService.convertToExpense(7);
+
+    expect(client.post).toHaveBeenCalledWith('/shopping-items/item/7/convert', {
+      splitType: 'EQUAL',
+      userIds: [],
+      exactSplits: null,
+      payerFixedAmount: null,
+    });
   });
 
   it('deleteItem calls the delete endpoint and returns nothing', async () => {

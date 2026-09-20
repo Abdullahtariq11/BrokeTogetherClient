@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList, Modal,
-  TextInput, Alert, ActivityIndicator
+  TextInput, Alert, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -215,12 +216,16 @@ export default function RecurringTab({ homeId, navigation }) {
 
       {/* Add Modal */}
       <Modal visible={showAdd} transparent animationType="slide" onRequestClose={() => !saving && setShowAdd(false)}>
-        <View className="flex-1 justify-end bg-black/50">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1 justify-end bg-black/50"
+        >
           <View
-            className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6"
+            className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6 max-h-[92%]"
             style={{ paddingBottom: Math.max(insets.bottom, 24) }}
           >
             <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mb-5" />
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-5">New Recurring Expense</Text>
 
             {/* Description */}
@@ -354,8 +359,9 @@ export default function RecurringTab({ homeId, navigation }) {
                 }
               </TouchableOpacity>
             </View>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

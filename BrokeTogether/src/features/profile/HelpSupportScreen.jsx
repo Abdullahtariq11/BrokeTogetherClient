@@ -28,7 +28,7 @@ const FAQS = [
   {
     question: 'Can I be in multiple households?',
     answer:
-      'Currently, the app supports one active household per account. You\'d need to leave your current household before joining another.',
+      'Yes — free accounts can belong to 1 household at a time, and Premium accounts can belong to up to 3. Tap your household name on the Home tab to switch between them.',
   },
   {
     question: 'How are expenses split?',

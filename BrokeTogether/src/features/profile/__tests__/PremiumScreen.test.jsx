@@ -67,7 +67,10 @@ describe('PremiumScreen', () => {
 
   it('presents the RevenueCat customer center when Manage Subscription is pressed', async () => {
     billingService.getStatus.mockResolvedValue({ isPremium: true, subscriptionStatus: 'ACTIVE' });
-    Purchases.getCustomerInfo.mockResolvedValue({ entitlements: { active: {} } });
+    // An active RevenueCat entitlement is what makes the screen treat this
+    // user as a mobile/IAP subscriber (vs. a Stripe-web subscriber) and
+    // route "Manage Subscription" to the native customer center below.
+    Purchases.getCustomerInfo.mockResolvedValue({ entitlements: { active: { 'Broketogether Pro': {} } } });
     RevenueCatUI.presentCustomerCenter.mockResolvedValue();
 
     const { findByText } = await renderPremiumScreen({ id: 1, isPremium: true });
