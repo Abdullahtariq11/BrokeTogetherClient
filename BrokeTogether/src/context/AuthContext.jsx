@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import Purchases from 'react-native-purchases';
 import authService from "../api/authService";
 import { setUnauthorizedHandler } from "../api/client";
+import { PREMIUM_ENTITLEMENT_ID } from "../config/revenuecat";
 
 // Links the RevenueCat app-user id to our backend user id so purchase
 // webhooks can be attributed to the right account. Never fatal — a failure
@@ -52,6 +53,26 @@ export const AuthProvider = ({ children }) => {
         });
         return () => setUnauthorizedHandler(null);
     }, [clearAuthData]);
+
+    // Keep userInfo.isPremium in sync with RevenueCat's own SDK state, the
+    // instant it changes — a purchase, restore, renewal, or expiration
+    // anywhere in the app. Without this, isPremium only ever came from the
+    // backend profile fetched at login, so upgrading required a full
+    // logout/login before premium-gated screens (home limits, Recurring/
+    // Analytics tabs, etc.) would recognize it.
+    useEffect(() => {
+        const onCustomerInfoUpdate = (info) => {
+            const hasEntitlement = !!info?.entitlements?.active?.[PREMIUM_ENTITLEMENT_ID];
+            setUserInfo((prev) => {
+                if (!prev || prev.isPremium === hasEntitlement) return prev;
+                const updated = { ...prev, isPremium: hasEntitlement };
+                SecureStore.setItemAsync('userInfo', JSON.stringify(updated)).catch(() => {});
+                return updated;
+            });
+        };
+        Purchases.addCustomerInfoUpdateListener(onCustomerInfoUpdate);
+        return () => Purchases.removeCustomerInfoUpdateListener(onCustomerInfoUpdate);
+    }, []);
 
     // Delete account function
     const deleteAccount = useCallback(async () => {
