@@ -115,14 +115,15 @@ describe('DashboardScreen', () => {
       expect(getByText('Analytics')).toBeTruthy();
     });
 
-    it('shows an upgrade crown instead of the Analytics label for non-premium users', async () => {
+    it('shows the upgrade CTA instead of real analytics for non-premium users', async () => {
       const { findByText, getByText } = await renderDashboard({
         ...premiumAuthValue,
         userInfo: { id: 1, name: 'Alice', isPremium: false },
       });
 
       expect(await findByText('Test Home')).toBeTruthy();
-      expect(getByText('👑')).toBeTruthy();
+      await fireEvent.press(getByText('Analytics'));
+      expect(await findByText('Upgrade to Premium')).toBeTruthy();
     });
 
     it('switches between all tab bar entries without crashing (NativeWind conditional-className regression guard)', async () => {

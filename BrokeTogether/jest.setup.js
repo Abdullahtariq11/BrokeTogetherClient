@@ -23,6 +23,8 @@ jest.mock('react-native-purchases', () => ({
     logOut: jest.fn(() => Promise.resolve({})),
     getCustomerInfo: jest.fn(() => Promise.resolve({ entitlements: { active: {} } })),
     restorePurchases: jest.fn(() => Promise.resolve({ entitlements: { active: {} } })),
+    addCustomerInfoUpdateListener: jest.fn(),
+    removeCustomerInfoUpdateListener: jest.fn(),
     setLogLevel: jest.fn(),
     LOG_LEVEL: { DEBUG: 'DEBUG' },
   },

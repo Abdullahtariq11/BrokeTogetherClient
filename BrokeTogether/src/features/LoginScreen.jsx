@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as ExpoLinking from 'expo-linking';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -172,7 +172,17 @@ function LoginScreen() {
 
     // ── Main Login Screen ────────────────────────────────────────────
     return (
-        <View className="flex-1 bg-background dark:bg-slate-900 p-6 justify-center">
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1 bg-background dark:bg-slate-900"
+        >
+        <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            className="px-6"
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+        >
+            <View className="flex-1 justify-center py-6">
             <View className="mb-10">
                 <Text className="text-5xl font-bold text-primary">Broke</Text>
                 <Text className="text-5xl font-bold text-secondary dark:text-slate-200">Together</Text>
@@ -278,7 +288,9 @@ function LoginScreen() {
             <Text className="text-secondary/60 dark:text-slate-500 text-xs text-center mt-2">
                 Browse the app. Sign in to create households and track expenses.
             </Text>
-        </View>
+            </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 

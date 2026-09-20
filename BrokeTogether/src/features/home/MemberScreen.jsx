@@ -6,11 +6,13 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
+import { useHome } from '../../context/HomeContext';
 import homeService from '../../api/homeService';
 import expenseService from '../../api/expenseService';
 
 export default function MembersScreen() {
     const { userInfo, isGuest, exitGuestMode } = useContext(AuthContext);
+    const { activeHomeId, hydrated: homeHydrated } = useHome();
 
     const [home, setHome] = useState(null);
     const [members, setMembers] = useState([]);
@@ -29,7 +31,10 @@ export default function MembersScreen() {
             const homes = await homeService.getMyHomes();
 
             if (homes && homes.length > 0) {
-                const activeHome = homes[0];
+                // Match whatever household is active on the Home tab instead of
+                // independently defaulting to homes[0] — otherwise switching
+                // households on Home wouldn't be reflected here.
+                const activeHome = homes.find(h => h.id === activeHomeId) || homes[0];
                 setHome(activeHome);
 
                 const [membersData, balanceMap] = await Promise.all([
@@ -45,11 +50,11 @@ export default function MembersScreen() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [isGuest]);
+    }, [isGuest, activeHomeId]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (homeHydrated) fetchData();
+    }, [fetchData, homeHydrated]);
 
     const onRefresh = () => {
         setRefreshing(true);
