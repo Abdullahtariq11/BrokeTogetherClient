@@ -156,7 +156,17 @@ baseURL: 'https://your-production-url.railway.app/api/v1'
 |--------|----------|-------------|
 | POST | `/auth/login` | User login |
 | POST | `/auth/register` | User registration |
+| POST | `/auth/google/mobile` | Google sign-in (mobile) |
+| POST | `/auth/apple/mobile` | Apple sign-in (mobile) |
+| POST | `/auth/forgot-password` | Request password-reset email |
+| POST | `/auth/reset-password` | Reset password with token |
+
+### User
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/users/me` | Get current user profile |
+| PUT | `/users/edit` | Update display name |
+| POST | `/users/password-reset` | Change password |
 
 ### Homes
 | Method | Endpoint | Description |
@@ -165,17 +175,45 @@ baseURL: 'https://your-production-url.railway.app/api/v1'
 | POST | `/homes` | Create a new home |
 | POST | `/homes/join` | Join home with invite code |
 | GET | `/homes/{id}/members` | Get home members |
+| GET | `/homes/{id}/invite-code` | Get invite code |
 | DELETE | `/homes/{id}/members/{userId}` | Remove member |
+| DELETE | `/homes/{id}/leave` | Leave home |
 
 ### Expenses
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/expenses` | Create expense (equal split) |
 | POST | `/expenses/selective` | Create expense (selective split) |
+| POST | `/expenses/split` | Create expense (custom split) |
 | POST | `/expenses/settle` | Settle up with roommate |
 | GET | `/expenses/home/{id}/history` | Get expense history |
 | GET | `/expenses/home/{id}/balances` | Get home balances |
+| GET | `/expenses/home/{id}/settlements` | Settlement suggestions |
+| GET | `/expenses/home/{id}/analytics` | Expense analytics |
 | DELETE | `/expenses/{id}` | Delete expense |
+
+### Recurring Expenses
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/expenses/recurring` | Create recurring expense |
+| GET | `/expenses/recurring/home/{id}` | List recurring expenses |
+| DELETE | `/expenses/recurring/{id}` | Deactivate recurring expense |
+
+### Shopping Items (Pro)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/shopping-items` | Add shopping item |
+| GET | `/shopping-items/home/{id}/items` | List home shopping items |
+| PUT | `/shopping-items/item/{id}` | Edit shopping item |
+| PATCH | `/shopping-items/item/mark/{id}` | Mark item purchased |
+| DELETE | `/shopping-items/item/{id}` | Delete shopping item |
+| POST | `/shopping-items/item/{id}/convert` | Convert item to expense |
+
+### Billing
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/billing/status` | Get subscription status |
+| POST | `/billing/portal` | Open Stripe customer portal |
 
 ## 🎨 Color Palette
 
