@@ -2,6 +2,12 @@
 
 A modern React Native mobile app for splitting expenses with roommates. Stop the awkward money conversations and keep track of shared expenses effortlessly.
 
+> 🏆 Built for **RevenueCat Shipaton 2026** — Next Gen Award entry. Powered by the [BrokeTogether Spring Boot API](https://github.com/Abdullahtariq11/BrokeTogetherBackend).
+
+## 🎬 Demo Video
+
+▶️ [Watch the demo](https://www.youtube.com/) *(link goes live before the submission deadline)*
+
 ![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/NativeWind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
@@ -24,6 +30,20 @@ A modern React Native mobile app for splitting expenses with roommates. Stop the
 - **✅ Settle Up** - Record payments and clear debts with one tap
 - **👥 Member Management** - View roommates and remove members (admin only)
 - **🔄 Pull-to-Refresh** - Stay up to date with the latest data
+- **💎 Broketogether Pro** - Premium subscription powered by RevenueCat (see [Monetization](#-monetization))
+
+## 💎 Monetization
+
+**Broketogether Pro** is the premium subscription, powered by the [RevenueCat](https://www.revenuecat.com/) SDK (entitlement: `Broketogether Pro`, monthly/yearly products on Google Play and the App Store).
+
+What's included:
+- 🛒 Shared shopping list with price tracking
+- 🔄 Convert shopping items to expenses instantly
+- 📈 Advanced expense analytics & insights
+- 👥 Unlimited household members
+- 🔔 Smart payment reminders
+
+The paywall lives in the Profile tab (`features/profile/PremiumScreen.jsx`) and the entitlement check runs through `config/revenuecat.js`.
 
 ## 🛠️ Tech Stack
 
@@ -35,6 +55,7 @@ A modern React Native mobile app for splitting expenses with roommates. Stop the
 | Navigation | React Navigation |
 | HTTP Client | Axios |
 | Secure Storage | Expo SecureStore |
+| Monetization | RevenueCat |
 | Icons | Expo Vector Icons (Ionicons) |
 
 ## 📁 Project Structure
@@ -85,7 +106,7 @@ BrokeTogetherClient/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/BrokeTogetherClient.git
+   git clone https://github.com/Abdullahtariq11/BrokeTogetherClient.git
    cd BrokeTogetherClient
    ```
 
@@ -234,7 +255,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Related
 
-- [BrokeTogether Backend](https://github.com/yourusername/BrokeTogether-Backend) - Spring Boot REST API
+- [BrokeTogether Backend](https://github.com/Abdullahtariq11/BrokeTogetherBackend) - Spring Boot REST API
 
 ## 👤 Author
 
