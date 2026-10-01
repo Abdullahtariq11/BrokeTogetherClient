@@ -6,7 +6,7 @@ A modern React Native mobile app for splitting expenses with roommates. Stop the
 
 ## 🎬 Demo Video
 
-▶️ [Watch the demo](https://www.youtube.com/) *(link goes live before the submission deadline)*
+▶️ [Watch the demo](https://www.youtube.com/shorts/m6Pwq_L-kFQ)
 
 ![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
