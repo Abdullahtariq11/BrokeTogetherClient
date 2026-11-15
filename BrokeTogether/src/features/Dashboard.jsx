@@ -234,8 +234,8 @@ export default function DashboardScreen({ navigation }) {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center bg-slate-200 dark:bg-slate-900">
-                <ActivityIndicator size="large" color="#E98074" />
+            <View className="flex-1 justify-center items-center bg-canvas dark:bg-canvas-dark">
+                <ActivityIndicator size="large" color="#fb7185" />
                 <Text className="mt-4 text-slate-500 dark:text-slate-400 font-medium">Syncing Household...</Text>
             </View>
         );
@@ -243,7 +243,7 @@ export default function DashboardScreen({ navigation }) {
 
     if (isGuest) {
         return (
-            <ScrollView className="flex-1 bg-slate-200 dark:bg-slate-900" contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView className="flex-1 bg-canvas dark:bg-canvas-dark" contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
                     <Text className="text-white/70 font-medium tracking-tight">Welcome to</Text>
                     <Text className="text-white text-3xl font-black">BrokeTogether</Text>
@@ -256,35 +256,35 @@ export default function DashboardScreen({ navigation }) {
                 )}
 
                 <View className="p-6">
-                    <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-3">What you can do</Text>
-                    <View className="bg-white dark:bg-slate-800 p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-3">
+                    <Text className="text-ink dark:text-ink-dark text-xl font-black mb-3">What you can do</Text>
+                    <View className="bg-white dark:bg-surface-dark p-5 rounded-3xl shadow-sm border border-line dark:border-line-dark mb-3">
                         <View className="flex-row items-center mb-3">
                             <View className="bg-primary/10 dark:bg-primary/20 p-3 rounded-2xl mr-3">
-                                <Ionicons name="home" size={22} color="#E98074" />
+                                <Ionicons name="home" size={22} color="#fb7185" />
                             </View>
-                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Create or join a household</Text>
+                            <Text className="text-ink dark:text-ink-dark font-bold flex-1">Create or join a household</Text>
                         </View>
                         <View className="flex-row items-center mb-3">
                             <View className="bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="receipt" size={22} color="#10b981" />
                             </View>
-                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Track shared expenses</Text>
+                            <Text className="text-ink dark:text-ink-dark font-bold flex-1">Track shared expenses</Text>
                         </View>
                         <View className="flex-row items-center mb-3">
                             <View className="bg-sky-50 dark:bg-sky-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="calculator" size={22} color="#0ea5e9" />
                             </View>
-                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Auto-calculate balances</Text>
+                            <Text className="text-ink dark:text-ink-dark font-bold flex-1">Auto-calculate balances</Text>
                         </View>
                         <View className="flex-row items-center">
                             <View className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-2xl mr-3">
                                 <Ionicons name="checkmark-done" size={22} color="#f59e0b" />
                             </View>
-                            <Text className="text-slate-800 dark:text-slate-100 font-bold flex-1">Settle up easily</Text>
+                            <Text className="text-ink dark:text-ink-dark font-bold flex-1">Settle up easily</Text>
                         </View>
                     </View>
 
-                    <View className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-dashed border-slate-200 dark:border-slate-700 items-center mt-2">
+                    <View className="bg-white dark:bg-surface-dark p-6 rounded-3xl shadow-sm border border-dashed border-line dark:border-line-dark items-center mt-2">
                         <Ionicons name="lock-closed-outline" size={36} color={isDark ? '#475569' : '#cbd5e1'} />
                         <Text className="text-slate-600 dark:text-slate-300 text-center mt-3 font-semibold">
                             Sign in to start tracking expenses
@@ -318,58 +318,62 @@ export default function DashboardScreen({ navigation }) {
     }
 
     return (
-        <View className="flex-1 bg-slate-200 dark:bg-slate-900">
+        <View className="flex-1 bg-canvas dark:bg-canvas-dark">
             <ScrollView
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header Section */}
-                <View className="bg-primary p-8 pt-16 rounded-b-[40px] shadow-lg">
+                {/* Header Section — flat canvas, matches web */}
+                <View className="px-6 pt-14 pb-4">
                     <View className="flex-row justify-between items-start">
                         <View className="flex-1">
-                            <Text className="text-white/70 font-medium tracking-tight">
-                                Welcome back, {userInfo?.name}
+                            <Text className="text-primary font-bold text-[10px] uppercase tracking-[3px] mb-1">
+                                Welcome back
                             </Text>
-                            {/* Home name — tap to switch */}
+                            <Text className="text-ink dark:text-ink-dark text-3xl font-black tracking-tight">
+                                {userInfo?.name}
+                            </Text>
                             <TouchableOpacity
                                 onPress={() => setShowHomeSwitcher(true)}
-                                className="flex-row items-center gap-2 mt-0.5"
+                                className="flex-row items-center self-start mt-3 bg-white dark:bg-surface-dark border border-line dark:border-line-dark px-3 py-1.5 rounded-2xl gap-1.5"
                             >
-                                <Text className="text-white text-3xl font-black">{myHome.name}</Text>
+                                <Ionicons name="home-outline" size={13} color="#fb7185" />
+                                <Text className="text-ink dark:text-ink-dark text-sm font-semibold">{myHome.name}</Text>
                                 {allHomes.length > 0 && (
-                                    <Ionicons name="chevron-down" size={18} color="rgba(255,255,255,0.6)" />
+                                    <Ionicons name="chevron-down" size={13} color="#6b7280" />
                                 )}
                             </TouchableOpacity>
-
-                            <View className="flex-row items-center mt-3">
-                                <View className="flex-row items-center bg-white/20 self-start px-3 py-1.5 rounded-xl border border-white/30">
-                                    <Text className="text-white text-xs font-mono mr-3">
-                                        Code: {myHome.inviteCode}
-                                    </Text>
-                                    <TouchableOpacity onPress={copyInviteCode}>
-                                        <Ionicons name="copy-outline" size={16} color="white" />
-                                    </TouchableOpacity>
-                                </View>
-                                {memberCount > 0 && (
-                                    <Text className="text-white/60 text-xs font-medium ml-3">
-                                        {memberCount} {memberCount === 1 ? 'member' : 'members'}
-                                    </Text>
-                                )}
-                            </View>
                         </View>
 
-                        <TouchableOpacity
-                            onPress={handleLogout}
-                            className="bg-white/10 p-2 rounded-full border border-white/20"
-                        >
-                            <Ionicons name="log-out-outline" size={22} color="white" />
-                        </TouchableOpacity>
+                        <View className="items-end gap-2">
+                            <TouchableOpacity
+                                onPress={handleLogout}
+                                className="bg-surface-soft dark:bg-surface-dark p-2.5 rounded-full border border-line dark:border-line-dark"
+                            >
+                                <Ionicons name="log-out-outline" size={20} color="#6b7280" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={copyInviteCode}
+                                className="flex-row items-center bg-primary/10 dark:bg-primary/20 px-2.5 py-1.5 rounded-xl gap-1"
+                            >
+                                <Text className="text-primary text-[10px] font-mono font-bold">{myHome.inviteCode}</Text>
+                                <Ionicons name="copy-outline" size={11} color="#fb7185" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
+                    {memberCount > 0 && (
+                        <View className="flex-row items-center mt-3 gap-1.5">
+                            <View className="w-1.5 h-1.5 rounded-full bg-positive" />
+                            <Text className="text-muted dark:text-muted-dark text-xs font-medium">
+                                {memberCount} {memberCount === 1 ? 'member' : 'members'} in this home
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 {/* Balance Card */}
-                <View className="px-6 -mt-10 mb-4">
-                    <View className="bg-white dark:bg-slate-800 p-6 rounded-[30px] shadow-xl border border-slate-50 dark:border-slate-700 flex-row justify-between items-center">
+                <View className="px-6 mb-4">
+                    <View className="bg-white dark:bg-surface-dark p-6 rounded-[28px] shadow-sm border border-line dark:border-line-dark flex-row justify-between items-center">
                         <View>
                             <Text className="text-slate-400 dark:text-slate-500 font-bold text-[10px] uppercase tracking-[2px]">
                                 Your Net Balance
@@ -385,7 +389,7 @@ export default function DashboardScreen({ navigation }) {
 
                         <View className={`p-4 rounded-2xl ${
                             myBalance > 0 ? 'bg-emerald-50 dark:bg-emerald-900/30' :
-                            myBalance < 0 ? 'bg-rose-50 dark:bg-rose-900/30' : 'bg-slate-50 dark:bg-slate-700'
+                            myBalance < 0 ? 'bg-rose-50 dark:bg-rose-900/30' : 'bg-slate-50 dark:bg-surface-soft-dark'
                         }`}>
                             <Ionicons
                                 name={
@@ -405,17 +409,17 @@ export default function DashboardScreen({ navigation }) {
                 {/* Quick Actions */}
                 <View className="flex-row px-6 justify-between mb-6">
                     <TouchableOpacity
-                        className="bg-white dark:bg-slate-800 flex-1 mr-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-slate-700"
+                        className="bg-white dark:bg-surface-dark flex-1 mr-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-line-dark"
                         onPress={() => setModalVisible(true)}
                     >
                         <View className="bg-primary/10 dark:bg-primary/20 p-3 rounded-2xl mb-2">
-                            <Ionicons name="add" size={24} color="#E98074" />
+                            <Ionicons name="add" size={24} color="#fb7185" />
                         </View>
                         <Text className="text-primary font-bold text-sm">Add Bill</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        className="bg-white dark:bg-slate-800 flex-1 ml-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-slate-700"
+                        className="bg-white dark:bg-surface-dark flex-1 ml-2 p-5 rounded-3xl shadow-md items-center border border-slate-50 dark:border-line-dark"
                         onPress={() => setCurrentView('settle')}
                     >
                         <View className="bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-2xl mb-2">
@@ -426,7 +430,7 @@ export default function DashboardScreen({ navigation }) {
                 </View>
 
                 {/* Tab Bar */}
-                <View className="flex-row mx-6 mb-4 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-3xl border border-slate-50 dark:border-slate-700 gap-1">
+                <View className="flex-row mx-6 mb-4 bg-surface-soft dark:bg-surface-dark p-1.5 rounded-3xl border border-slate-50 dark:border-line-dark gap-1">
                     {[
                         { key: 'activity',   label: 'Activity',   icon: 'receipt-outline'   },
                         { key: 'shopping',   label: 'Shopping',   icon: 'cart-outline'      },
@@ -443,13 +447,13 @@ export default function DashboardScreen({ navigation }) {
                                 className="flex-1"
                             >
                                 <View className={`py-3 rounded-2xl items-center flex-row justify-center border ${
-                                    isActive ? 'bg-white dark:bg-slate-700 border-primary/25' : 'border-transparent'
+                                    isActive ? 'bg-white dark:bg-surface-soft-dark border-primary/25' : 'border-transparent'
                                 }`}>
                                     <View className="relative">
                                         <Ionicons
                                             name={tab.icon}
                                             size={16}
-                                            color={locked ? '#94a3b8' : isActive ? '#E98074' : '#64748b'}
+                                            color={locked ? '#94a3b8' : isActive ? '#fb7185' : '#64748b'}
                                         />
                                         {locked && (
                                             <View className="absolute -top-1.5 -right-2 w-3.5 h-3.5 bg-amber-400 rounded-full items-center justify-center">
@@ -474,12 +478,12 @@ export default function DashboardScreen({ navigation }) {
                 {/* Activity Tab */}
                 {activeTab === 'activity' && (
                     <View className="px-6 pt-0">
-                        <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-4 px-1">
+                        <Text className="text-ink dark:text-ink-dark text-xl font-black mb-4 px-1">
                             Recent Activity
                         </Text>
 
                         {expenses.length === 0 ? (
-                            <View className="bg-white dark:bg-slate-800 p-12 rounded-[30px] items-center border border-dashed border-slate-200 dark:border-slate-700">
+                            <View className="bg-white dark:bg-surface-dark p-12 rounded-[30px] items-center border border-dashed border-line dark:border-line-dark">
                                 <Ionicons name="receipt-outline" size={48} color={isDark ? '#475569' : '#cbd5e1'} />
                                 <Text className="text-slate-400 dark:text-slate-500 text-center mt-4">
                                     No activity yet!
@@ -495,10 +499,10 @@ export default function DashboardScreen({ navigation }) {
                                 return (
                                 <View
                                     key={expense.id}
-                                    className={`bg-white dark:bg-slate-800 p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 dark:border-slate-700 ${isPreSettled ? 'opacity-50' : ''}`}
+                                    className={`bg-white dark:bg-surface-dark p-5 rounded-[24px] mb-3 flex-row justify-between items-center shadow-sm border border-slate-50 dark:border-line-dark ${isPreSettled ? 'opacity-50' : ''}`}
                                 >
                                     <View className="flex-1">
-                                        <Text className="text-slate-800 dark:text-slate-100 font-bold text-base">
+                                        <Text className="text-ink dark:text-ink-dark font-bold text-base">
                                             {expense.description || expense.Description}
                                         </Text>
                                         <View className="flex-row items-center mt-1">
@@ -547,10 +551,10 @@ export default function DashboardScreen({ navigation }) {
                             <TouchableOpacity
                                 onPress={handleLoadMoreActivity}
                                 disabled={loadingMoreExpenses}
-                                className="bg-white dark:bg-slate-800 py-4 rounded-[24px] items-center shadow-sm border border-slate-50 dark:border-slate-700 mb-3"
+                                className="bg-white dark:bg-surface-dark py-4 rounded-[24px] items-center shadow-sm border border-slate-50 dark:border-line-dark mb-3"
                             >
                                 {loadingMoreExpenses
-                                    ? <ActivityIndicator size="small" color="#E98074" />
+                                    ? <ActivityIndicator size="small" color="#fb7185" />
                                     : <Text className="text-primary font-bold text-sm">See All</Text>
                                 }
                             </TouchableOpacity>
@@ -589,9 +593,9 @@ export default function DashboardScreen({ navigation }) {
                     activeOpacity={1}
                     onPress={() => setShowHomeSwitcher(false)}
                 >
-                    <View className="bg-white dark:bg-slate-800 rounded-t-[36px] pb-10 overflow-hidden">
-                        <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mt-4 mb-4" />
-                        <Text className="text-slate-800 dark:text-slate-100 text-lg font-black px-6 mb-4">Your Households</Text>
+                    <View className="bg-white dark:bg-surface-dark rounded-t-[36px] pb-10 overflow-hidden">
+                        <View className="w-10 h-1 bg-canvas dark:bg-slate-600 rounded-full self-center mt-4 mb-4" />
+                        <Text className="text-ink dark:text-ink-dark text-lg font-black px-6 mb-4">Your Households</Text>
 
                         {allHomes.map((h) => {
                             const isActiveHome = h.id === myHome.id;
@@ -599,7 +603,7 @@ export default function DashboardScreen({ navigation }) {
                                 <TouchableOpacity key={h.id} onPress={() => switchHome(h)}>
                                     <View className={`flex-row items-center px-6 py-4 ${isActiveHome ? 'bg-primary/5 dark:bg-primary/10' : ''}`}>
                                         <View className={`w-10 h-10 rounded-2xl items-center justify-center mr-4 ${
-                                            isActiveHome ? 'bg-primary' : 'bg-slate-100 dark:bg-slate-700'
+                                            isActiveHome ? 'bg-primary' : 'bg-surface-soft dark:bg-surface-soft-dark'
                                         }`}>
                                             <Text className={`font-black text-sm ${isActiveHome ? 'text-white' : 'text-slate-500'}`}>
                                                 {(h.name || '?').charAt(0).toUpperCase()}
@@ -611,14 +615,14 @@ export default function DashboardScreen({ navigation }) {
                                             {h.name}
                                         </Text>
                                         {isActiveHome && (
-                                            <Ionicons name="checkmark" size={20} color="#E98074" />
+                                            <Ionicons name="checkmark" size={20} color="#fb7185" />
                                         )}
                                     </View>
                                 </TouchableOpacity>
                             );
                         })}
 
-                        <View className="border-t border-slate-100 dark:border-slate-700 mt-2">
+                        <View className="border-t border-line dark:border-line-dark mt-2">
                             {atHomeLimit ? (
                                 <View className="px-6 py-4">
                                     <Text className="text-xs font-bold text-slate-400 dark:text-slate-500 text-center">
@@ -659,9 +663,9 @@ export default function DashboardScreen({ navigation }) {
             {/* Add / Join Household Overlay */}
             {showAddHome && (
                 <View style={styles.overlay}>
-                    <View className="bg-white dark:bg-slate-800 rounded-t-[36px] p-6 pb-10">
-                        <View className="w-10 h-1 bg-slate-200 dark:bg-slate-600 rounded-full self-center mb-5" />
-                        <Text className="text-slate-800 dark:text-slate-100 text-xl font-black mb-5">
+                    <View className="bg-white dark:bg-surface-dark rounded-t-[36px] p-6 pb-10">
+                        <View className="w-10 h-1 bg-canvas dark:bg-slate-600 rounded-full self-center mb-5" />
+                        <Text className="text-ink dark:text-ink-dark text-xl font-black mb-5">
                             {addHomeMode === 'join' ? 'Join a Household' : 'Create a Household'}
                         </Text>
 
@@ -679,7 +683,7 @@ export default function DashboardScreen({ navigation }) {
                                         <View className={`py-3 rounded-2xl items-center border ${
                                             isActiveMode
                                                 ? 'bg-primary border-primary'
-                                                : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                                                : 'bg-slate-50 dark:bg-surface-soft-dark border-line dark:border-line-dark'
                                         }`}>
                                             <Text className={`font-bold text-sm ${isActiveMode ? 'text-white' : 'text-slate-500'}`}>
                                                 {m === 'create' ? 'Create New' : 'Join with Code'}
@@ -696,14 +700,14 @@ export default function DashboardScreen({ navigation }) {
                             placeholder={addHomeMode === 'join' ? 'Invite code (e.g. AB123)' : 'Household name (e.g. Apt 4B)'}
                             placeholderTextColor="#94a3b8"
                             editable={!addHomeLoading}
-                            className="border border-slate-200 dark:border-slate-600 rounded-2xl px-4 py-3 text-slate-800 dark:text-slate-100 text-base mb-5 bg-slate-50 dark:bg-slate-700"
+                            className="border border-line dark:border-line-dark rounded-2xl px-4 py-3 text-ink dark:text-ink-dark text-base mb-5 bg-slate-50 dark:bg-surface-soft-dark"
                         />
 
                         <View className="flex-row gap-3">
                             <TouchableOpacity
                                 onPress={() => setShowAddHome(false)}
                                 disabled={addHomeLoading}
-                                className="flex-1 p-4 rounded-2xl items-center bg-slate-100 dark:bg-slate-700"
+                                className="flex-1 p-4 rounded-2xl items-center bg-surface-soft dark:bg-surface-soft-dark"
                             >
                                 <Text className="text-slate-600 dark:text-slate-300 font-bold">Cancel</Text>
                             </TouchableOpacity>

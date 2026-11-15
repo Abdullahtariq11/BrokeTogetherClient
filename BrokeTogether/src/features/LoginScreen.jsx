@@ -113,11 +113,11 @@ function LoginScreen() {
     // ── Account Locked Screen ────────────────────────────────────────
     if (isLocked) {
         return (
-            <View className="flex-1 bg-slate-100 dark:bg-slate-900 p-6 justify-center items-center">
+            <View className="flex-1 bg-surface-soft dark:bg-canvas-dark p-6 justify-center items-center">
                 <View className="w-20 h-20 bg-red-100 dark:bg-red-900/40 rounded-full items-center justify-center mb-6">
                     <Ionicons name="lock-closed" size={36} color="#ef4444" />
                 </View>
-                <Text className="text-slate-800 dark:text-slate-100 text-2xl font-black text-center mb-2">Account Locked</Text>
+                <Text className="text-ink dark:text-ink-dark text-2xl font-black text-center mb-2">Account Locked</Text>
                 <Text className="text-slate-500 dark:text-slate-400 text-sm text-center mb-2">
                     Too many failed login attempts.
                 </Text>
@@ -156,7 +156,7 @@ function LoginScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 w-full p-4 rounded-2xl items-center mb-3 flex-row justify-center gap-2"
+                    className="bg-white dark:bg-surface-dark border border-line dark:border-line-dark w-full p-4 rounded-2xl items-center mb-3 flex-row justify-center gap-2"
                     onPress={() => Linking.openURL('mailto:support.broketogether@gmail.com?subject=Account Locked&body=My account has been locked. Please help.')}
                 >
                     <Ionicons name="mail-outline" size={18} color="#64748b" />
@@ -174,7 +174,7 @@ function LoginScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-background dark:bg-slate-900"
+            className="flex-1 bg-canvas dark:bg-canvas-dark"
         >
         <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -184,16 +184,17 @@ function LoginScreen() {
         >
             <View className="flex-1 justify-center py-6">
             <View className="mb-10">
-                <Text className="text-5xl font-bold text-primary">Broke</Text>
-                <Text className="text-5xl font-bold text-secondary dark:text-slate-200">Together</Text>
-                <Text className="text-secondary dark:text-slate-400 mt-2 text-lg">Smart spending for roommates.</Text>
+                <Text className="text-4xl font-black text-ink dark:text-ink-dark tracking-tight">
+                    Broke<Text className="text-primary">Together</Text>
+                </Text>
+                <Text className="text-muted dark:text-muted-dark mt-2 text-base">Split bills, not friendships.</Text>
             </View>
 
             <View className="space-y-4">
                 <View>
-                    <Text className="text-secondary dark:text-slate-300 mb-2 font-semibold">Email Address</Text>
+                    <Text className="text-muted dark:text-slate-300 mb-2 font-semibold">Email Address</Text>
                     <TextInput
-                        className="bg-white dark:bg-slate-800 border border-secondary/30 dark:border-slate-600 p-4 rounded-2xl text-slate-900 dark:text-slate-100"
+                        className="bg-white dark:bg-surface-dark border border-secondary/30 dark:border-line-dark p-4 rounded-2xl text-slate-900 dark:text-ink-dark"
                         placeholder="example@gmail.com"
                         placeholderTextColor="#94a3b8"
                         value={email}
@@ -207,13 +208,13 @@ function LoginScreen() {
 
                 <View className="mt-4">
                     <View className="flex-row justify-between items-center mb-2">
-                        <Text className="text-secondary dark:text-slate-300 font-semibold">Password</Text>
+                        <Text className="text-muted dark:text-slate-300 font-semibold">Password</Text>
                         <TouchableOpacity onPress={() => setIsForgotPassword(true)}>
                             <Text className="text-primary text-xs font-semibold">Forgot password?</Text>
                         </TouchableOpacity>
                     </View>
                     <TextInput
-                        className="bg-white dark:bg-slate-800 border border-secondary/30 dark:border-slate-600 p-4 rounded-2xl text-slate-900 dark:text-slate-100"
+                        className="bg-white dark:bg-surface-dark border border-secondary/30 dark:border-line-dark p-4 rounded-2xl text-slate-900 dark:text-ink-dark"
                         placeholder="••••••••"
                         placeholderTextColor="#94a3b8"
                         value={password}
@@ -235,24 +236,24 @@ function LoginScreen() {
             </View>
 
             <TouchableOpacity className="mt-6 items-center" onPress={() => setIsSigningUp(true)}>
-                <Text className="text-secondary dark:text-slate-400">
+                <Text className="text-muted dark:text-slate-400">
                     Don't have an account? <Text className="text-primary font-bold">Sign Up</Text>
                 </Text>
             </TouchableOpacity>
 
             <View className="flex-row items-center mt-8 mb-4">
-                <View className="flex-1 h-px bg-secondary/30 dark:bg-slate-700" />
-                <Text className="mx-4 text-secondary/60 dark:text-slate-500 text-sm">or</Text>
-                <View className="flex-1 h-px bg-secondary/30 dark:bg-slate-700" />
+                <View className="flex-1 h-px bg-secondary/30 dark:bg-surface-soft-dark" />
+                <Text className="mx-4 text-muted/60 dark:text-slate-500 text-sm">or</Text>
+                <View className="flex-1 h-px bg-secondary/30 dark:bg-surface-soft-dark" />
             </View>
 
             <TouchableOpacity
                 onPress={handleGoogleSignIn}
                 disabled={googleLoading || isLoading}
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 p-4 rounded-2xl items-center flex-row justify-center mb-3 shadow-sm"
+                className="bg-white dark:bg-surface-dark border border-line dark:border-line-dark p-4 rounded-2xl items-center flex-row justify-center mb-3 shadow-sm"
             >
                 {googleLoading ? (
-                    <ActivityIndicator color="#E98074" />
+                    <ActivityIndicator color="#fb7185" />
                 ) : (
                     <>
                         <View className="mr-3">
@@ -285,7 +286,7 @@ function LoginScreen() {
             >
                 <Text className="text-primary font-bold text-lg">Continue as Guest</Text>
             </TouchableOpacity>
-            <Text className="text-secondary/60 dark:text-slate-500 text-xs text-center mt-2">
+            <Text className="text-muted/60 dark:text-slate-500 text-xs text-center mt-2">
                 Browse the app. Sign in to create households and track expenses.
             </Text>
             </View>

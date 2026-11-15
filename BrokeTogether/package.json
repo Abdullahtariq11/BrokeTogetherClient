@@ -26,6 +26,7 @@
     "expo-clipboard": "~8.0.8",
     "expo-crypto": "~15.0.8",
     "expo-dev-client": "~6.0.21",
+    "expo-image-picker": "~17.0.11",
     "expo-linking": "~8.0.12",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
@@ -47,7 +48,9 @@
   "private": true,
   "expo": {
     "autolinking": {
-      "exclude": ["@expo/dom-webview"]
+      "exclude": [
+        "@expo/dom-webview"
+      ]
     }
   },
   "devDependencies": {

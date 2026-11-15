@@ -84,6 +84,16 @@ const expenseService = {
         return response.data;
     },
 
+    // Scans a receipt image and returns { amount, note } (premium only, 10/day)
+    scanReceipt: async (imageUri, mimeType = 'image/jpeg') => {
+        const formData = new FormData();
+        formData.append('file', { uri: imageUri, name: 'receipt.jpg', type: mimeType });
+        const response = await client.post('/expenses/scan-receipt', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return response.data;
+    },
+
     // Returns a Blob for file download (premium only).
     exportReport: async (homeId, format) => {
         const response = await client.get(`/expenses/home/${homeId}/export?format=${format}`, {

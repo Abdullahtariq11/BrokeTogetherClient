@@ -2,9 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, Modal,
   Alert, KeyboardAvoidingView, Platform, ScrollView,
-  ActivityIndicator,
+  ActivityIndicator, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../../context/AuthContext';
 import expenseService from '../../api/expenseService';
 import homeService from '../../api/homeService';
@@ -44,6 +45,9 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
 
   const [payerFixed, setPayerFixed]       = useState('');
   const [customAmounts, setCustomAmounts] = useState({});
+
+  const [receiptUri, setReceiptUri] = useState(null);
+  const [scanning, setScanning]     = useState(false);
 
   const otherMembers = allMembers.filter(m =>
     String(m.id) !== String(userInfo?.id) && m.name?.toLowerCase().trim() !== userInfo?.name?.toLowerCase().trim()
@@ -142,9 +146,52 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
     }
   };
 
+  const handleScanReceipt = () => {
+    Alert.alert('Add receipt photo', 'Choose a source', [
+      {
+        text: 'Take Photo', onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') { Alert.alert('Permission needed', 'Allow camera access to take a receipt photo.'); return; }
+          const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+          if (!result.canceled && result.assets?.length) await processReceipt(result.assets[0]);
+        }
+      },
+      {
+        text: 'Choose from Library', onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') { Alert.alert('Permission needed', 'Allow photo access to scan receipts.'); return; }
+          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+          if (!result.canceled && result.assets?.length) await processReceipt(result.assets[0]);
+        }
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
+  const processReceipt = async (asset) => {
+    setReceiptUri(asset.uri);
+    setScanning(true);
+    try {
+      const { amount: scannedAmount, note } = await expenseService.scanReceipt(asset.uri, asset.mimeType || 'image/jpeg');
+      if (scannedAmount != null) {
+        setAmount(String(scannedAmount));
+        if (!description && note) setDescription(note);
+        Alert.alert('Receipt scanned', `Amount: $${scannedAmount}\n${note}`);
+      } else {
+        Alert.alert('Could not parse receipt', note || 'Please enter amount manually.');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Receipt scan failed.';
+      Alert.alert('Scan failed', msg);
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const resetForm = () => {
     setAmount(''); setDescription(''); setCategory('General'); setIsCustomCategory(false);
     setSplitType('EQUAL'); setSelectedUserIds([]); setPayerFixed(''); setCustomAmounts({});
+    setReceiptUri(null);
   };
 
   const handleClose = () => { resetForm(); onClose(); };
@@ -156,14 +203,14 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
     return (
       <TouchableOpacity key={member.id} onPress={() => toggleMember(member.id)} className="mb-2">
         <View className={`flex-row items-center p-4 rounded-2xl border ${
-          isSelected ? 'bg-primary/5 dark:bg-primary/10 border-primary/20' : 'bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-600'
+          isSelected ? 'bg-primary/5 dark:bg-primary/10 border-primary/20' : 'bg-white dark:bg-surface-soft-dark border-line dark:border-line-dark'
         }`}>
           <Ionicons
             name={isSelected ? 'checkbox' : 'square-outline'}
-            size={22} color={isSelected ? '#E98074' : '#cbd5e1'}
+            size={22} color={isSelected ? '#fb7185' : '#cbd5e1'}
           />
           <View className="ml-3 flex-1">
-            <Text className={`text-sm font-semibold ${isSelected ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'}`}>
+            <Text className={`text-sm font-semibold ${isSelected ? 'text-ink dark:text-ink-dark' : 'text-slate-400 dark:text-slate-500'}`}>
               {member.name}
             </Text>
           </View>
@@ -181,7 +228,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
               value={customAmounts[member.id] || ''}
               onChangeText={(v) => setCustomAmounts(p => ({ ...p, [member.id]: sanitizeAmountInput(v) }))}
               onStartShouldSetResponder={() => true}
-              className="w-20 px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+              className="w-20 px-2 py-1 rounded-xl border border-line dark:border-line-dark bg-white dark:bg-surface-soft-dark text-primary font-bold text-sm text-right"
             />
           ) : null}
         </View>
@@ -195,11 +242,11 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1 justify-end bg-black/60"
       >
-        <View className="bg-white dark:bg-slate-800 p-6 rounded-t-[40px] shadow-2xl max-h-[92%]">
-          <View className="w-12 h-1 bg-slate-200 dark:bg-slate-600 self-center rounded-full mb-6" />
+        <View className="bg-white dark:bg-surface-dark p-6 rounded-t-[40px] shadow-2xl max-h-[92%]">
+          <View className="w-12 h-1 bg-canvas dark:bg-slate-600 self-center rounded-full mb-6" />
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            <Text className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
+            <Text className="text-2xl font-bold text-ink dark:text-ink-dark mb-6 text-center">
               New Expense
             </Text>
 
@@ -208,7 +255,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             <TextInput
               placeholder="0.00" placeholderTextColor="#94a3b8"
               keyboardType="decimal-pad"
-              className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-2xl font-black text-primary mb-4"
+              className="bg-slate-50 dark:bg-surface-soft-dark border border-line dark:border-line-dark p-4 rounded-2xl text-2xl font-black text-primary mb-4"
               value={amount} onChangeText={(v) => setAmount(sanitizeAmountInput(v))}
             />
 
@@ -216,9 +263,40 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
             <Text className="text-slate-500 dark:text-slate-400 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">What was it for?</Text>
             <TextInput
               placeholder="e.g. Weekly Groceries" placeholderTextColor="#94a3b8"
-              className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-base text-slate-700 dark:text-slate-100 font-medium mb-6"
+              className="bg-slate-50 dark:bg-surface-soft-dark border border-line dark:border-line-dark p-4 rounded-2xl text-base text-slate-700 dark:text-ink-dark font-medium mb-6"
               value={description} onChangeText={setDescription}
             />
+
+            {/* Receipt Scan */}
+            <Text className="text-slate-500 dark:text-slate-400 mb-2 ml-1 font-semibold uppercase text-[10px] tracking-widest">Photo of receipt</Text>
+            <TouchableOpacity onPress={handleScanReceipt} disabled={scanning} className="mb-6">
+              <View className={`flex-row items-center p-4 rounded-2xl border ${
+                receiptUri
+                  ? 'bg-positive/5 dark:bg-positive/10 border-positive/20'
+                  : 'bg-surface-soft dark:bg-surface-soft-dark border-line dark:border-line-dark border-dashed'
+              }`}>
+                {scanning ? (
+                  <ActivityIndicator color="#fb7185" size="small" />
+                ) : receiptUri ? (
+                  <Image source={{ uri: receiptUri }} className="w-10 h-10 rounded-xl mr-3" resizeMode="cover" />
+                ) : (
+                  <View className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-xl items-center justify-center mr-3">
+                    <Ionicons name="camera-outline" size={20} color="#fb7185" />
+                  </View>
+                )}
+                <View className="flex-1">
+                  <Text className={`font-semibold text-sm ${receiptUri ? 'text-positive dark:text-emerald-400' : 'text-ink dark:text-ink-dark'}`}>
+                    {scanning ? 'Scanning receipt…' : receiptUri ? 'Receipt scanned' : 'Add receipt photo'}
+                  </Text>
+                  <Text className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    {receiptUri ? 'Tap to replace' : 'Premium · auto-fills amount · camera or library'}
+                  </Text>
+                </View>
+                {!scanning && (
+                  <Ionicons name={receiptUri ? 'checkmark-circle' : 'chevron-forward'} size={18} color={receiptUri ? '#047857' : '#94a3b8'} />
+                )}
+              </View>
+            </TouchableOpacity>
 
             {/* Category */}
             <View className="flex-row items-center justify-between mb-3 ml-1 mr-1">
@@ -229,9 +307,9 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 setCategory(next ? '' : 'General');
               }}>
                 <View className={`px-3 py-1 rounded-full border flex-row items-center ${
-                  isCustomCategory ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                  isCustomCategory ? 'bg-primary border-primary' : 'bg-white dark:bg-surface-soft-dark border-line dark:border-line-dark'
                 }`}>
-                  <Ionicons name="add" size={12} color={isCustomCategory ? '#ffffff' : '#E98074'} />
+                  <Ionicons name="add" size={12} color={isCustomCategory ? '#ffffff' : '#fb7185'} />
                   <Text className={`font-bold text-[11px] ml-1 ${isCustomCategory ? 'text-white' : 'text-primary'}`}>Custom</Text>
                 </View>
               </TouchableOpacity>
@@ -241,7 +319,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 placeholder="Enter category name" placeholderTextColor="#94a3b8"
                 maxLength={30}
                 autoFocus
-                className="bg-slate-50 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 p-4 rounded-2xl text-base text-slate-700 dark:text-slate-100 font-medium mb-6"
+                className="bg-slate-50 dark:bg-surface-soft-dark border border-line dark:border-line-dark p-4 rounded-2xl text-base text-slate-700 dark:text-ink-dark font-medium mb-6"
                 value={category} onChangeText={setCategory}
               />
             ) : (
@@ -249,7 +327,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 {CATEGORIES.map(cat => (
                   <TouchableOpacity key={cat} onPress={() => setCategory(cat)}>
                     <View className={`px-5 py-2 rounded-full border ${
-                      category === cat ? 'bg-primary border-primary' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                      category === cat ? 'bg-primary border-primary' : 'bg-white dark:bg-surface-soft-dark border-line dark:border-line-dark'
                     }`}>
                       <Text className={`font-bold text-sm ${category === cat ? 'text-white' : 'text-slate-500 dark:text-slate-300'}`}>{cat}</Text>
                     </View>
@@ -269,7 +347,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                   <View className={`p-3 rounded-2xl border ${
                     splitType === st.value
                       ? 'bg-primary/10 dark:bg-primary/20 border-primary/40'
-                      : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+                      : 'bg-white dark:bg-surface-soft-dark border-line dark:border-line-dark'
                   }`}>
                     <Text className={`text-sm font-bold ${splitType === st.value ? 'text-primary' : 'text-slate-700 dark:text-slate-200'}`}>
                       {st.label}
@@ -287,7 +365,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 <Text className="text-primary font-bold">{userInfo?.name?.charAt(0).toUpperCase() || '?'}</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-slate-800 dark:text-slate-100 font-bold">{userInfo?.name} (You)</Text>
+                <Text className="text-ink dark:text-ink-dark font-bold">{userInfo?.name} (You)</Text>
                 <Text className="text-[10px] text-primary font-bold uppercase tracking-wide">Payer · auto included</Text>
               </View>
               {splitType === 'EQUAL' && amount ? (
@@ -298,7 +376,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 <TextInput
                   keyboardType="decimal-pad" placeholder="Your share" placeholderTextColor="#94a3b8"
                   value={payerFixed} onChangeText={(v) => setPayerFixed(sanitizeAmountInput(v))}
-                  className="w-28 px-3 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+                  className="w-28 px-3 py-1.5 rounded-xl border border-primary/30 bg-white dark:bg-surface-soft-dark text-primary font-bold text-sm text-right"
                 />
               ) : null}
               {/* CUSTOM payer row input */}
@@ -307,14 +385,14 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                   keyboardType="decimal-pad" placeholder="0.00" placeholderTextColor="#94a3b8"
                   value={customAmounts[userInfo?.id] || ''}
                   onChangeText={(v) => setCustomAmounts(p => ({ ...p, [userInfo?.id]: sanitizeAmountInput(v) }))}
-                  className="w-20 px-2 py-1 rounded-xl border border-primary/30 bg-white dark:bg-slate-700 text-primary font-bold text-sm text-right"
+                  className="w-20 px-2 py-1 rounded-xl border border-primary/30 bg-white dark:bg-surface-soft-dark text-primary font-bold text-sm text-right"
                 />
               ) : null}
             </View>
 
             {/* PERSONAL notice */}
             {splitType === 'PERSONAL' && (
-              <View className="bg-slate-50 dark:bg-slate-700 rounded-2xl p-4 mb-4">
+              <View className="bg-slate-50 dark:bg-surface-soft-dark rounded-2xl p-4 mb-4">
                 <Text className="text-slate-400 dark:text-slate-500 text-sm text-center">
                   This expense will only be recorded for you — no one else will owe anything.
                 </Text>
@@ -323,7 +401,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
 
             {/* FIXED: remainder preview */}
             {splitType === 'FIXED' && payerFixed && participantIds.length > 0 && (
-              <View className="bg-slate-50 dark:bg-slate-700 rounded-2xl p-3 mb-4">
+              <View className="bg-slate-50 dark:bg-surface-soft-dark rounded-2xl p-3 mb-4">
                 <Text className="text-slate-400 dark:text-slate-500 text-xs text-center">
                   Remainder ${fixedRemainder.toFixed(2)} ÷ {participantIds.length} = <Text className="text-primary font-bold">${fixedOtherShare.toFixed(2)} each</Text>
                 </Text>
@@ -338,9 +416,9 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
                 </Text>
                 <View className="mb-6">
                   {fetchingMembers ? (
-                    <ActivityIndicator color="#E98074" />
+                    <ActivityIndicator color="#fb7185" />
                   ) : otherMembers.length === 0 ? (
-                    <View className="bg-slate-50 dark:bg-slate-700 p-6 rounded-2xl items-center">
+                    <View className="bg-slate-50 dark:bg-surface-soft-dark p-6 rounded-2xl items-center">
                       <Text className="text-slate-400 dark:text-slate-500 text-center">No other roommates yet</Text>
                     </View>
                   ) : (
@@ -365,7 +443,7 @@ export default function AddExpenseModal({ visible, onClose, homeId, onRefresh })
 
             {/* EQUAL summary */}
             {splitType === 'EQUAL' && amount && participantIds.length > 0 ? (
-              <View className="bg-slate-50 dark:bg-slate-700 rounded-2xl p-4 mb-6">
+              <View className="bg-slate-50 dark:bg-surface-soft-dark rounded-2xl p-4 mb-6">
                 <Text className="text-slate-500 dark:text-slate-400 text-sm text-center">
                   Split <Text className="font-bold text-slate-700 dark:text-slate-200">${totalAmt.toFixed(2)}</Text> between{' '}
                   <Text className="font-bold text-slate-700 dark:text-slate-200">{totalPeople} people</Text>{' '}={' '}
